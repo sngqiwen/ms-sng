@@ -22,6 +22,9 @@
   --panelW: min(1200px, 96vw);
   --btnH: 74px;
   --btnPadX: 28px;
+
+  /* Reserve space for sticky controls so inputs never hide behind it */
+  --controlsPad: 150px;
 }
 
 *{ box-sizing:border-box; }
@@ -58,7 +61,7 @@ h1{
 }
 
 .main{
-  padding:26px 26px 120px; /* extra bottom space for sticky controls */
+  padding:26px 26px var(--controlsPad);
   display:grid;
   gap:22px;
 }
@@ -102,6 +105,8 @@ h1{
   gap:14px;
   align-items:center;
   flex-wrap:wrap;
+  /* Extra buffer so this row never tucks under sticky controls on small viewports */
+  scroll-margin-bottom: var(--controlsPad);
 }
 
 input{
@@ -188,11 +193,12 @@ button:disabled{
   color:#991b1b;
 }
 
-/* Nice on big screens */
+/* Nice on smaller screens too */
 @media (max-width: 700px){
+  :root{ --controlsPad: 190px; } /* more room because buttons may wrap */
   .word{ font-size:64px; }
   h1{ font-size:26px; }
-  button{ width:100%; justify-content:center; }
+  button{ width:100%; }
 }
 </style>
 </head>
@@ -228,8 +234,7 @@ button:disabled{
         <button id="btnWrite" disabled>Write</button>
         <button id="btnCheck" class="primary" disabled>Check</button>
         <button id="btnNext" class="next">Next word</button>
-        <button id="btnPrev">Previous word</button>
-        <button id="btnReset" class="danger">Reset word</button>
+        <button id="btnReset" class="danger">Reset</button>
       </div>
     </div>
 
@@ -356,12 +361,6 @@ btnCheck.onclick=()=>{
 
 document.getElementById("btnNext").onclick=()=>{
   idx=(idx+1)%words.length;
-  update();
-  resetStages();
-};
-
-document.getElementById("btnPrev").onclick=()=>{
-  idx=(idx-1+words.length)%words.length;
   update();
   resetStages();
 };
