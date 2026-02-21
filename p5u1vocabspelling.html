@@ -131,7 +131,7 @@ input:focus{
   box-shadow:0 0 0 6px rgba(147,197,253,.35);
 }
 
-.hidden{ display:none; }
+.hidden{ display:none !important; }
 
 .tag{
   font-size:20px;
@@ -191,7 +191,43 @@ button:disabled{
 .next{ background:var(--next); border-color:var(--next); color:#fff; }
 .danger{ background:#fff1f2; border-color:#fecaca; color:#991b1b; }
 
-/* Mobile-friendly: tighter spacing + responsive sizing + full-width buttons when needed */
+/* Congrats page */
+.congratsWrap{
+  display:grid;
+  gap:18px;
+  padding:var(--pad);
+  text-align:center;
+}
+.congratsTitle{
+  font-size:44px;
+  font-weight:1000;
+  letter-spacing:.2px;
+}
+.congratsSub{
+  font-size:20px;
+  color:var(--muted);
+}
+.wordsGrid{
+  width:min(900px, 100%);
+  margin: 0 auto;
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:14px 24px;
+  font-size:28px;
+  font-weight:900;
+  padding:12px 0;
+}
+.wordCell{
+  padding:4px 0;
+}
+.playAgainRow{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+/* Mobile-friendly */
 @media (max-width: 900px){
   :root{
     --panelW: min(980px, 96vw);
@@ -206,6 +242,8 @@ button:disabled{
   .wordBox{ padding:40px 16px; min-height:180px; }
   button{ font-size:18px; }
   .tag{ font-size:16px; padding:8px 12px; }
+  .congratsTitle{ font-size:34px; }
+  .wordsGrid{ font-size:22px; gap:10px 16px; }
 }
 
 @media (max-width: 520px){
@@ -223,6 +261,7 @@ button:disabled{
   button{ width:100%; }
   input{ width:100%; flex:1 1 100%; }
   .writeRow{ gap:10px; }
+  .wordsGrid{ grid-template-columns: 1fr; font-size:20px; }
 }
 </style>
 </head>
@@ -233,7 +272,8 @@ button:disabled{
     <h1>P5U1 Vocabulary-Spelling</h1>
   </header>
 
-  <div class="main" id="main">
+  <!-- GAME PAGE -->
+  <div class="main" id="gamePage">
     <div class="topRow">
       <div id="progress">Word 1 of 15</div>
       <div id="score">0/15 correct</div>
@@ -261,6 +301,20 @@ button:disabled{
       </div>
     </div>
   </div>
+
+  <!-- CONGRATS PAGE -->
+  <div class="congratsWrap hidden" id="congratsPage">
+    <div class="congratsTitle">🎉 Congratulations! 🎉</div>
+    <div class="congratsSub">You got <span id="finalScore">15/15</span> correct!</div>
+
+    <!-- Borderless 3 columns × 5 rows "table" -->
+    <div class="wordsGrid" id="wordsGrid"></div>
+
+    <div class="playAgainRow">
+      <button id="btnPlayAgain" class="primary">Play Again</button>
+    </div>
+  </div>
+
 </section>
 
 <script>
@@ -273,9 +327,17 @@ let idx=0;
 let stage=0; // 0=Look,1=Say,2=Cover,3=Write,4=Check
 
 const stats=new Map();
-words.forEach(w=>stats.set(w,{attempts:0,correct:false}));
+function initStats(){
+  stats.clear();
+  words.forEach(w=>stats.set(w,{attempts:0,correct:false}));
+}
+initStats();
 
-const main=document.getElementById("main");
+const gamePage=document.getElementById("gamePage");
+const congratsPage=document.getElementById("congratsPage");
+const finalScore=document.getElementById("finalScore");
+const wordsGrid=document.getElementById("wordsGrid");
+
 const controls=document.getElementById("controls");
 const writeRow=document.getElementById("writeRow");
 
@@ -311,11 +373,16 @@ function speak(word){
   }
 }
 
+function getCorrectCount(){
+  let c=0;
+  words.forEach(w=>{ if(stats.get(w)?.correct) c++; });
+  return c;
+}
+
 function update(){
   targetWord.textContent=words[idx];
   progress.textContent=`Word ${idx+1} of ${words.length}`;
-  let correct=0;
-  words.forEach(w=>{ if(stats.get(w).correct) correct++; });
+  const correct=getCorrectCount();
   score.textContent=`${correct}/${words.length} correct`;
 }
 
@@ -334,16 +401,14 @@ function resetStages(){
   targetWord.classList.add("covered");
 }
 
-/* 1) Bulletproof bottom padding by auto-detecting sticky controls height */
+/* Bulletproof bottom padding by auto-detecting sticky controls height */
 function setControlsPad(){
-  // controls might wrap on mobile → height changes
   const h = Math.ceil(controls.getBoundingClientRect().height);
-  const extra = 24; // breathing space
+  const extra = 24;
   document.documentElement.style.setProperty("--controlsPad", (h + extra) + "px");
 }
 setControlsPad();
 
-// Observe size changes (wrap, orientation changes, zoom, etc.)
 if ("ResizeObserver" in window){
   const ro = new ResizeObserver(()=>setControlsPad());
   ro.observe(controls);
@@ -352,9 +417,32 @@ if ("ResizeObserver" in window){
 window.addEventListener("resize", setControlsPad, {passive:true});
 window.addEventListener("orientationchange", ()=>setTimeout(setControlsPad, 250), {passive:true});
 
-/* Helper: ensure writeRow/input is visible above the sticky bar (esp. on mobile keyboard) */
 function ensureWriteVisible(){
   writeRow.scrollIntoView({behavior:"smooth", block:"end"});
+}
+
+function showCongrats(){
+  const correct=getCorrectCount();
+  finalScore.textContent = `${correct}/${words.length}`;
+
+  // Build 3 columns × 5 rows borderless grid (same effect as a borderless table)
+  wordsGrid.innerHTML = "";
+  words.forEach(w=>{
+    const cell=document.createElement("div");
+    cell.className="wordCell";
+    cell.textContent=w;
+    wordsGrid.appendChild(cell);
+  });
+
+  gamePage.classList.add("hidden");
+  congratsPage.classList.remove("hidden");
+  congratsPage.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function maybeFinish(){
+  if(getCorrectCount() === words.length){
+    showCongrats();
+  }
 }
 
 /* Stage buttons */
@@ -384,7 +472,6 @@ btnWrite.onclick=()=>{
   inputBox.classList.remove("hidden");
   btnCheck.disabled=false;
   stage=4;
-  // mobile-friendly: scroll input into view and focus after layout settles
   setTimeout(()=>{
     ensureWriteVisible();
     inputBox.focus({preventScroll:true});
@@ -409,17 +496,17 @@ btnCheck.onclick=()=>{
     resultTag.className="tag bad";
     resultTag.textContent="Try again";
     soundWrong();
-    // keep focus for faster retries on mobile/desktop
     setTimeout(()=>inputBox.focus({preventScroll:true}), 30);
   }
+
   update();
+  maybeFinish();
 };
 
 document.getElementById("btnNext").onclick=()=>{
   idx=(idx+1)%words.length;
   update();
   resetStages();
-  // keep the main content comfortably visible
   setTimeout(()=>targetWord.scrollIntoView({behavior:"smooth", block:"center"}), 80);
 };
 
@@ -433,8 +520,22 @@ inputBox.addEventListener("keydown",e=>{
   if(e.key==="Enter") btnCheck.click();
 });
 
-// Mobile-friendly: when focusing input, ensure it's not hidden by on-screen keyboard / sticky bar
 inputBox.addEventListener("focus", ()=>setTimeout(()=>ensureWriteVisible(), 120), {passive:true});
+
+/* Play Again */
+document.getElementById("btnPlayAgain").onclick=()=>{
+  // Reset everything
+  idx=0;
+  stage=0;
+  initStats();
+
+  congratsPage.classList.add("hidden");
+  gamePage.classList.remove("hidden");
+
+  update();
+  resetStages();
+  setTimeout(()=>targetWord.scrollIntoView({behavior:"smooth", block:"center"}), 80);
+};
 
 update();
 resetStages();
