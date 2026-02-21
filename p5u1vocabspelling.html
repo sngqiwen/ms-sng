@@ -18,13 +18,20 @@
   --radius:22px;
   --sans: ui-sans-serif, system-ui;
 
-  /* Projector sizing */
+  /* Layout sizing */
   --panelW: min(1200px, 96vw);
   --btnH: 74px;
   --btnPadX: 28px;
 
-  /* Reserve space for sticky controls so inputs never hide behind it */
-  --controlsPad: 150px;
+  /* Fallback (JS will override) */
+  --controlsPad: 160px;
+
+  /* Mobile scaling */
+  --titleSize: 34px;
+  --metaSize: 20px;
+  --wordSize: 92px;
+  --inputSize: 28px;
+  --pad: 26px;
 }
 
 *{ box-sizing:border-box; }
@@ -36,7 +43,7 @@ body{
   color:var(--ink);
   display:flex;
   justify-content:center;
-  padding:22px;
+  padding:18px;
 }
 
 .panel{
@@ -56,12 +63,12 @@ header{
 
 h1{
   margin:0;
-  font-size:34px;
+  font-size:var(--titleSize);
   letter-spacing:.2px;
 }
 
 .main{
-  padding:26px 26px var(--controlsPad);
+  padding:var(--pad) var(--pad) calc(var(--controlsPad) + 18px);
   display:grid;
   gap:22px;
 }
@@ -70,8 +77,9 @@ h1{
   display:flex;
   justify-content:space-between;
   gap:18px;
-  font-size:20px;
+  font-size:var(--metaSize);
   color:var(--muted);
+  flex-wrap:wrap;
 }
 
 .wordBox{
@@ -87,10 +95,11 @@ h1{
 }
 
 .word{
-  font-size:92px;
+  font-size:var(--wordSize);
   font-weight:900;
   letter-spacing:1px;
   line-height:1.05;
+  word-break:break-word;
 }
 
 .covered{
@@ -105,16 +114,16 @@ h1{
   gap:14px;
   align-items:center;
   flex-wrap:wrap;
-  /* Extra buffer so this row never tucks under sticky controls on small viewports */
-  scroll-margin-bottom: var(--controlsPad);
+  scroll-margin-bottom: calc(var(--controlsPad) + 24px);
 }
 
 input{
   flex:1 1 520px;
+  min-width: 240px;
   padding:18px 20px;
   border-radius:18px;
   border:3px solid var(--line);
-  font-size:28px;
+  font-size:var(--inputSize);
   outline:none;
 }
 input:focus{
@@ -135,7 +144,7 @@ input:focus{
 .tag.good{ background:#f0fdf4; color:#14532d; border-color:#86efac; }
 .tag.bad{  background:#fff1f2; color:#7f1d1d; border-color:#fda4af; }
 
-/* Sticky controls bar (projector-friendly) */
+/* Sticky controls bar */
 .controls{
   position:sticky;
   bottom:0;
@@ -164,41 +173,56 @@ button{
   letter-spacing:.2px;
   box-shadow:0 4px 0 rgba(0,0,0,.06);
   transform: translateY(0);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 button:hover{ background:#f9fafb; }
 button:active{
   transform: translateY(2px);
   box-shadow:0 2px 0 rgba(0,0,0,.06);
 }
-
 button:disabled{
   opacity:.35;
   cursor:not-allowed;
   box-shadow:none;
 }
 
-.primary{
-  background:var(--accent);
-  border-color:var(--accent);
-  color:#fff;
-}
-.next{
-  background:var(--next);
-  border-color:var(--next);
-  color:#fff;
-}
-.danger{
-  background:#fff1f2;
-  border-color:#fecaca;
-  color:#991b1b;
+.primary{ background:var(--accent); border-color:var(--accent); color:#fff; }
+.next{ background:var(--next); border-color:var(--next); color:#fff; }
+.danger{ background:#fff1f2; border-color:#fecaca; color:#991b1b; }
+
+/* Mobile-friendly: tighter spacing + responsive sizing + full-width buttons when needed */
+@media (max-width: 900px){
+  :root{
+    --panelW: min(980px, 96vw);
+    --titleSize: 28px;
+    --metaSize: 18px;
+    --wordSize: 72px;
+    --inputSize: 22px;
+    --btnH: 64px;
+    --btnPadX: 18px;
+    --pad: 18px;
+  }
+  .wordBox{ padding:40px 16px; min-height:180px; }
+  button{ font-size:18px; }
+  .tag{ font-size:16px; padding:8px 12px; }
 }
 
-/* Nice on smaller screens too */
-@media (max-width: 700px){
-  :root{ --controlsPad: 190px; } /* more room because buttons may wrap */
-  .word{ font-size:64px; }
-  h1{ font-size:26px; }
+@media (max-width: 520px){
+  :root{
+    --titleSize: 22px;
+    --metaSize: 16px;
+    --wordSize: 54px;
+    --inputSize: 20px;
+    --btnH: 56px;
+    --pad: 14px;
+  }
+  header{ padding:14px 14px; }
+  .main{ gap:16px; }
+  .btnRow{ gap:10px; }
   button{ width:100%; }
+  input{ width:100%; flex:1 1 100%; }
+  .writeRow{ gap:10px; }
 }
 </style>
 </head>
@@ -209,8 +233,7 @@ button:disabled{
     <h1>P5U1 Vocabulary-Spelling</h1>
   </header>
 
-  <div class="main">
-
+  <div class="main" id="main">
     <div class="topRow">
       <div id="progress">Word 1 of 15</div>
       <div id="score">0/15 correct</div>
@@ -220,13 +243,13 @@ button:disabled{
       <div class="word covered" id="targetWord"></div>
     </div>
 
-    <div class="writeRow">
+    <div class="writeRow" id="writeRow">
       <input id="inputBox" class="hidden" placeholder="Type..." autocomplete="off" spellcheck="false" />
       <span id="resultTag" class="hidden"></span>
     </div>
 
     <!-- Sticky projector control bar -->
-    <div class="controls">
+    <div class="controls" id="controls">
       <div class="btnRow">
         <button id="btnLook">Look</button>
         <button id="btnSay" disabled>Say</button>
@@ -237,7 +260,6 @@ button:disabled{
         <button id="btnReset" class="danger">Reset Word</button>
       </div>
     </div>
-
   </div>
 </section>
 
@@ -252,6 +274,10 @@ let stage=0; // 0=Look,1=Say,2=Cover,3=Write,4=Check
 
 const stats=new Map();
 words.forEach(w=>stats.set(w,{attempts:0,correct:false}));
+
+const main=document.getElementById("main");
+const controls=document.getElementById("controls");
+const writeRow=document.getElementById("writeRow");
 
 const targetWord=document.getElementById("targetWord");
 const inputBox=document.getElementById("inputBox");
@@ -308,6 +334,30 @@ function resetStages(){
   targetWord.classList.add("covered");
 }
 
+/* 1) Bulletproof bottom padding by auto-detecting sticky controls height */
+function setControlsPad(){
+  // controls might wrap on mobile → height changes
+  const h = Math.ceil(controls.getBoundingClientRect().height);
+  const extra = 24; // breathing space
+  document.documentElement.style.setProperty("--controlsPad", (h + extra) + "px");
+}
+setControlsPad();
+
+// Observe size changes (wrap, orientation changes, zoom, etc.)
+if ("ResizeObserver" in window){
+  const ro = new ResizeObserver(()=>setControlsPad());
+  ro.observe(controls);
+  ro.observe(document.body);
+}
+window.addEventListener("resize", setControlsPad, {passive:true});
+window.addEventListener("orientationchange", ()=>setTimeout(setControlsPad, 250), {passive:true});
+
+/* Helper: ensure writeRow/input is visible above the sticky bar (esp. on mobile keyboard) */
+function ensureWriteVisible(){
+  writeRow.scrollIntoView({behavior:"smooth", block:"end"});
+}
+
+/* Stage buttons */
 btnLook.onclick=()=>{
   if(stage!==0) return;
   targetWord.classList.remove("covered");
@@ -332,9 +382,13 @@ btnCover.onclick=()=>{
 btnWrite.onclick=()=>{
   if(stage!==3) return;
   inputBox.classList.remove("hidden");
-  inputBox.focus();
   btnCheck.disabled=false;
   stage=4;
+  // mobile-friendly: scroll input into view and focus after layout settles
+  setTimeout(()=>{
+    ensureWriteVisible();
+    inputBox.focus({preventScroll:true});
+  }, 60);
 };
 
 btnCheck.onclick=()=>{
@@ -355,6 +409,8 @@ btnCheck.onclick=()=>{
     resultTag.className="tag bad";
     resultTag.textContent="Try again";
     soundWrong();
+    // keep focus for faster retries on mobile/desktop
+    setTimeout(()=>inputBox.focus({preventScroll:true}), 30);
   }
   update();
 };
@@ -363,6 +419,8 @@ document.getElementById("btnNext").onclick=()=>{
   idx=(idx+1)%words.length;
   update();
   resetStages();
+  // keep the main content comfortably visible
+  setTimeout(()=>targetWord.scrollIntoView({behavior:"smooth", block:"center"}), 80);
 };
 
 document.getElementById("btnReset").onclick=()=>{
@@ -374,6 +432,9 @@ document.getElementById("btnReset").onclick=()=>{
 inputBox.addEventListener("keydown",e=>{
   if(e.key==="Enter") btnCheck.click();
 });
+
+// Mobile-friendly: when focusing input, ensure it's not hidden by on-screen keyboard / sticky bar
+inputBox.addEventListener("focus", ()=>setTimeout(()=>ensureWriteVisible(), 120), {passive:true});
 
 update();
 resetStages();
