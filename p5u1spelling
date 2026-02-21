@@ -1,0 +1,854 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Look–Say–Cover–Write–Check | Spelling Practice</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#0f1a33;
+      --card2:#0c1630;
+      --ink:#eaf0ff;
+      --muted:#b8c4e6;
+      --line:#233256;
+      --accent:#7aa7ff;
+      --good:#28d17c;
+      --bad:#ff5b6a;
+      --warn:#ffd45a;
+      --shadow: 0 18px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: var(--sans);
+      background: radial-gradient(1200px 700px at 20% 10%, #162a57 0%, rgba(22,42,87,0) 60%),
+                  radial-gradient(1000px 700px at 80% 30%, #3a2b77 0%, rgba(58,43,119,0) 55%),
+                  linear-gradient(180deg, var(--bg), #070b14 70%);
+      color: var(--ink);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+    }
+    .app{
+      width: min(1050px, 100%);
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 16px;
+    }
+    @media (max-width: 920px){
+      .app{ grid-template-columns: 1fr; }
+    }
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    header{
+      padding: 18px 18px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0));
+    }
+    h1{
+      margin:0;
+      font-size: 18px;
+      letter-spacing:.2px;
+    }
+    .sub{
+      margin:6px 0 0;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .main{
+      padding: 18px;
+      display:grid;
+      gap: 14px;
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.10);
+      color: var(--muted);
+      font-size: 12px;
+      user-select:none;
+    }
+
+    .wordCard{
+      padding: 16px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(122,167,255,.13), rgba(255,255,255,.03));
+      border: 1px solid rgba(122,167,255,.22);
+    }
+    .wordLine{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+    .word{
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: .4px;
+      line-height: 1.05;
+      word-break: break-word;
+    }
+    .covered{
+      filter: blur(14px);
+      opacity: .35;
+      user-select:none;
+      pointer-events:none;
+    }
+    .hint{
+      margin-top: 10px;
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .hint code{
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.10);
+      color: var(--ink);
+    }
+
+    .inputWrap{
+      display:grid;
+      gap: 10px;
+    }
+    label{
+      font-size: 13px;
+      color: var(--muted);
+    }
+    input[type="text"]{
+      width: 100%;
+      padding: 14px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      color: var(--ink);
+      font-size: 18px;
+      outline: none;
+    }
+    input[type="text"]:focus{
+      border-color: rgba(122,167,255,.55);
+      box-shadow: 0 0 0 4px rgba(122,167,255,.18);
+    }
+
+    .btnRow{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    button{
+      border:0;
+      cursor:pointer;
+      border-radius: 14px;
+      padding: 11px 12px;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--ink);
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.12);
+      transition: transform .06s ease, background .15s ease, border-color .15s ease;
+      user-select:none;
+    }
+    button:hover{ background: rgba(255,255,255,.14); }
+    button:active{ transform: translateY(1px); }
+
+    .primary{
+      background: linear-gradient(180deg, rgba(122,167,255,.95), rgba(93,143,255,.92));
+      border-color: rgba(255,255,255,.15);
+      color:#07122b;
+    }
+    .primary:hover{ filter: brightness(1.02); }
+
+    .danger{
+      background: rgba(255,91,106,.12);
+      border-color: rgba(255,91,106,.35);
+    }
+
+    .ghost{
+      background: transparent;
+      border-color: rgba(255,255,255,.12);
+    }
+
+    .msg{
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+      min-height: 44px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .msg strong{ color: var(--ink); }
+    .tag{
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.12);
+      white-space:nowrap;
+    }
+    .tag.good{ border-color: rgba(40,209,124,.45); background: rgba(40,209,124,.12); color: #bff6da; }
+    .tag.bad{ border-color: rgba(255,91,106,.50); background: rgba(255,91,106,.12); color: #ffd0d6; }
+    .tag.warn{ border-color: rgba(255,212,90,.55); background: rgba(255,212,90,.12); color: #fff0c0; }
+
+    .side{
+      padding: 14px 14px 16px;
+      display:grid;
+      gap: 12px;
+    }
+    .list{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.12);
+      overflow:hidden;
+    }
+    .listHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 12px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .items{
+      max-height: 420px;
+      overflow:auto;
+    }
+    .item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      font-size: 14px;
+    }
+    .item:last-child{ border-bottom:0; }
+    .itemWord{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:50%;
+      background: rgba(255,255,255,.25);
+      border: 1px solid rgba(255,255,255,.18);
+      flex: 0 0 auto;
+    }
+    .dot.good{ background: rgba(40,209,124,.9); border-color: rgba(40,209,124,.8); }
+    .dot.bad{ background: rgba(255,91,106,.9); border-color: rgba(255,91,106,.8); }
+    .dot.neutral{ background: rgba(255,212,90,.85); border-color: rgba(255,212,90,.85); }
+
+    .small{
+      font-size: 12px;
+      color: var(--muted);
+      opacity:.95;
+    }
+    .kbd{
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.14);
+      color: var(--ink);
+    }
+
+    .footerRow{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      padding-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .toggle{
+      display:flex; align-items:center; gap:10px;
+    }
+    .switch{
+      width: 46px; height: 28px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.20);
+      position:relative;
+      cursor:pointer;
+      flex:0 0 auto;
+    }
+    .knob{
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.85);
+      position:absolute;
+      top: 2.5px; left: 3px;
+      transition: left .15s ease, background .15s ease;
+    }
+    .switch.on{
+      background: rgba(122,167,255,.25);
+      border-color: rgba(122,167,255,.50);
+    }
+    .switch.on .knob{
+      left: 21px;
+      background: rgba(122,167,255,.95);
+    }
+
+    .srOnly{
+      position:absolute;
+      width:1px;height:1px;
+      padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <!-- MAIN PANEL -->
+    <section class="panel" aria-label="Look Say Cover Write Check tool">
+      <header>
+        <h1>Look – Say – Cover – Write – Check</h1>
+        <p class="sub">
+          Use the buttons (or keyboard shortcuts) to practise spelling. The tool tracks your attempts for each word.
+        </p>
+      </header>
+
+      <div class="main">
+        <div class="row">
+          <div class="pill" title="Progress">
+            <span id="progressText">Word 1 of 15</span>
+            <span class="kbd" id="scoreText">0/15 correct</span>
+          </div>
+
+          <div class="pill" title="Shortcuts">
+            <span class="small">Shortcuts:</span>
+            <span class="kbd">L</span> Look
+            <span class="kbd">S</span> Say
+            <span class="kbd">C</span> Cover
+            <span class="kbd">W</span> Write (focus)
+            <span class="kbd">Enter</span> Check
+            <span class="kbd">N</span> Next
+          </div>
+        </div>
+
+        <div class="wordCard" role="group" aria-label="Current word card">
+          <div class="wordLine">
+            <div>
+              <div class="small" id="phaseTitle">LOOK</div>
+              <div class="word" id="targetWord">lunged</div>
+            </div>
+            <div class="pill" id="attemptPill" title="Attempts for this word">
+              Attempts: <span id="attemptCount">0</span>
+            </div>
+          </div>
+
+          <div class="hint" aria-label="Help and hints">
+            <span>Tip: In <strong>Cover</strong>, the word is hidden. Try to spell it from memory.</span>
+            <span class="tag warn" id="caseTag">Checking is case-insensitive</span>
+          </div>
+        </div>
+
+        <div class="inputWrap">
+          <label for="userInput">WRITE: Type the word here</label>
+          <input id="userInput" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="Type the spelling..." />
+          <div class="btnRow">
+            <button class="ghost" id="btnLook" type="button">👀 Look</button>
+            <button class="ghost" id="btnSay" type="button">🗣️ Say</button>
+            <button class="ghost" id="btnCover" type="button">🙈 Cover</button>
+            <button class="ghost" id="btnWrite" type="button">✍️ Write</button>
+            <button class="primary" id="btnCheck" type="button">✅ Check</button>
+            <button class="ghost" id="btnNext" type="button">➡️ Next</button>
+            <button class="danger" id="btnResetWord" type="button">↩️ Reset word</button>
+          </div>
+
+          <div class="msg" id="message" aria-live="polite">
+            <span>Press <strong>Cover</strong>, then type the word and press <strong>Check</strong>.</span>
+            <span class="tag" id="statusTag">Ready</span>
+          </div>
+
+          <div class="footerRow">
+            <div class="toggle">
+              <div class="switch on" id="soundSwitch" role="switch" aria-checked="true" tabindex="0">
+                <span class="srOnly">Toggle sound</span>
+                <div class="knob"></div>
+              </div>
+              <span class="small">Sound on (beeps + speech if available)</span>
+            </div>
+
+            <div class="small">
+              <span class="kbd">R</span> Reset all &nbsp;•&nbsp;
+              <span class="kbd">P</span> Shuffle
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIDE PANEL -->
+    <aside class="panel" aria-label="Word list and results">
+      <header>
+        <h1>Word List (15)</h1>
+        <p class="sub">Green = correct, Red = needs practice, Yellow = attempted but not correct yet.</p>
+      </header>
+
+      <div class="side">
+        <div class="list">
+          <div class="listHead">
+            <span><strong id="listSummary">0 correct</strong> • <span id="listAttempts">0 attempts</span></span>
+            <div class="btnRow" style="justify-content:flex-end">
+              <button class="ghost" id="btnShuffle" type="button">🔀 Shuffle</button>
+              <button class="danger" id="btnResetAll" type="button">🧹 Reset all</button>
+            </div>
+          </div>
+          <div class="items" id="wordItems" aria-label="Words"></div>
+        </div>
+
+        <div class="msg" id="finalMsg">
+          <span>Finish all words to see your overall result here.</span>
+          <span class="tag" id="finalTag">Not done</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    // ====== WORDS ======
+    const ORIGINAL_WORDS = [
+      "lunged",
+      "yelped",
+      "errands",
+      "shoved",
+      "tugging",
+      "sprinted",
+      "smirked",
+      "dreaded",
+      "bellowed",
+      "yearning",
+      "forlornly",
+      "flexibility",
+      "hesitantly",
+      "humiliating",
+      "satisfaction"
+    ];
+
+    // ====== STATE ======
+    let words = [...ORIGINAL_WORDS];
+    let idx = 0;
+    let phase = "LOOK"; // LOOK, SAY, COVER, WRITE, CHECK
+    let soundOn = true;
+
+    // per word stats
+    const stats = new Map(); // word -> {attempts, correct}
+    function initStats(){
+      stats.clear();
+      for (const w of words){
+        stats.set(w, { attempts: 0, correct: false });
+      }
+    }
+    initStats();
+
+    // ====== ELEMENTS ======
+    const elTargetWord = document.getElementById("targetWord");
+    const elPhaseTitle = document.getElementById("phaseTitle");
+    const elInput = document.getElementById("userInput");
+    const elMsg = document.getElementById("message");
+    const elStatusTag = document.getElementById("statusTag");
+    const elProgressText = document.getElementById("progressText");
+    const elScoreText = document.getElementById("scoreText");
+    const elAttemptCount = document.getElementById("attemptCount");
+    const elListSummary = document.getElementById("listSummary");
+    const elListAttempts = document.getElementById("listAttempts");
+    const elWordItems = document.getElementById("wordItems");
+    const elFinalMsg = document.getElementById("finalMsg");
+    const elFinalTag = document.getElementById("finalTag");
+    const elSoundSwitch = document.getElementById("soundSwitch");
+
+    // buttons
+    const btnLook = document.getElementById("btnLook");
+    const btnSay = document.getElementById("btnSay");
+    const btnCover = document.getElementById("btnCover");
+    const btnWrite = document.getElementById("btnWrite");
+    const btnCheck = document.getElementById("btnCheck");
+    const btnNext = document.getElementById("btnNext");
+    const btnResetWord = document.getElementById("btnResetWord");
+    const btnShuffle = document.getElementById("btnShuffle");
+    const btnResetAll = document.getElementById("btnResetAll");
+
+    // ====== AUDIO (simple beeps) ======
+    let audioCtx = null;
+    function beep(freq=440, ms=110, type="sine", vol=0.05){
+      if(!soundOn) return;
+      try{
+        if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = type;
+        o.frequency.value = freq;
+        g.gain.value = vol;
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        o.start();
+        setTimeout(()=>{ o.stop(); }, ms);
+      }catch(e){}
+    }
+
+    function speak(text){
+      if(!soundOn) return;
+      if(!("speechSynthesis" in window)) return;
+      try{
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.rate = 0.9;
+        u.pitch = 1.0;
+        u.volume = 1.0;
+        window.speechSynthesis.speak(u);
+      }catch(e){}
+    }
+
+    // ====== HELPERS ======
+    function currentWord(){ return words[idx]; }
+
+    function setPhase(newPhase){
+      phase = newPhase;
+      elPhaseTitle.textContent = newPhase;
+
+      const w = currentWord();
+      elTargetWord.textContent = w;
+
+      // cover behavior
+      if(newPhase === "COVER"){
+        elTargetWord.classList.add("covered");
+      }else{
+        elTargetWord.classList.remove("covered");
+      }
+
+      if(newPhase === "WRITE"){
+        elInput.focus();
+      }
+    }
+
+    function updateTopUI(){
+      elProgressText.textContent = `Word ${idx+1} of ${words.length}`;
+
+      let correctCount = 0;
+      let totalAttempts = 0;
+      for(const w of words){
+        const s = stats.get(w);
+        if(s.correct) correctCount++;
+        totalAttempts += s.attempts;
+      }
+      elScoreText.textContent = `${correctCount}/${words.length} correct`;
+      elAttemptCount.textContent = stats.get(currentWord()).attempts;
+
+      elListSummary.textContent = `${correctCount} correct`;
+      elListAttempts.textContent = `${totalAttempts} attempts`;
+
+      // final message
+      if(correctCount === words.length){
+        elFinalMsg.firstElementChild.textContent = `🎉 All done! You got ${correctCount}/${words.length} correct.`;
+        elFinalTag.textContent = "Completed";
+        elFinalTag.className = "tag good";
+      }else{
+        elFinalMsg.firstElementChild.textContent = `Keep going! ${correctCount}/${words.length} correct so far.`;
+        elFinalTag.textContent = "In progress";
+        elFinalTag.className = "tag warn";
+      }
+    }
+
+    function setMessage(text, status="Ready", kind="tag"){
+      elMsg.firstElementChild.innerHTML = text;
+      elStatusTag.textContent = status;
+
+      elStatusTag.className = "tag";
+      if(kind === "good") elStatusTag.classList.add("good");
+      if(kind === "bad") elStatusTag.classList.add("bad");
+      if(kind === "warn") elStatusTag.classList.add("warn");
+    }
+
+    function normalize(s){
+      return (s ?? "").trim().toLowerCase();
+    }
+
+    function renderWordList(){
+      elWordItems.innerHTML = "";
+      words.forEach((w, i) => {
+        const s = stats.get(w);
+        const row = document.createElement("div");
+        row.className = "item";
+        row.setAttribute("role","button");
+        row.tabIndex = 0;
+
+        const left = document.createElement("div");
+        left.className = "itemWord";
+
+        const dot = document.createElement("div");
+        dot.className = "dot";
+        if(s.correct) dot.classList.add("good");
+        else if(s.attempts > 0) dot.classList.add("neutral");
+
+        const name = document.createElement("div");
+        name.style.minWidth = "0";
+        name.style.overflow = "hidden";
+        name.style.textOverflow = "ellipsis";
+        name.style.whiteSpace = "nowrap";
+        name.textContent = w;
+
+        left.appendChild(dot);
+        left.appendChild(name);
+
+        const right = document.createElement("div");
+        right.className = "small";
+        right.textContent = s.correct ? "✔" : (s.attempts ? `×${s.attempts}` : "—");
+
+        if(i === idx){
+          row.style.background = "rgba(122,167,255,.12)";
+          row.style.borderLeft = "3px solid rgba(122,167,255,.9)";
+        }
+
+        row.appendChild(left);
+        row.appendChild(right);
+
+        const go = () => {
+          idx = i;
+          elInput.value = "";
+          setPhase("LOOK");
+          setMessage("Press <strong>Cover</strong>, then type the word and press <strong>Check</strong>.", "Ready", "tag");
+          renderWordList();
+          updateTopUI();
+          beep(520, 80);
+        };
+
+        row.addEventListener("click", go);
+        row.addEventListener("keydown", (e) => {
+          if(e.key === "Enter" || e.key === " "){
+            e.preventDefault();
+            go();
+          }
+        });
+
+        elWordItems.appendChild(row);
+      });
+    }
+
+    function nextWord(){
+      idx = (idx + 1) % words.length;
+      elInput.value = "";
+      setPhase("LOOK");
+      setMessage("Press <strong>Cover</strong>, then type the word and press <strong>Check</strong>.", "Ready", "tag");
+      renderWordList();
+      updateTopUI();
+      beep(660, 80);
+    }
+
+    function resetCurrentWord(){
+      const w = currentWord();
+      const s = stats.get(w);
+      s.attempts = 0;
+      s.correct = false;
+      elInput.value = "";
+      setPhase("LOOK");
+      setMessage("This word has been reset. Try again!", "Reset", "warn");
+      renderWordList();
+      updateTopUI();
+      beep(300, 90);
+    }
+
+    function resetAll(){
+      words = [...ORIGINAL_WORDS];
+      idx = 0;
+      initStats();
+      elInput.value = "";
+      setPhase("LOOK");
+      setMessage("All words have been reset. Start from Word 1.", "Reset all", "warn");
+      renderWordList();
+      updateTopUI();
+      beep(260, 90);
+      beep(220, 90);
+    }
+
+    function shuffleWords(){
+      // Fisher-Yates shuffle
+      for(let i = words.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [words[i], words[j]] = [words[j], words[i]];
+      }
+      idx = 0;
+      elInput.value = "";
+      setPhase("LOOK");
+      setMessage("Words shuffled! Start from the top.", "Shuffled", "warn");
+      renderWordList();
+      updateTopUI();
+      beep(740, 70);
+      beep(880, 70);
+    }
+
+    function checkAnswer(){
+      const w = currentWord();
+      const s = stats.get(w);
+
+      const typed = normalize(elInput.value);
+      if(!typed){
+        setMessage("Type the word first, then press <strong>Check</strong>.", "Empty", "warn");
+        beep(240, 120);
+        return;
+      }
+
+      s.attempts++;
+
+      if(typed === normalize(w)){
+        s.correct = true;
+        setMessage(`✅ Correct! The word is <strong>${w}</strong>.`, "Correct", "good");
+        beep(880, 90);
+        beep(1040, 90);
+        // move to next after short delay
+        setTimeout(() => {
+          nextWord();
+        }, 500);
+      }else{
+        s.correct = false;
+        setMessage(`❌ Not yet. You wrote <strong>${escapeHtml(elInput.value.trim())}</strong>. Try again!`, "Try again", "bad");
+        beep(220, 160);
+      }
+
+      // After checking, show word (CHECK phase)
+      setPhase("CHECK");
+      renderWordList();
+      updateTopUI();
+    }
+
+    function escapeHtml(str){
+      return str
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    // ====== EVENTS ======
+    btnLook.addEventListener("click", () => {
+      setPhase("LOOK");
+      setMessage("LOOK: Study the spelling carefully.", "Look", "tag");
+      beep(520, 80);
+    });
+
+    btnSay.addEventListener("click", () => {
+      setPhase("SAY");
+      setMessage("SAY: Read the word aloud (or press again to hear it).", "Say", "tag");
+      beep(600, 80);
+      speak(currentWord());
+    });
+
+    btnCover.addEventListener("click", () => {
+      setPhase("COVER");
+      setMessage("COVER: The word is hidden. Spell it from memory!", "Cover", "warn");
+      beep(420, 80);
+    });
+
+    btnWrite.addEventListener("click", () => {
+      setPhase("WRITE");
+      setMessage("WRITE: Type the spelling in the box.", "Write", "tag");
+      beep(520, 60);
+    });
+
+    btnCheck.addEventListener("click", () => checkAnswer());
+    btnNext.addEventListener("click", () => nextWord());
+    btnResetWord.addEventListener("click", () => resetCurrentWord());
+    btnShuffle.addEventListener("click", () => shuffleWords());
+    btnResetAll.addEventListener("click", () => resetAll());
+
+    // keyboard shortcuts
+    document.addEventListener("keydown", (e) => {
+      // don't trigger shortcuts while typing, except Enter
+      const inTyping = document.activeElement === elInput;
+
+      if(e.key === "Enter"){
+        if(inTyping){
+          e.preventDefault();
+          checkAnswer();
+        }
+        return;
+      }
+
+      const k = e.key.toLowerCase();
+      if(inTyping) return;
+
+      if(k === "l"){ btnLook.click(); }
+      else if(k === "s"){ btnSay.click(); }
+      else if(k === "c"){ btnCover.click(); }
+      else if(k === "w"){ btnWrite.click(); }
+      else if(k === "n"){ btnNext.click(); }
+      else if(k === "p"){ btnShuffle.click(); }
+      else if(k === "r"){ btnResetAll.click(); }
+    });
+
+    // sound toggle
+    function setSound(on){
+      soundOn = on;
+      elSoundSwitch.classList.toggle("on", on);
+      elSoundSwitch.setAttribute("aria-checked", on ? "true" : "false");
+      const label = elSoundSwitch.nextElementSibling;
+      label.textContent = on ? "Sound on (beeps + speech if available)" : "Sound off";
+      if(on) beep(700, 70);
+    }
+    elSoundSwitch.addEventListener("click", () => setSound(!soundOn));
+    elSoundSwitch.addEventListener("keydown", (e) => {
+      if(e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        setSound(!soundOn);
+      }
+    });
+
+    // ====== INIT ======
+    function init(){
+      setPhase("LOOK");
+      elInput.value = "";
+      setMessage("Press <strong>Cover</strong>, then type the word and press <strong>Check</strong>.", "Ready", "tag");
+      renderWordList();
+      updateTopUI();
+      setSound(true);
+    }
+    init();
+  </script>
+</body>
+</html>
