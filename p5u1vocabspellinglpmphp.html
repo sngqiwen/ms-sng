@@ -1,0 +1,852 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Spelling — LP / MP / HP</title>
+
+<style>
+  :root{
+    --ink:#0b1220;
+    --muted:#5b6474;
+    --card:#ffffffee;
+    --line:#e7e9f3;
+    --shadow: 0 14px 40px rgba(12, 20, 40, .10);
+    --shadow2: 0 10px 26px rgba(12, 20, 40, .10);
+    --r:18px;
+
+    /* Ms Sng pastel rainbow */
+    --p1:#ffd6e7;
+    --p2:#d9f2ff;
+    --p3:#e8ddff;
+    --p4:#fff1c7;
+    --p5:#ddffe7;
+
+    --good:#1f9d55;
+    --bad:#d64545;
+    --grad: linear-gradient(135deg, #7b6cff, #3a86ff);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    color:var(--ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+    background:
+      radial-gradient(1200px 700px at 10% 0%, var(--p1), transparent 55%),
+      radial-gradient(1200px 700px at 90% 10%, var(--p2), transparent 55%),
+      radial-gradient(1200px 700px at 30% 90%, var(--p3), transparent 55%),
+      radial-gradient(1200px 700px at 90% 90%, var(--p4), transparent 55%),
+      linear-gradient(180deg, #fff, #fbfbff);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .wrap{
+    width:min(980px, calc(100% - 24px));
+    margin:22px auto 18px;
+    flex:1 0 auto;
+  }
+
+  header{
+    background: linear-gradient(135deg, #ffffffcc, #ffffffee);
+    border:1px solid var(--line);
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+    padding:16px 16px 14px;
+    position:sticky;
+    top:10px;
+    backdrop-filter: blur(10px);
+    z-index:50;
+  }
+
+  .topRow{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+
+  h1{
+    margin:0 0 6px;
+    font-size:18px;
+    letter-spacing:.2px;
+  }
+  .note{
+    margin:0;
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.35;
+  }
+
+  .controls{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .seg{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 10px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background:#fff;
+    box-shadow: 0 8px 18px rgba(10,15,30,.06);
+  }
+  .seg label{
+    font-size:12px;
+    color:var(--muted);
+    margin-right:2px;
+    font-weight:800;
+  }
+
+  .tabs{
+    display:flex;
+    gap:6px;
+    padding:4px;
+    border-radius:999px;
+    background:linear-gradient(180deg, #f6f7ff, #ffffff);
+    border:1px solid var(--line);
+  }
+  .tab{
+    border:0;
+    padding:8px 12px;
+    border-radius:999px;
+    background:transparent;
+    font-weight:950;
+    font-size:12px;
+    color:var(--muted);
+    cursor:pointer;
+  }
+  .tab.active{
+    background: var(--grad);
+    color:white;
+    box-shadow: 0 10px 22px rgba(58,134,255,.25);
+  }
+
+  .btn{
+    border:0;
+    cursor:pointer;
+    border-radius:999px;
+    padding:9px 12px;
+    font-weight:950;
+    font-size:12px;
+    color:var(--ink);
+    background: #fff;
+    border:1px solid var(--line);
+    box-shadow: 0 8px 18px rgba(10,15,30,.06);
+  }
+  .btn:hover{transform: translateY(-1px)}
+  .btn:active{transform: translateY(0px)}
+  .btn.warn{
+    background: linear-gradient(135deg, #ffb3c7, #ffe3a8);
+    border-color: rgba(220,80,120,.18);
+  }
+
+  .pillNote{
+    margin-top:10px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    padding:10px 12px;
+    background:
+      linear-gradient(90deg, rgba(255,214,231,.45), rgba(217,242,255,.45), rgba(232,221,255,.45), rgba(255,241,199,.45));
+    border:1px solid rgba(135, 146, 180, .25);
+    border-radius: 16px;
+  }
+  .pillNote .dot{
+    width:10px;height:10px;border-radius:50%;
+    background:conic-gradient(from 0deg, #ff6aa9, #ffd166, #3ddc97, #46b1ff, #8a6bff, #ff6aa9);
+    box-shadow: 0 0 0 4px rgba(255,255,255,.9);
+  }
+  .pillNote b{font-size:13px}
+  .pillNote ul{margin:0; padding-left:18px; color:var(--muted); font-size:13px}
+  .pillNote li{margin:2px 0}
+
+  .sectionHead{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:12px;
+    margin:18px 2px 10px;
+  }
+  .sectionHead h2{margin:0; font-size:16px}
+  .sectionHead .sub{margin:3px 0 0; color:var(--muted); font-size:12px}
+  .scorePill{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 10px;
+    border-radius:999px;
+    background:#fff;
+    border:1px solid var(--line);
+    box-shadow: var(--shadow2);
+    font-weight:950;
+    font-size:12px;
+  }
+
+  .grid{display:grid; grid-template-columns: 1fr; gap:12px;}
+
+  .card{
+    background: var(--card);
+    border:1px solid var(--line);
+    border-radius: var(--r);
+    box-shadow: var(--shadow2);
+    overflow:hidden;
+  }
+  .cardInner{padding:12px 12px 10px;}
+
+  .qTop{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    margin-bottom:8px;
+  }
+  .qNo{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-weight:950;
+    font-size:12px;
+  }
+  .qNo .badge{
+    font-weight:950;
+    font-size:11px;
+    padding:5px 8px;
+    border-radius:999px;
+    background: linear-gradient(90deg, rgba(255,214,231,.8), rgba(217,242,255,.8), rgba(232,221,255,.8));
+    border:1px solid rgba(135, 146, 180, .25);
+  }
+
+  .tag{
+    font-weight:950;
+    font-size:11px;
+    padding:5px 8px;
+    border-radius:999px;
+    border:1px solid rgba(120, 130, 160, .25);
+    background:#fff;
+    color:var(--muted);
+    min-width:72px;
+    text-align:center;
+  }
+  .tag.good{background: rgba(31,157,85,.10); color: var(--good); border-color: rgba(31,157,85,.25);}
+  .tag.bad{background: rgba(214,69,69,.10); color: var(--bad); border-color: rgba(214,69,69,.25);}
+
+  .promptTitle{font-weight:950; margin:0 0 6px; font-size:13px;}
+  .sentence{margin:6px 0 0; color:var(--muted); font-size:12px; line-height:1.35;}
+
+  .row{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+    margin-top:10px;
+  }
+
+  input[type="text"]{
+    flex:1 1 340px;
+    min-width: 220px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    padding:10px 12px;
+    font-size:14px;
+    outline:none;
+    background:#fff;
+  }
+  input[type="text"]:focus{
+    border-color: rgba(58,134,255,.55);
+    box-shadow: 0 0 0 4px rgba(58,134,255,.12);
+  }
+
+  .checkBtn{
+    border:0;
+    cursor:pointer;
+    border-radius:12px;
+    padding:10px 14px;
+    font-weight:950;
+    color:white;
+    background: var(--grad);
+    box-shadow: 0 10px 22px rgba(58,134,255,.25);
+  }
+
+  /* MCQ */
+  .choices{display:grid; gap:8px; margin-top:10px;}
+  .choice{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    padding:10px 10px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:#fff;
+    cursor:pointer;
+  }
+  .choice:hover{border-color: rgba(58,134,255,.35)}
+  .choice input{accent-color: #6a5cff;}
+  .choice span{font-size:13px; font-weight:900}
+
+  /* MP dropdown spelling parts */
+  .spellParts{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:10px;
+  }
+  .part{
+    font-weight:950;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:8px 10px;
+  }
+  select{
+    border-radius:12px;
+    border:1px solid var(--line);
+    padding:8px 10px;
+    background:#fff;
+    font-weight:950;
+    cursor:pointer;
+  }
+
+  .bottomActions{
+    margin:14px 2px 0;
+    display:flex;
+    justify-content:flex-start;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .footer{
+    margin-top:auto;
+    padding:14px 10px;
+    color:var(--muted);
+    text-align:center;
+    font-size:12px;
+    border-top: 1px solid rgba(231,233,243,.8);
+    background: rgba(255,255,255,.65);
+    backdrop-filter: blur(10px);
+  }
+</style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="topRow">
+        <div>
+          <h1>Spelling — LP / MP / HP</h1>
+          <p class="note">LP = MCQ • MP = Complete the spelling (dropdown) • HP = Fill in the blank</p>
+        </div>
+
+        <div class="controls">
+          <div class="seg" aria-label="Mode controls">
+            <label>Mode:</label>
+            <div class="tabs" role="tablist" aria-label="LP MP HP tabs">
+              <button class="tab active" id="tabLP" role="tab" aria-selected="true">LP</button>
+              <button class="tab" id="tabMP" role="tab" aria-selected="false">MP</button>
+              <button class="tab" id="tabHP" role="tab" aria-selected="false">HP</button>
+            </div>
+          </div>
+
+          <button class="btn" id="btnResetMode">Reset Mode</button>
+          <button class="btn warn" id="btnTeacherClear" title="Clear everything (all modes)">
+            (Teacher) New Session — Clear
+          </button>
+        </div>
+      </div>
+
+      <div class="pillNote">
+        <div class="dot" aria-hidden="true"></div>
+        <div>
+          <b>15 questions per mode.</b>
+          <ul>
+            <li>LP (MCQ): options are chosen from the same spelling list.</li>
+            <li>MP (Dropdown): choose the commonly-mistaken letters to complete the word.</li>
+            <li>HP (Type): type the full spelling word.</li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <div class="sectionHead">
+      <div>
+        <h2 id="sectionTitle">LP — 15 Questions</h2>
+        <p class="sub" id="sectionSub">Choose the correct spelling.</p>
+      </div>
+
+      <div class="scorePill" id="scorePill">
+        Score: <span id="scoreNow">0</span>/15
+      </div>
+    </div>
+
+    <main class="grid" id="qList" aria-live="polite"></main>
+
+    <div class="bottomActions">
+      <button class="btn" id="btnScrollTop">Back to top</button>
+    </div>
+  </div>
+
+  <footer class="footer">
+    © <span id="year"></span> Sng Qi Wen
+  </footer>
+
+<script>
+/* =========================
+   P5 words + sentences
+========================= */
+
+const WORDS = [
+  "lunged","yelped","errands","shoved","tugging",
+  "sprinted","smirked","dreaded","bellowed","yearning",
+  "forlornly","flexibility","hesitantly","humiliating","satisfaction"
+];
+
+const SENTENCES = [
+  "He lunged forward to catch the ball just before it hit the ground.",
+  "Ali yelped in pain when he tripped over his friend’s school bag and fell.",
+  "I had to run some errands for my mom, like picking up groceries and fetching my little sister from the day care centre.",
+  "He shoved the heavy door open with all his strength.",
+  "She kept tugging on the rope to pull the kite down from the tree.",
+  "The deer sprinted across the field, trying to escape the tiger.",
+  "Thomas smirked when he realized he had solved the puzzle before anyone else.",
+  "I dreaded going to the dentist because I do not like the sound of the dental drill.",
+  "The football coach bellowed instructions from the sidelines during the game.",
+  "Robin missed his family so much during the 5 days school camp that he was yearning to go back.",
+  "Ahmad’s mother sensed that something was amiss when he stared forlornly out the window after school.",
+  "Having flexibility helped her do amazing tricks in her gymnastics routine.",
+  "John hesitantly raised his hand to answer the difficult question.",
+  "It was humiliating for Eva when she forgot her lines during her drama performance in front of the school.",
+  "Ivy felt great satisfaction after finishing her school project on time."
+];
+
+function escapeRegExp(str){
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function blankSentence(i){
+  const w = WORDS[i];
+  return SENTENCES[i].replace(new RegExp("\\b" + escapeRegExp(w) + "\\b", "i"), "____");
+}
+
+/* =========================
+   MP settings (common errors)
+   - prefix + dropdown(mid) + suffix
+   You can edit options any time.
+========================= */
+
+const MP_PARTS = {
+  lunged:       { prefix:"lun",  correct:"g",    suffix:"ed", options:["g","gg","dge","j"] },
+  yelped:       { prefix:"yel",  correct:"p",    suffix:"ed", options:["p","pp","b","pe"] },
+  errands:      { prefix:"er",   correct:"r",    suffix:"ands", options:["r","rr","ra","re"] },
+  shoved:       { prefix:"sho",  correct:"v",    suffix:"ed", options:["v","ve","f","ff"] },
+  tugging:      { prefix:"tu",   correct:"gg",   suffix:"ing", options:["g","gg","gue","j"] },
+  sprinted:     { prefix:"spr",  correct:"in",   suffix:"ted", options:["in","en","im","inn"] },
+  smirked:      { prefix:"smir", correct:"k",    suffix:"ed", options:["k","ck","c","kk"] },
+  dreaded:      { prefix:"dre",  correct:"ad",   suffix:"ed", options:["ad","ed","aid","add"] },
+  bellowed:     { prefix:"bell", correct:"ow",   suffix:"ed", options:["ow","o","oa","ou"] },
+  yearning:     { prefix:"year", correct:"n",    suffix:"ing", options:["n","nn","m","ng"] },
+  forlornly:    { prefix:"for",  correct:"lor",  suffix:"nly", options:["lor","lorn","lornn","lern"] },
+  flexibility:  { prefix:"flex", correct:"ibil", suffix:"ity", options:["ibil","able","ibilit","abil"] },
+  hesitantly:   { prefix:"hesit",correct:"ant",  suffix:"ly", options:["ant","ent","and","annt"] },
+  humiliating:  { prefix:"humil",correct:"iat",  suffix:"ing", options:["iat","ate","ait","eiat"] },
+  satisfaction: { prefix:"satis",correct:"fact", suffix:"ion", options:["fact","fect","fat","fakt"] }
+};
+
+/* =========================
+   Build questions per mode
+========================= */
+
+function buildLP(){
+  return WORDS.map((w, i) => ({
+    type:"mcq",
+    word:w,
+    sentence: blankSentence(i),
+    options: makeMcqOptions(w, i)
+  }));
+}
+
+function buildMP(){
+  return WORDS.map((w, i) => ({
+    type:"complete",
+    word:w,
+    sentence: blankSentence(i),
+    parts: MP_PARTS[w]
+  }));
+}
+
+function buildHP(){
+  return WORDS.map((w, i) => ({
+    type:"fill",
+    word:w,
+    sentence: blankSentence(i)
+  }));
+}
+
+function makeMcqOptions(correctWord, idx){
+  // 4 options total (1 correct + 3 other words from list)
+  const pool = WORDS.filter(w => w !== correctWord);
+  const picked = pickN(shuffle([...pool]), 3);
+  const options = shuffle([correctWord, ...picked]);
+  return options;
+}
+
+function shuffle(arr){
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+function pickN(arr, n){ return arr.slice(0, n); }
+
+/* =========================
+   State (localStorage)
+========================= */
+
+const LS_KEY = "spelling_lp_mp_hp_v1";
+
+const defaultState = () => ({
+  mode: "LP",
+  LP: { answers: {}, score: 0 },
+  MP: { answers: {}, score: 0 },
+  HP: { answers: {}, score: 0 }
+});
+
+let state = loadState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    return {
+      ...defaultState(),
+      ...parsed,
+      LP: { ...defaultState().LP, ...(parsed.LP||{}) },
+      MP: { ...defaultState().MP, ...(parsed.MP||{}) },
+      HP: { ...defaultState().HP, ...(parsed.HP||{}) }
+    };
+  }catch{
+    return defaultState();
+  }
+}
+function saveState(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+/* =========================
+   UI helpers
+========================= */
+
+const $ = (sel) => document.querySelector(sel);
+function norm(s){ return (s||"").trim().toLowerCase(); }
+function setYear(){ $("#year").textContent = String(new Date().getFullYear()); }
+
+function setActiveTab(mode){
+  ["LP","MP","HP"].forEach(m => {
+    const btn = document.getElementById("tab"+m);
+    btn.classList.toggle("active", m === mode);
+    btn.setAttribute("aria-selected", m === mode ? "true":"false");
+  });
+}
+
+function modeTitle(mode){
+  if(mode === "LP") return ["LP — 15 Questions", "Choose the correct spelling (MCQ)."];
+  if(mode === "MP") return ["MP — 15 Questions", "Complete the spelling by selecting the correct letters (dropdown)."];
+  return ["HP — 15 Questions", "Type the spelling word to fill in the blank."];
+}
+
+/* =========================
+   Render
+========================= */
+
+let cache = {
+  LP: buildLP(),
+  MP: buildMP(),
+  HP: buildHP()
+};
+
+function render(){
+  const mode = state.mode;
+  setActiveTab(mode);
+
+  const [t, sub] = modeTitle(mode);
+  $("#sectionTitle").textContent = t;
+  $("#sectionSub").textContent = sub;
+
+  $("#scoreNow").textContent = String(state[mode].score);
+
+  const list = $("#qList");
+  list.innerHTML = "";
+
+  const data = cache[mode];
+
+  data.forEach((q, idx) => {
+    const card = document.createElement("section");
+    card.className = "card";
+    const inner = document.createElement("div");
+    inner.className = "cardInner";
+
+    const qTop = document.createElement("div");
+    qTop.className = "qTop";
+
+    const left = document.createElement("div");
+    left.className = "qNo";
+    left.innerHTML = `<span class="badge">Q${idx+1}/15</span>`;
+
+    const tag = document.createElement("span");
+    tag.className = "tag";
+    tag.id = `tag-${mode}-${idx}`;
+    tag.textContent = "";
+
+    qTop.appendChild(left);
+    qTop.appendChild(tag);
+
+    const title = document.createElement("p");
+    title.className = "promptTitle";
+    title.textContent =
+      q.type === "mcq" ? "Choose the correct spelling:" :
+      q.type === "complete" ? "Complete the spelling:" :
+      "Fill in the blank. Type the correct spelling:";
+
+    const sentence = document.createElement("p");
+    sentence.className = "sentence";
+    sentence.innerHTML = `<b>Sentence:</b> ${q.sentence}`;
+
+    inner.appendChild(qTop);
+    inner.appendChild(title);
+    inner.appendChild(sentence);
+
+    // --- LP MCQ
+    if(q.type === "mcq"){
+      const choices = document.createElement("div");
+      choices.className = "choices";
+
+      const saved = state.LP.answers[idx] || "";
+
+      q.options.forEach(opt => {
+        const lab = document.createElement("label");
+        lab.className = "choice";
+
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = `mcq-${idx}`;
+        radio.value = opt;
+        radio.checked = saved === opt;
+        radio.addEventListener("change", () => {
+          state.LP.answers[idx] = opt;
+          saveState();
+        });
+
+        const text = document.createElement("span");
+        text.textContent = opt;
+
+        lab.appendChild(radio);
+        lab.appendChild(text);
+        choices.appendChild(lab);
+      });
+
+      const row = document.createElement("div");
+      row.className = "row";
+      const btn = document.createElement("button");
+      btn.className = "checkBtn";
+      btn.textContent = "Check";
+      btn.addEventListener("click", () => checkAnswer(idx));
+      row.appendChild(btn);
+
+      inner.appendChild(choices);
+      inner.appendChild(row);
+    }
+
+    // --- MP dropdown parts
+    if(q.type === "complete"){
+      const parts = document.createElement("div");
+      parts.className = "spellParts";
+
+      const p1 = document.createElement("span");
+      p1.className = "part";
+      p1.textContent = q.parts.prefix;
+
+      const sel = document.createElement("select");
+      sel.setAttribute("aria-label", "Select the missing letters");
+      const blank = document.createElement("option");
+      blank.value = "";
+      blank.textContent = "Select…";
+      sel.appendChild(blank);
+
+      q.parts.options.forEach(opt => {
+        const o = document.createElement("option");
+        o.value = opt;
+        o.textContent = opt;
+        sel.appendChild(o);
+      });
+
+      const saved = state.MP.answers[idx] || "";
+      sel.value = saved;
+
+      sel.addEventListener("change", () => {
+        state.MP.answers[idx] = sel.value;
+        saveState();
+      });
+
+      const p3 = document.createElement("span");
+      p3.className = "part";
+      p3.textContent = q.parts.suffix;
+
+      parts.appendChild(p1);
+      parts.appendChild(sel);
+      parts.appendChild(p3);
+
+      const row = document.createElement("div");
+      row.className = "row";
+      const btn = document.createElement("button");
+      btn.className = "checkBtn";
+      btn.textContent = "Check";
+      btn.addEventListener("click", () => checkAnswer(idx));
+      row.appendChild(btn);
+
+      inner.appendChild(parts);
+      inner.appendChild(row);
+    }
+
+    // --- HP text input
+    if(q.type === "fill"){
+      const row = document.createElement("div");
+      row.className = "row";
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.autocomplete = "off";
+      input.spellcheck = false;
+      input.placeholder = "Type your answer…";
+      input.value = state.HP.answers[idx] || "";
+
+      input.addEventListener("input", () => {
+        state.HP.answers[idx] = input.value;
+        saveState();
+      });
+
+      const btn = document.createElement("button");
+      btn.className = "checkBtn";
+      btn.textContent = "Check";
+      btn.addEventListener("click", () => checkAnswer(idx));
+
+      row.appendChild(input);
+      row.appendChild(btn);
+      inner.appendChild(row);
+    }
+
+    card.appendChild(inner);
+    list.appendChild(card);
+  });
+
+  // update score pill (after render)
+  $("#scoreNow").textContent = String(state[mode].score);
+}
+
+/* =========================
+   Checking & scoring
+========================= */
+
+function checkAnswer(idx){
+  const mode = state.mode;
+  const q = cache[mode][idx];
+  const tag = document.getElementById(`tag-${mode}-${idx}`);
+
+  let userVal = "";
+  let correct = false;
+
+  if(mode === "LP"){
+    userVal = state.LP.answers[idx] || "";
+    correct = norm(userVal) === norm(q.word);
+  }
+
+  if(mode === "MP"){
+    userVal = state.MP.answers[idx] || "";
+    // MP checks ONLY the selected middle letters vs correct
+    correct = norm(userVal) === norm(q.parts.correct);
+  }
+
+  if(mode === "HP"){
+    userVal = state.HP.answers[idx] || "";
+    correct = norm(userVal) === norm(q.word);
+  }
+
+  if(correct){
+    tag.className = "tag good";
+    tag.textContent = "Correct";
+  }else{
+    tag.className = "tag bad";
+    tag.textContent = "Try again";
+  }
+
+  // recalc score for this mode
+  state[mode].score = cache[mode].reduce((acc, qq, i) => {
+    if(mode === "LP"){
+      return acc + (norm(state.LP.answers[i]) === norm(qq.word) ? 1 : 0);
+    }
+    if(mode === "MP"){
+      return acc + (norm(state.MP.answers[i]) === norm(qq.parts.correct) ? 1 : 0);
+    }
+    // HP
+    return acc + (norm(state.HP.answers[i]) === norm(qq.word) ? 1 : 0);
+  }, 0);
+
+  saveState();
+  $("#scoreNow").textContent = String(state[mode].score);
+}
+
+/* =========================
+   Reset / Teacher clear
+========================= */
+
+function resetMode(){
+  const mode = state.mode;
+  state[mode].answers = {};
+  state[mode].score = 0;
+
+  // refresh LP options (so MCQ choices can reshuffle on reset)
+  if(mode === "LP"){
+    cache.LP = buildLP();
+  }
+
+  saveState();
+  render();
+}
+
+function teacherClear(){
+  state = defaultState();
+  localStorage.removeItem(LS_KEY);
+  state = defaultState();
+  cache = { LP: buildLP(), MP: buildMP(), HP: buildHP() };
+  saveState();
+  render();
+}
+
+/* =========================
+   Tab events
+========================= */
+
+document.getElementById("tabLP").addEventListener("click", () => { state.mode="LP"; saveState(); render(); });
+document.getElementById("tabMP").addEventListener("click", () => { state.mode="MP"; saveState(); render(); });
+document.getElementById("tabHP").addEventListener("click", () => { state.mode="HP"; saveState(); render(); });
+
+document.getElementById("btnResetMode").addEventListener("click", resetMode);
+document.getElementById("btnTeacherClear").addEventListener("click", teacherClear);
+document.getElementById("btnScrollTop").addEventListener("click", () => window.scrollTo({top:0, behavior:"smooth"}));
+
+/* =========================
+   Init
+========================= */
+
+setYear();
+saveState();
+render();
+</script>
+</body>
+</html>
