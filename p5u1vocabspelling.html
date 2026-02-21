@@ -6,91 +6,116 @@
 <title>P5U1 Vocabulary-Spelling</title>
 
 <style>
+/* =========================
+   Ms Sng Pastel Rainbow UI
+   ========================= */
+
 :root{
-  --ink:#0b1220;
-  --muted:#4b5563;
-  --line:#d1d5db;
-  --accent:#1d4ed8;
-  --next:#0284c7;
-  --good:#16a34a;
-  --bad:#dc2626;
+  --p1:#ffd1e8;
+  --p2:#ffe6a7;
+  --p3:#d8f5c7;
+  --p4:#cfe9ff;
+  --p5:#e5d7ff;
+  --p6:#ffd7c7;
 
-  --radius:22px;
-  --sans: ui-sans-serif, system-ui;
+  --ink:#1f2937;
+  --muted:#6b7280;
+  --line:rgba(31,41,55,.12);
 
-  --panelW: min(1200px, 96vw);
-  --btnH: 70px;
-  --btnPadX: 22px;
+  --accent:#ff6fb4;
+  --accent2:#7dd3fc;
+  --next:#34d399;
+  --next2:#60a5fa;
 
-  --controlsPad: 160px;
+  --good:#22c55e;
+  --bad:#ef4444;
 
-  --titleSize: 32px;
-  --wordSize: 88px;
-  --inputSize: 26px;
-  --pad: 24px;
+  --panelW:min(1180px,96vw);
+  --btnH:64px;
+  --btnPadX:20px;
+  --controlsPad:160px;
+
+  --titleSize:32px;
+  --wordSize:90px;
+  --inputSize:22px;
+  --pad:20px;
 }
 
-*{ box-sizing:border-box; }
-html,body{ height:100%; }
+*{box-sizing:border-box}
+html,body{height:100%}
 
 body{
   margin:0;
-  font-family:var(--sans);
-  background:#ffffff;
-  color:var(--ink);
+  font-family:ui-sans-serif,system-ui;
   display:flex;
   justify-content:center;
   padding:18px;
+  background:
+    radial-gradient(900px 520px at 10% 10%, rgba(255,209,232,.55), transparent 60%),
+    radial-gradient(850px 520px at 92% 0%, rgba(207,233,255,.55), transparent 62%),
+    linear-gradient(180deg,#fff9fd,#f7fbff);
 }
 
-/* Panel becomes a “page” with sticky footer */
 .panel{
   width:var(--panelW);
-  border:3px solid var(--line);
-  border-radius:var(--radius);
-  background:#fff;
-  box-shadow:0 10px 30px rgba(0,0,0,.06);
+  border-radius:28px;
+  background:rgba(255,255,255,.92);
+  box-shadow:0 25px 60px rgba(0,0,0,.12);
   overflow:hidden;
-
-  min-height:100vh;
   display:flex;
   flex-direction:column;
-
-  position:relative; /* for confetti overlay */
+  min-height:100vh;
+  position:relative;
 }
 
+/* Confetti */
+#confettiCanvas{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  display:none;
+}
+
+/* Header */
 header{
   padding:18px 22px;
-  border-bottom:3px solid var(--line);
+  position:relative;
+  background:white;
 }
-
+header:before{
+  content:"";
+  position:absolute;
+  top:0;left:0;right:0;
+  height:8px;
+  background:linear-gradient(90deg,var(--p1),var(--p2),var(--p3),var(--p4),var(--p5),var(--p6));
+}
 h1{
-  margin:0;
+  margin:8px 0 0 0;
   font-size:var(--titleSize);
+  font-weight:900;
 }
+h1::before{content:"🌈 ";}
 
+/* Main */
 .main{
-  padding:var(--pad) var(--pad) calc(var(--controlsPad) + 18px);
+  padding:var(--pad) var(--pad) calc(var(--controlsPad)+16px);
   display:grid;
-  gap:22px;
+  gap:18px;
   flex:1;
 }
 
 .topRow{
   display:flex;
   justify-content:space-between;
-  font-size:18px;
+  font-size:16px;
   color:var(--muted);
-  gap:12px;
-  flex-wrap:wrap;
 }
 
 .wordBox{
-  border:4px solid var(--line);
-  border-radius:var(--radius);
+  border-radius:28px;
+  background:white;
+  box-shadow:0 15px 35px rgba(0,0,0,.08);
   padding:50px 20px;
-  text-align:center;
-  min-height:220px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -98,647 +123,321 @@ h1{
 
 .word{
   font-size:var(--wordSize);
-  font-weight:900;
-  word-break:break-word;
+  font-weight:1000;
 }
 
 .covered{
-  filter: blur(18px);
-  opacity:.14;
-  user-select:none;
-  pointer-events:none;
+  filter:blur(18px);
+  opacity:.15;
 }
 
+/* Input */
 .writeRow{
   display:flex;
-  gap:14px;
-  align-items:center;
+  gap:10px;
   flex-wrap:wrap;
-  scroll-margin-bottom: calc(var(--controlsPad) + 24px);
 }
-
 input{
   flex:1;
-  min-width:240px;
-  padding:16px 20px;
+  padding:16px;
   border-radius:18px;
-  border:3px solid var(--line);
+  border:1px solid var(--line);
   font-size:var(--inputSize);
-  outline:none;
+  font-weight:700;
 }
 input:focus{
-  border-color:#93c5fd;
-  box-shadow:0 0 0 6px rgba(147,197,253,.35);
+  outline:none;
+  box-shadow:0 0 0 4px rgba(255,111,180,.25);
 }
-
-.hidden{ display:none !important; }
 
 .tag{
-  font-size:18px;
-  padding:8px 14px;
+  padding:8px 12px;
   border-radius:999px;
   font-weight:900;
-  border:2px solid transparent;
 }
-.tag.good{ background:#f0fdf4; color:#14532d; border-color:#86efac; }
-.tag.bad{ background:#fff1f2; color:#7f1d1d; border-color:#fda4af; }
+.tag.good{background:#d8f5c7;color:#14532d}
+.tag.bad{background:#ffd1e8;color:#7f1d1d}
+.hidden{display:none !important}
 
+/* Controls */
 .controls{
   position:sticky;
   bottom:0;
-  background:rgba(255,255,255,.96);
-  backdrop-filter: blur(8px);
-  border-top:3px solid var(--line);
   padding:14px;
+  background:white;
+  border-top:1px solid var(--line);
 }
-
+.controls:before{
+  content:"";
+  display:block;
+  height:6px;
+  margin:-14px -14px 10px;
+  background:linear-gradient(90deg,var(--p1),var(--p2),var(--p3),var(--p4),var(--p5),var(--p6));
+}
 .btnRow{
   display:flex;
-  gap:12px;
+  gap:10px;
   flex-wrap:wrap;
   justify-content:center;
 }
-
 button{
   height:var(--btnH);
   padding:0 var(--btnPadX);
   border-radius:18px;
-  border:3px solid var(--line);
-  background:#fff;
+  border:none;
   font-weight:900;
-  font-size:18px;
+  font-size:16px;
   cursor:pointer;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  box-shadow:0 4px 0 rgba(0,0,0,.06);
-  transform: translateY(0);
+  box-shadow:0 8px 20px rgba(0,0,0,.12);
 }
-button:hover{ background:#f9fafb; }
-button:active{
-  transform: translateY(2px);
-  box-shadow:0 2px 0 rgba(0,0,0,.06);
+button:disabled{opacity:.4;cursor:not-allowed}
+
+.primary{
+  background:linear-gradient(135deg,#ff6fb4,#7dd3fc);
+  color:white;
 }
-button:disabled{ opacity:.4; cursor:not-allowed; box-shadow:none; }
+.next{
+  background:linear-gradient(135deg,#34d399,#60a5fa);
+  color:white;
+}
+.danger{
+  background:#ffe4e6;
+  color:#991b1b;
+}
 
-.primary{ background:var(--accent); color:#fff; border-color:var(--accent); }
-.next{ background:var(--next); color:#fff; border-color:var(--next); }
-.danger{ background:#fff1f2; color:#991b1b; border-color:#fecaca; }
-.ghost{ background:#fff; }
-
-/* Congrats page */
+/* Congrats */
 .congratsWrap{
   display:grid;
-  gap:18px;
+  gap:16px;
   padding:var(--pad);
   text-align:center;
   flex:1;
 }
-
 .congratsTitle{
   font-size:42px;
   font-weight:1000;
 }
-
 .wordsGrid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:12px 24px;
-  font-size:24px;
+  gap:12px;
   font-weight:900;
-  max-width:900px;
+  font-size:20px;
   margin:auto;
-}
-.wordCell{ padding:4px 0; }
-
-/* Badge */
-.badgeWrap{
-  display:flex;
-  justify-content:center;
-  margin-top:4px;
+  max-width:800px;
 }
 .badge{
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  padding:10px 16px;
+  padding:8px 16px;
   border-radius:999px;
-  border:3px solid #fde68a;
-  background:linear-gradient(180deg,#fff7ed,#fffbeb);
-  color:#7c2d12;
+  background:linear-gradient(135deg,#ffe6a7,#e5d7ff);
   font-weight:1000;
-  font-size:18px;
   opacity:0;
-  transform: scale(.6);
-  filter: drop-shadow(0 8px 14px rgba(0,0,0,.08));
+  transform:scale(.6);
 }
 .badge.show{
-  animation: badgePop 900ms cubic-bezier(.2,1.2,.2,1) forwards;
+  animation:pop .8s forwards;
 }
-@keyframes badgePop{
-  0%{ opacity:0; transform: scale(.6) translateY(6px); }
-  60%{ opacity:1; transform: scale(1.08) translateY(0); }
-  80%{ opacity:1; transform: scale(.98); }
-  100%{ opacity:1; transform: scale(1); }
+@keyframes pop{
+  0%{opacity:0;transform:scale(.6)}
+  70%{opacity:1;transform:scale(1.1)}
+  100%{opacity:1;transform:scale(1)}
 }
 
-/* Footer (sticks at bottom because panel is flex column) */
+/* Footer */
 footer{
-  border-top:3px solid var(--line);
   padding:12px;
   text-align:center;
-  font-size:15px;
+  font-size:14px;
+  font-weight:800;
   color:var(--muted);
-  font-weight:600;
-  background:#fff;
-}
-
-/* Confetti canvas overlay */
-#confettiCanvas{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  pointer-events:none;
-  display:none;
+  background:white;
+  border-top:1px solid var(--line);
 }
 
 /* Mobile */
-@media(max-width:700px){
-  :root{
-    --titleSize:24px;
-    --wordSize:56px;
-    --inputSize:20px;
-    --btnH:56px;
-    --btnPadX:16px;
-    --pad:14px;
-  }
-  .wordBox{ min-height:180px; padding:36px 14px; }
-  .wordsGrid{ grid-template-columns:1fr; font-size:20px; }
-  button{ width:100%; }
+@media(max-width:600px){
+  .word{font-size:58px}
+  .wordsGrid{grid-template-columns:1fr}
+  button{width:100%}
 }
 </style>
 </head>
 
 <body>
-<section class="panel" id="panel">
+<section class="panel">
 
-  <!-- Confetti overlay -->
-  <canvas id="confettiCanvas"></canvas>
+<canvas id="confettiCanvas"></canvas>
 
-  <header>
-    <h1>P5U1 Vocabulary-Spelling</h1>
-  </header>
+<header>
+<h1>P5U1 Vocabulary-Spelling</h1>
+</header>
 
-  <!-- GAME PAGE -->
-  <div class="main" id="gamePage">
-    <div class="topRow">
-      <div id="progress">Word 1 of 15</div>
-      <div id="score">0/15 correct</div>
-    </div>
+<div class="main" id="gamePage">
 
-    <div class="wordBox">
-      <div class="word covered" id="targetWord"></div>
-    </div>
+<div class="topRow">
+<div id="progress">Word 1 of 15</div>
+<div id="score">0/15 correct</div>
+</div>
 
-    <div class="writeRow" id="writeRow">
-      <input id="inputBox" class="hidden" placeholder="Type..." autocomplete="off" spellcheck="false" />
-      <span id="resultTag" class="hidden"></span>
-    </div>
+<div class="wordBox">
+<div class="word covered" id="targetWord"></div>
+</div>
 
-    <!-- Sticky control bar -->
-    <div class="controls" id="controls">
-      <div class="btnRow">
-        <button id="btnFullscreen" class="ghost">🖥️ Fullscreen</button>
+<div class="writeRow">
+<input id="inputBox" class="hidden" placeholder="Type..." autocomplete="off" spellcheck="false" />
+<span id="resultTag" class="hidden"></span>
+</div>
 
-        <button id="btnLook">Look</button>
-        <button id="btnSay" disabled>Say</button>
-        <button id="btnCover" disabled>Cover</button>
-        <button id="btnWrite" disabled>Write</button>
+<div class="controls" id="controls">
+<div class="btnRow">
+<button id="btnLook">Look</button>
+<button id="btnSay" disabled>Say</button>
+<button id="btnCover" disabled>Cover</button>
+<button id="btnWrite" disabled>Write</button>
+<button id="btnCheck" class="primary" disabled>Check</button>
+<button id="btnNext" class="next">Next Word</button>
+<button id="btnReset" class="danger">Reset Word</button>
+</div>
+</div>
 
-        <button id="btnCheck" class="primary" disabled>Check</button>
-        <button id="btnNext" class="next">Next Word</button>
-        <button id="btnReset" class="danger">Reset Word</button>
-      </div>
-    </div>
-  </div>
+</div>
 
-  <!-- CONGRATS PAGE -->
-  <div class="congratsWrap hidden" id="congratsPage">
-    <div class="congratsTitle">🎉 Congratulations! 🎉</div>
-    <div style="color:var(--muted); font-weight:800;">You scored <span id="finalScore">15/15</span>!</div>
+<div class="congratsWrap hidden" id="congratsPage">
+<div class="congratsTitle">🎉 Congratulations! 🎉</div>
+<div>You scored <span id="finalScore">15/15</span></div>
+<div class="badge" id="perfectBadge">🏆 Perfect Score</div>
+<div class="wordsGrid" id="wordsGrid"></div>
+<button id="btnPlayAgain" class="primary">Play Again</button>
+</div>
 
-    <div class="badgeWrap">
-      <div class="badge" id="perfectBadge">🏆 Perfect Score</div>
-    </div>
-
-    <div class="wordsGrid" id="wordsGrid"></div>
-
-    <div style="display:flex; justify-content:center;">
-      <button id="btnPlayAgain" class="primary" style="max-width:360px; width:100%;">Play Again</button>
-    </div>
-  </div>
-
-  <footer>
-    © <span id="currentYear"></span> Sng Qi Wen
-  </footer>
+<footer>
+© <span id="currentYear"></span> Sng Qi Wen
+</footer>
 
 </section>
 
 <script>
-/* -------------------------
-   DATA
-------------------------- */
-const words=[
-  "lunged","yelped","errands","shoved","tugging","sprinted","smirked","dreaded","bellowed","yearning",
-  "forlornly","flexibility","hesitantly","humiliating","satisfaction"
-];
+const words=["lunged","yelped","errands","shoved","tugging","sprinted","smirked","dreaded","bellowed","yearning","forlornly","flexibility","hesitantly","humiliating","satisfaction"];
 
-let idx=0;
-let stage=0;
-let finishedOnce=false; // prevents re-triggering confetti repeatedly
-
+let idx=0, stage=0, finished=false;
 const stats=new Map();
-function initStats(){
-  stats.clear();
-  words.forEach(w=>stats.set(w,{correct:false}));
-}
-initStats();
-
-/* -------------------------
-   ELEMENTS
-------------------------- */
-const panel=document.getElementById("panel");
-const gamePage=document.getElementById("gamePage");
-const congratsPage=document.getElementById("congratsPage");
+words.forEach(w=>stats.set(w,false));
 
 const targetWord=document.getElementById("targetWord");
 const inputBox=document.getElementById("inputBox");
 const progress=document.getElementById("progress");
 const score=document.getElementById("score");
 const resultTag=document.getElementById("resultTag");
-const writeRow=document.getElementById("writeRow");
-
-const controls=document.getElementById("controls");
-
+const gamePage=document.getElementById("gamePage");
+const congratsPage=document.getElementById("congratsPage");
 const wordsGrid=document.getElementById("wordsGrid");
-const finalScore=document.getElementById("finalScore");
 const perfectBadge=document.getElementById("perfectBadge");
 
-const btnFullscreen=document.getElementById("btnFullscreen");
-const btnLook=document.getElementById("btnLook");
-const btnSay=document.getElementById("btnSay");
-const btnCover=document.getElementById("btnCover");
-const btnWrite=document.getElementById("btnWrite");
-const btnCheck=document.getElementById("btnCheck");
-const btnNext=document.getElementById("btnNext");
-const btnReset=document.getElementById("btnReset");
-const btnPlayAgain=document.getElementById("btnPlayAgain");
-
-/* -------------------------
-   FOOTER YEAR
-------------------------- */
-document.getElementById("currentYear").textContent = new Date().getFullYear();
-
-/* -------------------------
-   BULLETPROOF BOTTOM PADDING
-------------------------- */
-function setControlsPad(){
-  const h = Math.ceil(controls.getBoundingClientRect().height);
-  document.documentElement.style.setProperty("--controlsPad", (h + 24) + "px");
-}
-setControlsPad();
-window.addEventListener("resize", setControlsPad, {passive:true});
-window.addEventListener("orientationchange", ()=>setTimeout(setControlsPad, 250), {passive:true});
-if ("ResizeObserver" in window){
-  const ro=new ResizeObserver(()=>setControlsPad());
-  ro.observe(controls);
-}
-
-/* Keep input visible (esp. mobile keyboard) */
-function ensureWriteVisible(){
-  writeRow.scrollIntoView({behavior:"smooth", block:"end"});
-}
-
-/* -------------------------
-   BASIC TOOL LOGIC
-------------------------- */
-function getCorrectCount(){
-  let c=0;
-  for(const w of words){
-    if(stats.get(w)?.correct) c++;
-  }
-  return c;
-}
-
 function update(){
-  targetWord.textContent=words[idx];
-  progress.textContent=`Word ${idx+1} of ${words.length}`;
-  score.textContent=`${getCorrectCount()}/${words.length} correct`;
+targetWord.textContent=words[idx];
+progress.textContent=`Word ${idx+1} of ${words.length}`;
+score.textContent=`${[...stats.values()].filter(v=>v).length}/${words.length} correct`;
+if([...stats.values()].every(v=>v) && !finished){finished=true;showCongrats();}
 }
-
 function resetStages(){
-  stage=0;
-  btnLook.disabled=false;
-  btnSay.disabled=true;
-  btnCover.disabled=true;
-  btnWrite.disabled=true;
-  btnCheck.disabled=true;
-
-  inputBox.classList.add("hidden");
-  inputBox.value="";
-  resultTag.className="hidden";
-
-  targetWord.classList.add("covered");
+stage=0;
+btnLook.disabled=false;
+btnSay.disabled=true;
+btnCover.disabled=true;
+btnWrite.disabled=true;
+btnCheck.disabled=true;
+inputBox.classList.add("hidden");
+inputBox.value="";
+resultTag.className="hidden";
+targetWord.classList.add("covered");
 }
 
-/* Speech (Say button) */
-function speak(word){
-  if("speechSynthesis" in window){
-    speechSynthesis.cancel();
-    speechSynthesis.speak(new SpeechSynthesisUtterance(word));
-  }
-}
-
-/* Stage buttons */
-btnLook.onclick=()=>{
-  if(stage!==0) return;
-  targetWord.classList.remove("covered");
-  btnSay.disabled=false;
-  stage=1;
-};
-
-btnSay.onclick=()=>{
-  if(stage!==1) return;
-  speak(words[idx]);
-  btnCover.disabled=false;
-  stage=2;
-};
-
-btnCover.onclick=()=>{
-  if(stage!==2) return;
-  targetWord.classList.add("covered");
-  btnWrite.disabled=false;
-  stage=3;
-};
-
-btnWrite.onclick=()=>{
-  if(stage!==3) return;
-  inputBox.classList.remove("hidden");
-  btnCheck.disabled=false;
-  stage=4;
-  setTimeout(()=>{
-    ensureWriteVisible();
-    inputBox.focus({preventScroll:true});
-  }, 60);
-};
-
+btnLook.onclick=()=>{if(stage!==0)return;targetWord.classList.remove("covered");btnSay.disabled=false;stage=1;}
+btnSay.onclick=()=>{if(stage!==1)return;speechSynthesis.speak(new SpeechSynthesisUtterance(words[idx]));btnCover.disabled=false;stage=2;}
+btnCover.onclick=()=>{if(stage!==2)return;targetWord.classList.add("covered");btnWrite.disabled=false;stage=3;}
+btnWrite.onclick=()=>{if(stage!==3)return;inputBox.classList.remove("hidden");btnCheck.disabled=false;stage=4;inputBox.focus();}
 btnCheck.onclick=()=>{
-  if(stage!==4) return;
-  const typed=inputBox.value.trim().toLowerCase();
-  if(!typed) return;
-
-  resultTag.classList.remove("hidden");
-
-  if(typed===words[idx]){
-    stats.get(words[idx]).correct=true;
-    resultTag.className="tag good";
-    resultTag.textContent="Correct";
-    targetWord.classList.remove("covered");
-    speak(words[idx]);
-  }else{
-    resultTag.className="tag bad";
-    resultTag.textContent="Try again";
-    setTimeout(()=>inputBox.focus({preventScroll:true}), 30);
-  }
-
-  update();
-  maybeFinish();
-};
-
-btnNext.onclick=()=>{
-  idx=(idx+1)%words.length;
-  update();
-  resetStages();
-};
-
-btnReset.onclick=()=>{
-  stats.get(words[idx]).correct=false;
-  update();
-  resetStages();
-};
-
-inputBox.addEventListener("keydown",e=>{
-  if(e.key==="Enter") btnCheck.click();
-});
-inputBox.addEventListener("focus", ()=>setTimeout(()=>ensureWriteVisible(), 120), {passive:true});
-
-/* -------------------------
-   FULLSCREEN TEACHER MODE
-------------------------- */
-function isFullscreen(){
-  return !!document.fullscreenElement;
+if(stage!==4)return;
+if(inputBox.value.trim().toLowerCase()===words[idx]){
+stats.set(words[idx],true);
+resultTag.className="tag good";
+resultTag.textContent="Correct";
+targetWord.classList.remove("covered");
+}else{
+resultTag.className="tag bad";
+resultTag.textContent="Try again";
 }
-async function toggleFullscreen(){
-  try{
-    if(!isFullscreen()){
-      // Use the whole page for best projector experience
-      await document.documentElement.requestFullscreen();
-    }else{
-      await document.exitFullscreen();
-    }
-  }catch(err){
-    // If browser blocks fullscreen, do nothing (silent)
-  }
-}
-btnFullscreen.onclick = toggleFullscreen;
-
-document.addEventListener("fullscreenchange", ()=>{
-  btnFullscreen.textContent = isFullscreen() ? "🖥️ Exit Fullscreen" : "🖥️ Fullscreen";
-});
-
-/* -------------------------
-   CELEBRATION SOUND (WebAudio)
-------------------------- */
-let audioCtx=null;
-function ensureAudio(){
-  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-  if(audioCtx.state==="suspended") audioCtx.resume();
-}
-function beep(freq, ms, t0){
-  const o=audioCtx.createOscillator();
-  const g=audioCtx.createGain();
-  o.type="sine";
-  o.frequency.value=freq;
-
-  // envelope
-  const now=audioCtx.currentTime + (t0||0);
-  g.gain.setValueAtTime(0.0001, now);
-  g.gain.exponentialRampToValueAtTime(0.08, now+0.01);
-  g.gain.exponentialRampToValueAtTime(0.0001, now+(ms/1000));
-
-  o.connect(g); g.connect(audioCtx.destination);
-  o.start(now);
-  o.stop(now + (ms/1000) + 0.02);
-}
-function playCelebration(){
-  ensureAudio();
-  // simple “ta-da!” melody
-  const notes=[523,659,784,1046]; // C5 E5 G5 C6
-  let t=0;
-  notes.forEach((n,i)=>{
-    beep(n, 140, t);
-    t += 0.16;
-  });
-  // extra sparkle
-  setTimeout(()=>{ beep(1319,120,0); beep(1568,120,0.08); }, 650);
-}
-
-/* -------------------------
-   CONFETTI (Canvas Overlay)
-------------------------- */
-const confettiCanvas=document.getElementById("confettiCanvas");
-const ctx=confettiCanvas.getContext("2d");
-let confettiRAF=null;
-
-function sizeConfettiCanvas(){
-  const r = panel.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-  confettiCanvas.width = Math.floor(r.width * dpr);
-  confettiCanvas.height = Math.floor(r.height * dpr);
-  confettiCanvas.style.width = r.width + "px";
-  confettiCanvas.style.height = r.height + "px";
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-}
-
-function startConfetti(durationMs=2200){
-  cancelConfetti();
-  sizeConfettiCanvas();
-  confettiCanvas.style.display="block";
-
-  const r = panel.getBoundingClientRect();
-  const pieces=[];
-  const colors=["#ef4444","#f97316","#f59e0b","#22c55e","#06b6d4","#3b82f6","#a855f7","#ec4899"];
-
-  const count = Math.min(220, Math.floor(r.width * 0.25));
-  for(let i=0;i<count;i++){
-    pieces.push({
-      x: Math.random()*r.width,
-      y: -20 - Math.random()*r.height*0.4,
-      vx: (Math.random()-0.5)*2.2,
-      vy: 2.2 + Math.random()*4.2,
-      rot: Math.random()*Math.PI,
-      vr: (Math.random()-0.5)*0.25,
-      w: 6 + Math.random()*8,
-      h: 8 + Math.random()*12,
-      c: colors[Math.floor(Math.random()*colors.length)],
-      a: 0.9
-    });
-  }
-
-  const start = performance.now();
-  function frame(now){
-    const elapsed = now - start;
-    ctx.clearRect(0,0,r.width,r.height);
-
-    for(const p of pieces){
-      p.x += p.vx;
-      p.y += p.vy;
-      p.rot += p.vr;
-      p.vy += 0.03;       // gravity
-      p.vx *= 0.995;      // drag
-
-      // fade out near end
-      if(elapsed > durationMs * 0.7){
-        p.a = Math.max(0, p.a - 0.02);
-      }
-
-      ctx.save();
-      ctx.globalAlpha = p.a;
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rot);
-      ctx.fillStyle = p.c;
-      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
-      ctx.restore();
-    }
-
-    if(elapsed < durationMs){
-      confettiRAF = requestAnimationFrame(frame);
-    }else{
-      cancelConfetti();
-    }
-  }
-  confettiRAF = requestAnimationFrame(frame);
-}
-
-function cancelConfetti(){
-  if(confettiRAF) cancelAnimationFrame(confettiRAF);
-  confettiRAF=null;
-  ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
-  confettiCanvas.style.display="none";
-}
-
-window.addEventListener("resize", ()=>{ if(confettiCanvas.style.display==="block") sizeConfettiCanvas(); }, {passive:true});
-
-/* -------------------------
-   FINISH FLOW: Congrats + Badge + Confetti + Sound
-------------------------- */
-function showCongrats(){
-  // Build 3 columns × 5 rows borderless layout
-  wordsGrid.innerHTML="";
-  words.forEach(w=>{
-    const div=document.createElement("div");
-    div.className="wordCell";
-    div.textContent=w;
-    wordsGrid.appendChild(div);
-  });
-
-  finalScore.textContent = `${words.length}/${words.length}`;
-
-  // Swap pages
-  gamePage.classList.add("hidden");
-  congratsPage.classList.remove("hidden");
-
-  // Badge animation
-  perfectBadge.classList.remove("show");
-  void perfectBadge.offsetWidth; // restart animation
-  perfectBadge.classList.add("show");
-
-  // Confetti + sound
-  startConfetti(2400);
-  playCelebration();
-
-  congratsPage.scrollIntoView({behavior:"smooth", block:"start"});
-}
-
-function maybeFinish(){
-  if(finishedOnce) return;
-  if(getCorrectCount() === words.length){
-    finishedOnce = true;
-    showCongrats();
-  }
-}
-
-/* Play Again */
-btnPlayAgain.onclick=()=>{
-  finishedOnce=false;
-  cancelConfetti();
-
-  idx=0;
-  stage=0;
-  initStats();
-
-  congratsPage.classList.add("hidden");
-  gamePage.classList.remove("hidden");
-
-  update();
-  resetStages();
-  setTimeout(()=>targetWord.scrollIntoView({behavior:"smooth", block:"center"}), 80);
-};
-
-/* Init */
+resultTag.classList.remove("hidden");
 update();
-resetStages();
-</script>
+};
+btnNext.onclick=()=>{idx=(idx+1)%words.length;update();resetStages();}
+btnReset.onclick=()=>{stats.set(words[idx],false);update();resetStages();}
 
+function showCongrats(){
+gamePage.classList.add("hidden");
+congratsPage.classList.remove("hidden");
+wordsGrid.innerHTML="";
+words.forEach(w=>{
+const div=document.createElement("div");
+div.textContent=w;
+wordsGrid.appendChild(div);
+});
+perfectBadge.classList.add("show");
+startConfetti();
+playSound();
+}
+
+btnPlayAgain.onclick=()=>{
+finished=false;
+idx=0;
+words.forEach(w=>stats.set(w,false));
+congratsPage.classList.add("hidden");
+gamePage.classList.remove("hidden");
+perfectBadge.classList.remove("show");
+update();resetStages();
+};
+
+document.getElementById("currentYear").textContent=new Date().getFullYear();
+
+/* Celebration Sound */
+function playSound(){
+const ctx=new (window.AudioContext||window.webkitAudioContext)();
+const o=ctx.createOscillator();
+o.type="triangle";o.frequency.value=880;
+o.connect(ctx.destination);o.start();
+setTimeout(()=>o.stop(),300);
+}
+
+/* Confetti */
+function startConfetti(){
+const canvas=document.getElementById("confettiCanvas");
+const ctx=canvas.getContext("2d");
+canvas.width=canvas.offsetWidth;
+canvas.height=canvas.offsetHeight;
+canvas.style.display="block";
+let pieces=[...Array(120)].map(()=>({
+x:Math.random()*canvas.width,
+y:Math.random()*-canvas.height,
+size:6+Math.random()*6,
+speed:2+Math.random()*4,
+color:`hsl(${Math.random()*360},100%,75%)`
+}));
+let t=0;
+function draw(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+pieces.forEach(p=>{
+ctx.fillStyle=p.color;
+ctx.fillRect(p.x,p.y,p.size,p.size);
+p.y+=p.speed;
+if(p.y>canvas.height)p.y=0;
+});
+if(t<200){requestAnimationFrame(draw);t++;}
+else canvas.style.display="none";
+}
+draw();
+}
+
+update();resetStages();
+</script>
 </body>
 </html>
