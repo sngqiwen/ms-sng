@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>P5U1 Vocabulary-Spelling (Projector)</title>
+
+<style>
+:root{
+  --ink:#0b1220;
+  --muted:#4b5563;
+  --line:#d1d5db;
+  --accent:#1d4ed8;
+  --next:#0284c7;
+  --good:#16a34a;
+  --bad:#dc2626;
+
+  --radius:22px;
+  --sans: ui-sans-serif, system-ui;
+
+  /* Projector sizing */
+  --panelW: min(1200px, 96vw);
+  --btnH: 74px;
+  --btnPadX: 28px;
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family:var(--sans);
+  background:#ffffff;
+  color:var(--ink);
+  display:flex;
+  justify-content:center;
+  padding:22px;
+}
+
+.panel{
+  width:var(--panelW);
+  border:3px solid var(--line);
+  border-radius:var(--radius);
+  background:#fff;
+  overflow:hidden;
+  box-shadow:0 10px 30px rgba(0,0,0,.06);
+}
+
+header{
+  padding:18px 22px;
+  border-bottom:3px solid var(--line);
+  background:#ffffff;
+}
+
+h1{
+  margin:0;
+  font-size:34px;
+  letter-spacing:.2px;
+}
+
+.main{
+  padding:26px 26px 120px; /* extra bottom space for sticky controls */
+  display:grid;
+  gap:22px;
+}
+
+.topRow{
+  display:flex;
+  justify-content:space-between;
+  gap:18px;
+  font-size:20px;
+  color:var(--muted);
+}
+
+.wordBox{
+  border:4px solid var(--line);
+  border-radius:var(--radius);
+  padding:54px 20px;
+  text-align:center;
+  background:#ffffff;
+  min-height:220px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.word{
+  font-size:92px;
+  font-weight:900;
+  letter-spacing:1px;
+  line-height:1.05;
+}
+
+.covered{
+  filter: blur(18px);
+  opacity:.14;
+  user-select:none;
+  pointer-events:none;
+}
+
+.writeRow{
+  display:flex;
+  gap:14px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+input{
+  flex:1 1 520px;
+  padding:18px 20px;
+  border-radius:18px;
+  border:3px solid var(--line);
+  font-size:28px;
+  outline:none;
+}
+input:focus{
+  border-color:#93c5fd;
+  box-shadow:0 0 0 6px rgba(147,197,253,.35);
+}
+
+.hidden{ display:none; }
+
+.tag{
+  font-size:20px;
+  padding:10px 16px;
+  border-radius:999px;
+  border:3px solid var(--line);
+  white-space:nowrap;
+  font-weight:900;
+}
+.tag.good{ background:#f0fdf4; color:#14532d; border-color:#86efac; }
+.tag.bad{  background:#fff1f2; color:#7f1d1d; border-color:#fda4af; }
+
+/* Sticky controls bar (projector-friendly) */
+.controls{
+  position:sticky;
+  bottom:0;
+  background:rgba(255,255,255,.96);
+  backdrop-filter: blur(8px);
+  border-top:3px solid var(--line);
+  padding:16px 18px;
+}
+
+.btnRow{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+button{
+  height:var(--btnH);
+  padding:0 var(--btnPadX);
+  border-radius:18px;
+  border:3px solid var(--line);
+  background:#fff;
+  font-weight:900;
+  font-size:22px;
+  cursor:pointer;
+  letter-spacing:.2px;
+  box-shadow:0 4px 0 rgba(0,0,0,.06);
+  transform: translateY(0);
+}
+button:hover{ background:#f9fafb; }
+button:active{
+  transform: translateY(2px);
+  box-shadow:0 2px 0 rgba(0,0,0,.06);
+}
+
+button:disabled{
+  opacity:.35;
+  cursor:not-allowed;
+  box-shadow:none;
+}
+
+.primary{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+}
+.next{
+  background:var(--next);
+  border-color:var(--next);
+  color:#fff;
+}
+.danger{
+  background:#fff1f2;
+  border-color:#fecaca;
+  color:#991b1b;
+}
+
+/* Nice on big screens */
+@media (max-width: 700px){
+  .word{ font-size:64px; }
+  h1{ font-size:26px; }
+  button{ width:100%; justify-content:center; }
+}
+</style>
+</head>
+
+<body>
+<section class="panel">
+  <header>
+    <h1>P5U1 Vocabulary-Spelling</h1>
+  </header>
+
+  <div class="main">
+
+    <div class="topRow">
+      <div id="progress">Word 1 of 15</div>
+      <div id="score">0/15 correct</div>
+    </div>
+
+    <div class="wordBox">
+      <div class="word covered" id="targetWord"></div>
+    </div>
+
+    <div class="writeRow">
+      <input id="inputBox" class="hidden" placeholder="Type..." autocomplete="off" spellcheck="false" />
+      <span id="resultTag" class="hidden"></span>
+    </div>
+
+    <!-- Sticky projector control bar -->
+    <div class="controls">
+      <div class="btnRow">
+        <button id="btnLook">Look</button>
+        <button id="btnSay" disabled>Say</button>
+        <button id="btnCover" disabled>Cover</button>
+        <button id="btnWrite" disabled>Write</button>
+        <button id="btnCheck" class="primary" disabled>Check</button>
+        <button id="btnNext" class="next">Next word</button>
+        <button id="btnPrev">Previous word</button>
+        <button id="btnReset" class="danger">Reset word</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+const words=[
+  "lunged","yelped","errands","shoved","tugging","sprinted","smirked","dreaded","bellowed","yearning",
+  "forlornly","flexibility","hesitantly","humiliating","satisfaction"
+];
+
+let idx=0;
+let stage=0; // 0=Look,1=Say,2=Cover,3=Write,4=Check
+
+const stats=new Map();
+words.forEach(w=>stats.set(w,{attempts:0,correct:false}));
+
+const targetWord=document.getElementById("targetWord");
+const inputBox=document.getElementById("inputBox");
+const progress=document.getElementById("progress");
+const score=document.getElementById("score");
+const resultTag=document.getElementById("resultTag");
+
+const btnLook=document.getElementById("btnLook");
+const btnSay=document.getElementById("btnSay");
+const btnCover=document.getElementById("btnCover");
+const btnWrite=document.getElementById("btnWrite");
+const btnCheck=document.getElementById("btnCheck");
+
+let audioCtx=null;
+function tone(f,d){
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  const o=audioCtx.createOscillator();
+  const g=audioCtx.createGain();
+  o.type="sine"; o.frequency.value=f;
+  g.gain.value=0.06;
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(); setTimeout(()=>o.stop(),d);
+}
+function soundCorrect(){ tone(880,100); setTimeout(()=>tone(1175,120),120); }
+function soundWrong(){ tone(220,250); }
+
+function speak(word){
+  if("speechSynthesis" in window){
+    speechSynthesis.cancel();
+    speechSynthesis.speak(new SpeechSynthesisUtterance(word));
+  }
+}
+
+function update(){
+  targetWord.textContent=words[idx];
+  progress.textContent=`Word ${idx+1} of ${words.length}`;
+  let correct=0;
+  words.forEach(w=>{ if(stats.get(w).correct) correct++; });
+  score.textContent=`${correct}/${words.length} correct`;
+}
+
+function resetStages(){
+  stage=0;
+  btnLook.disabled=false;
+  btnSay.disabled=true;
+  btnCover.disabled=true;
+  btnWrite.disabled=true;
+  btnCheck.disabled=true;
+
+  inputBox.classList.add("hidden");
+  inputBox.value="";
+  resultTag.className="hidden";
+
+  targetWord.classList.add("covered");
+}
+
+btnLook.onclick=()=>{
+  if(stage!==0) return;
+  targetWord.classList.remove("covered");
+  btnSay.disabled=false;
+  stage=1;
+};
+
+btnSay.onclick=()=>{
+  if(stage!==1) return;
+  speak(words[idx]);
+  btnCover.disabled=false;
+  stage=2;
+};
+
+btnCover.onclick=()=>{
+  if(stage!==2) return;
+  targetWord.classList.add("covered");
+  btnWrite.disabled=false;
+  stage=3;
+};
+
+btnWrite.onclick=()=>{
+  if(stage!==3) return;
+  inputBox.classList.remove("hidden");
+  inputBox.focus();
+  btnCheck.disabled=false;
+  stage=4;
+};
+
+btnCheck.onclick=()=>{
+  if(stage!==4) return;
+  const typed=inputBox.value.trim().toLowerCase();
+  if(!typed) return;
+
+  resultTag.classList.remove("hidden");
+
+  if(typed===words[idx]){
+    stats.get(words[idx]).correct=true;
+    resultTag.className="tag good";
+    resultTag.textContent="Correct";
+    targetWord.classList.remove("covered");
+    soundCorrect();
+    speak(words[idx]);
+  }else{
+    resultTag.className="tag bad";
+    resultTag.textContent="Try again";
+    soundWrong();
+  }
+  update();
+};
+
+document.getElementById("btnNext").onclick=()=>{
+  idx=(idx+1)%words.length;
+  update();
+  resetStages();
+};
+
+document.getElementById("btnPrev").onclick=()=>{
+  idx=(idx-1+words.length)%words.length;
+  update();
+  resetStages();
+};
+
+document.getElementById("btnReset").onclick=()=>{
+  stats.get(words[idx]).correct=false;
+  update();
+  resetStages();
+};
+
+inputBox.addEventListener("keydown",e=>{
+  if(e.key==="Enter") btnCheck.click();
+});
+
+update();
+resetStages();
+</script>
+</body>
+</html>
