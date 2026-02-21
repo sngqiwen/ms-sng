@@ -244,7 +244,7 @@ button:disabled{
 <button id="btnCover" disabled>Cover</button>
 <button id="btnWrite" disabled>Write</button>
 <button id="btnCheck" class="primary" disabled>Check</button>
-<button id="btnNext" class="next">Next Word</button>
+<button id="btnNext" class="next" disabled>Next Word</button>
 <button id="btnReset" class="danger">Reset Word</button>
 </div>
 
@@ -281,109 +281,135 @@ document.getElementById("year").textContent=new Date().getFullYear();
 
 let audioCtx=null;
 function tone(f,d){
-if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-const o=audioCtx.createOscillator();
-const g=audioCtx.createGain();
-o.frequency.value=f;
-g.gain.value=0.06;
-o.connect(g); g.connect(audioCtx.destination);
-o.start(); setTimeout(()=>o.stop(),d);
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  const o=audioCtx.createOscillator();
+  const g=audioCtx.createGain();
+  o.frequency.value=f;
+  g.gain.value=0.06;
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(); setTimeout(()=>o.stop(),d);
 }
 function soundCorrect(){tone(880,100);setTimeout(()=>tone(1175,120),120);}
 function soundWrong(){tone(220,250);}
 
 function playCelebration(){
-if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-const notes=[523,659,784,1046,880,1046];
-let t=audioCtx.currentTime;
-notes.forEach(f=>{
-const o=audioCtx.createOscillator();
-const g=audioCtx.createGain();
-o.type="triangle";
-o.frequency.value=f;
-g.gain.setValueAtTime(0.08,t);
-g.gain.exponentialRampToValueAtTime(0.001,t+0.3);
-o.connect(g); g.connect(audioCtx.destination);
-o.start(t); o.stop(t+0.3);
-t+=0.18;
-});
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  const notes=[523,659,784,1046,880,1046];
+  let t=audioCtx.currentTime;
+  notes.forEach(f=>{
+    const o=audioCtx.createOscillator();
+    const g=audioCtx.createGain();
+    o.type="triangle";
+    o.frequency.value=f;
+    g.gain.setValueAtTime(0.08,t);
+    g.gain.exponentialRampToValueAtTime(0.001,t+0.3);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t); o.stop(t+0.3);
+    t+=0.18;
+  });
 }
 
 function speak(word){
-if("speechSynthesis" in window){
-speechSynthesis.cancel();
-speechSynthesis.speak(new SpeechSynthesisUtterance(word));
-}
+  if("speechSynthesis" in window){
+    speechSynthesis.cancel();
+    speechSynthesis.speak(new SpeechSynthesisUtterance(word));
+  }
 }
 
 function update(){
-targetWord.textContent=words[idx];
-progress.textContent=`Word ${idx+1} of ${words.length}`;
-score.textContent=`${[...stats.values()].filter(v=>v.correct).length}/${words.length} correct`;
+  targetWord.textContent=words[idx];
+  progress.textContent=`Word ${idx+1} of ${words.length}`;
+  score.textContent=`${[...stats.values()].filter(v=>v.correct).length}/${words.length} correct`;
 }
 
 function resetStages(){
-stage=0;
-btnLook.disabled=false;
-btnSay.disabled=true;
-btnCover.disabled=true;
-btnWrite.disabled=true;
-btnCheck.disabled=true;
-inputBox.classList.add("hidden");
-inputBox.value="";
-resultTag.className="hidden";
-targetWord.classList.add("covered");
+  stage=0;
+  btnLook.disabled=false;
+  btnSay.disabled=true;
+  btnCover.disabled=true;
+  btnWrite.disabled=true;
+  btnCheck.disabled=true;
+
+  // ✅ Next Word locked until correct
+  btnNext.disabled=true;
+
+  inputBox.classList.add("hidden");
+  inputBox.value="";
+  resultTag.className="hidden";
+  targetWord.classList.add("covered");
 }
 
 btnLook.onclick=()=>{if(stage!==0)return;targetWord.classList.remove("covered");btnSay.disabled=false;stage=1;}
 btnSay.onclick=()=>{if(stage!==1)return;speak(words[idx]);btnCover.disabled=false;stage=2;}
 btnCover.onclick=()=>{if(stage!==2)return;targetWord.classList.add("covered");btnWrite.disabled=false;stage=3;}
 btnWrite.onclick=()=>{if(stage!==3)return;inputBox.classList.remove("hidden");btnCheck.disabled=false;stage=4;inputBox.focus();}
+
 btnCheck.onclick=()=>{
-if(stage!==4)return;
-const typed=inputBox.value.trim().toLowerCase();
-if(!typed)return;
-resultTag.classList.remove("hidden");
-if(typed===words[idx]){
-stats.get(words[idx]).correct=true;
-resultTag.className="tag good";
-resultTag.textContent="Correct";
-targetWord.classList.remove("covered");
-soundCorrect();
-speak(words[idx]);
-if([...stats.values()].every(v=>v.correct)) showCongrats();
-}else{
-resultTag.className="tag bad";
-resultTag.textContent="Try again";
-soundWrong();
-}
-update();
+  if(stage!==4)return;
+  const typed=inputBox.value.trim().toLowerCase();
+  if(!typed)return;
+
+  resultTag.classList.remove("hidden");
+
+  if(typed===words[idx]){
+    stats.get(words[idx]).correct=true;
+    resultTag.className="tag good";
+    resultTag.textContent="Correct";
+    targetWord.classList.remove("covered");
+    soundCorrect();
+    speak(words[idx]);
+
+    // ✅ Allow Next Word only after correct
+    btnNext.disabled=false;
+
+    if([...stats.values()].every(v=>v.correct)) showCongrats();
+  }else{
+    resultTag.className="tag bad";
+    resultTag.textContent="Try again";
+    soundWrong();
+
+    // ✅ Keep Next Word disabled if wrong
+    btnNext.disabled=true;
+  }
+  update();
 };
 
-document.getElementById("btnNext").onclick=()=>{idx=(idx+1)%words.length;update();resetStages();}
-document.getElementById("btnReset").onclick=()=>{stats.get(words[idx]).correct=false;update();resetStages();}
+document.getElementById("btnNext").onclick=()=>{
+  if(btnNext.disabled) return;
+  idx=(idx+1)%words.length;
+  update();
+  resetStages();
+};
+
+document.getElementById("btnReset").onclick=()=>{
+  stats.get(words[idx]).correct=false;
+  update();
+  resetStages();
+};
+
 inputBox.addEventListener("keydown",e=>{if(e.key==="Enter")btnCheck.click();});
 
 function showCongrats(){
-document.getElementById("gamePage").classList.add("hidden");
-document.getElementById("congratsPage").classList.remove("hidden");
-document.getElementById("finalScore").textContent=`${words.length}/${words.length}`;
-const grid=document.getElementById("wordsGrid");
-grid.innerHTML="";
-words.forEach(w=>{
-const d=document.createElement("div");
-d.className="wordCell";
-d.textContent=w;
-grid.appendChild(d);
-});
-playCelebration();
+  document.getElementById("gamePage").classList.add("hidden");
+  document.getElementById("congratsPage").classList.remove("hidden");
+  document.getElementById("finalScore").textContent=`${words.length}/${words.length}`;
+  const grid=document.getElementById("wordsGrid");
+  grid.innerHTML="";
+  words.forEach(w=>{
+    const d=document.createElement("div");
+    d.className="wordCell";
+    d.textContent=w;
+    grid.appendChild(d);
+  });
+  playCelebration();
 }
 
 document.getElementById("btnPlayAgain").onclick=()=>{
-idx=0;stage=0;initStats();
-document.getElementById("congratsPage").classList.add("hidden");
-document.getElementById("gamePage").classList.remove("hidden");
-update();resetStages();
+  idx=0;stage=0;initStats();
+  document.getElementById("congratsPage").classList.add("hidden");
+  document.getElementById("gamePage").classList.remove("hidden");
+  update();
+  resetStages();
 };
 
 update();
