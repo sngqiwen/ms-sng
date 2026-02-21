@@ -1,0 +1,851 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Word Attack / Vocabulary Power — P5 Spelling (15 words)</title>
+
+<style>
+  :root{
+    --ink:#0b1220;
+    --muted:#5b6474;
+    --line:#e7e9f3;
+    --card:#ffffff;
+    --bg:#ffffff;
+
+    --r:18px;
+    --shadow: 0 14px 40px rgba(12, 20, 40, .10);
+    --shadow2: 0 10px 26px rgba(12, 20, 40, .10);
+
+    --btnH: 72px;
+    --panelW: min(1200px, 96vw);
+
+    /* Big-screen friendly sizing */
+    --titleSize: clamp(22px, 2.2vw, 34px);
+    --metaSize:  clamp(14px, 1.5vw, 18px);
+    --wordSize:  clamp(34px, 4.2vw, 64px);
+    --labelSize: clamp(12px, 1.2vw, 14px);
+    --textSize:  clamp(14px, 1.55vw, 18px);
+    --inputSize: clamp(16px, 1.9vw, 22px);
+    --pad: clamp(14px, 2.0vw, 22px);
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+    color:var(--ink);
+    background:var(--bg);
+  }
+
+  .wrap{
+    width:var(--panelW);
+    margin: 18px auto 26px;
+    padding: 0 6px;
+  }
+
+  header{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap: 14px;
+    margin: 10px 0 14px;
+  }
+  .title{
+    font-size:var(--titleSize);
+    font-weight:900;
+    letter-spacing:.2px;
+    line-height:1.12;
+  }
+  .sub{
+    margin-top:6px;
+    color:var(--muted);
+    font-size:var(--metaSize);
+    font-weight:650;
+  }
+
+  .topBar{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:flex-end;
+  }
+
+  .btn{
+    height: var(--btnH);
+    padding: 0 18px;
+    border-radius: 16px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink);
+    font-weight:900;
+    font-size: clamp(14px, 1.7vw, 18px);
+    cursor:pointer;
+    box-shadow: var(--shadow2);
+    transition: transform .08s ease, box-shadow .12s ease, opacity .12s ease;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    user-select:none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active{ transform: translateY(1px) scale(.995); box-shadow: 0 8px 18px rgba(12,20,40,.10); }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; box-shadow:none; transform:none; }
+
+  .btn.primary{
+    background: linear-gradient(135deg, #7b6cff, #3ac7ff);
+    color:#fff;
+    border-color: transparent;
+  }
+  .btn.finish{
+    background: linear-gradient(135deg, #ff6fb1, #ffcc4a, #3ac7ff, #7b6cff);
+    color:#fff;
+    border-color: transparent;
+  }
+
+  .grid{ display:grid; grid-template-columns: 1fr; gap: 14px; }
+
+  .card{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    box-shadow: var(--shadow);
+    overflow:hidden;
+  }
+
+  .cardHead{
+    padding: var(--pad);
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap: 12px;
+    flex-wrap:wrap;
+  }
+
+  .wordRow{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+
+  .wordBig{
+    font-size: var(--wordSize);
+    font-weight: 1000;
+    letter-spacing: .2px;
+    line-height: 1.05;
+  }
+
+  .sayBtn{
+    height: 54px;
+    padding: 0 14px;
+    border-radius: 14px;
+    border:1px solid var(--line);
+    background:#fff;
+    font-weight:1000;
+    font-size: clamp(14px, 1.6vw, 18px);
+    cursor:pointer;
+    box-shadow: 0 10px 20px rgba(12,20,40,.10);
+    transition: transform .08s ease, opacity .12s ease;
+  }
+  .sayBtn:active{ transform: translateY(1px); }
+
+  .metaRight{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+
+  .tag{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding: 10px 12px;
+    border-radius: 999px;
+    border:1px solid var(--line);
+    background:#fff;
+    font-weight:900;
+    font-size: var(--metaSize);
+    white-space:nowrap;
+  }
+
+  .cardBody{ padding: var(--pad); }
+
+  .section{
+    border:1px solid var(--line);
+    border-radius: 16px;
+    padding: 14px;
+    background:#fff;
+  }
+
+  .fieldGrid{ display:grid; grid-template-columns: 1fr; gap: 10px; }
+
+  .row{
+    display:grid;
+    grid-template-columns: 260px 1fr;
+    gap: 10px;
+    align-items:start;
+  }
+
+  label{
+    font-weight:1000;
+    font-size: var(--textSize);
+    line-height: 1.25;
+  }
+  .labelSub{
+    display:block;
+    margin-top:4px;
+    color:var(--muted);
+    font-weight:800;
+    font-size: var(--labelSize);
+  }
+
+  .inputWrap{
+    display:grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items:start;
+  }
+
+  textarea, input[type="text"]{
+    width:100%;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-size: var(--inputSize);
+    font-weight:750;
+    outline:none;
+    background:#fff;
+    color:var(--ink);
+    box-shadow: 0 8px 18px rgba(12,20,40,.05) inset;
+  }
+  textarea{ min-height: 64px; resize: vertical; line-height: 1.35; }
+
+  .hintMiniBtn{
+    height: 54px;
+    padding: 0 14px;
+    border-radius: 14px;
+    border:1px solid var(--line);
+    background:#fff;
+    font-weight:1000;
+    font-size: clamp(12px, 1.35vw, 14px);
+    cursor:pointer;
+    box-shadow: 0 10px 20px rgba(12,20,40,.08);
+    transition: transform .08s ease, opacity .12s ease;
+    white-space:nowrap;
+  }
+  .hintMiniBtn:active{ transform: translateY(1px); }
+
+  .miniBtnRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top: 12px; }
+
+  .smallBtn{
+    height: 52px;
+    padding: 0 14px;
+    border-radius: 14px;
+    border:1px solid var(--line);
+    background:#fff;
+    font-weight:900;
+    font-size: clamp(13px, 1.5vw, 16px);
+    cursor:pointer;
+    box-shadow: 0 10px 20px rgba(12,20,40,.08);
+    transition: transform .08s ease, opacity .12s ease;
+  }
+  .smallBtn:active{ transform: translateY(1px); }
+  .smallBtn:disabled{ opacity:.45; cursor:not-allowed; box-shadow:none; }
+
+  .toast{
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    background:#0b1220;
+    color:#fff;
+    padding: 12px 14px;
+    border-radius: 999px;
+    font-weight:900;
+    font-size: 14px;
+    box-shadow: 0 18px 44px rgba(0,0,0,.25);
+    opacity:0;
+    pointer-events:none;
+    transition: opacity .18s ease, transform .18s ease;
+    z-index: 20;
+  }
+  .toast.show{ opacity:1; transform: translateX(-50%) translateY(-6px); }
+
+  footer{
+    width: var(--panelW);
+    margin: 16px auto 22px;
+    padding: 10px 12px;
+    color:var(--muted);
+    font-weight:800;
+    text-align:center;
+  }
+
+  /* Congrats view */
+  .hidden{ display:none !important; }
+  .congrats{ padding: var(--pad); }
+  .congrats h2{
+    margin: 14px 0 10px;
+    font-size: clamp(24px, 3vw, 40px);
+    font-weight:1000;
+  }
+  .exportBox{
+    margin-top: 12px;
+    border:1px solid var(--line);
+    border-radius: 16px;
+    padding: 14px;
+    background:#fff;
+    box-shadow: var(--shadow2);
+    white-space: pre-wrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: clamp(12px, 1.3vw, 15px);
+    line-height: 1.45;
+  }
+
+  @media (max-width: 920px){
+    .row{ grid-template-columns: 1fr; }
+    .inputWrap{ grid-template-columns: 1fr; }
+    .hintMiniBtn{ width:100%; }
+  }
+
+  /* ✅ Mobile-only: move top buttons below the subtitle */
+  .mobileTopBar{ display:none; margin-top: 10px; }
+  @media (max-width: 640px){
+    header{ align-items:flex-start; }
+    .topBar{ display:none; } /* hide original top-right buttons */
+
+    /* show buttons under subtitle */
+    .mobileTopBar{
+      display:flex;
+      width: 100%;
+      gap: 10px;
+      flex-wrap: nowrap;       /* ✅ keep in one row */
+      align-items: stretch;
+    }
+
+    /* ✅ force side-by-side, equal width */
+    .mobileTopBar .btn{
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 0 12px;
+    }
+
+    /* optional: slightly shorter on small screens */
+    .mobileTopBar .btn{ height: 64px; border-radius: 14px; }
+  }
+</style>
+
+<!-- DOCX Export libs (CDN) -->
+<script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+
+<body>
+<div class="wrap">
+
+  <!-- MAIN APP -->
+  <div id="appView">
+    <header>
+      <div>
+        <div class="title">Word Attack / Vocabulary Power</div>
+        <div class="sub">Break down the word to understand it!</div>
+
+        <!-- ✅ Mobile-only buttons area (appears under subtitle on small screens) -->
+        <div class="topBar mobileTopBar">
+          <button class="btn" id="resetAllBtn_mobile" title="Clear all answers for all words">Reset All</button>
+          <button class="btn finish" id="finishBtn_mobile" disabled title="Go to the congratulation page">Finish</button>
+        </div>
+      </div>
+
+      <!-- Desktop/tablet top-right buttons (hidden on small screens via CSS) -->
+      <div class="topBar">
+        <button class="btn" id="resetAllBtn" title="Clear all answers for all words">Reset All</button>
+        <button class="btn finish" id="finishBtn" disabled title="Go to the congratulation page">Finish</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <div class="cardHead">
+          <div>
+            <div class="wordRow">
+              <div class="wordBig" id="wordBig">lunged</div>
+              <button class="sayBtn" id="speakBtn" title="Say the word">🔊 Say</button>
+            </div>
+          </div>
+
+          <div class="metaRight">
+            <div class="tag"><b id="posText">Word 1</b><span style="color:var(--muted);font-weight:900;">/ 15</span></div>
+          </div>
+        </div>
+
+        <div class="cardBody">
+          <div class="section">
+            <div class="fieldGrid">
+
+              <div class="row">
+                <label for="base">Base / Root word
+                  <span class="labelSub">What is the main word part?</span>
+                </label>
+                <div class="inputWrap">
+                  <input id="base" type="text" />
+                  <button class="hintMiniBtn" id="hintBaseBtn" type="button">Hint</button>
+                </div>
+              </div>
+
+              <div class="row">
+                <label for="affix">Prefix / Suffix
+                  <span class="labelSub">Add-ons + what they mean</span>
+                </label>
+                <div class="inputWrap">
+                  <input id="affix" type="text" />
+                  <button class="hintMiniBtn" id="hintAffixBtn" type="button">Hint</button>
+                </div>
+              </div>
+
+              <div class="row">
+                <label for="meaning">Meaning
+                  <span class="labelSub">Explain in your own words</span>
+                </label>
+                <div class="inputWrap">
+                  <textarea id="meaning"></textarea>
+                  <button class="hintMiniBtn" id="hintMeaningBtn" type="button">Hint</button>
+                </div>
+              </div>
+
+              <div class="row">
+                <label for="syllables">Sound it out (Syllabication)
+                  <span class="labelSub">Use / to split sounds</span>
+                </label>
+                <div class="inputWrap">
+                  <input id="syllables" type="text" />
+                  <button class="hintMiniBtn" id="hintSyllBtn" type="button">Hint</button>
+                </div>
+              </div>
+
+              <div class="row">
+                <label for="within">Word within a word
+                  <span class="labelSub">Any smaller word you can see?</span>
+                </label>
+                <div class="inputWrap">
+                  <input id="within" type="text" />
+                  <button class="hintMiniBtn" id="hintWithinBtn" type="button">Hint</button>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="miniBtnRow">
+              <button class="smallBtn" id="prevWordBtn" title="Save and go to the previous word">← Previous Word</button>
+              <button class="smallBtn" id="nextWordBtn" title="Save and go to the next word">Next Word →</button>
+              <button class="smallBtn" id="clearWordBtn">Clear this word</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer id="foot">© <span id="year"></span> Sng Qi Wen</footer>
+    </div>
+  </div>
+
+  <!-- CONGRATS PAGE -->
+  <div id="congratsView" class="hidden">
+    <div class="card">
+      <div class="cardHead">
+        <div>
+          <div class="title">Congratulations! 🎉</div>
+          <div class="sub">You completed all 15 words. Here is your full Word Attack record.</div>
+        </div>
+        <div class="metaRight">
+          <button class="btn" id="backBtn" title="Go back to edit">Back</button>
+          <button class="btn primary" id="practiceAgainBtn" title="Clear everything and start again">Practice Again</button>
+        </div>
+      </div>
+      <div class="congrats">
+        <h2>Word Attack / Vocabulary Power</h2>
+        <div class="exportBox" id="exportBox"></div>
+
+        <div class="miniBtnRow" style="margin-top:14px;">
+          <button class="btn primary" id="exportDocxBtn" title="Download as a .docx file">⬇️ Export as .docx</button>
+        </div>
+      </div>
+    </div>
+
+    <footer>© <span id="year2"></span> Sng Qi Wen</footer>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">Saved!</div>
+
+<!-- ✅ celebratory sound (clapping/cheer) -->
+<audio id="celebrateAudio" preload="auto">
+  <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_2c2bb0f96b.mp3?filename=applause-01-102277.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+(function(){
+  const WORDS = [
+    "lunged","yelped","errands","shoved","tugging",
+    "sprinted","smirked","dreaded","bellowed","yearning",
+    "forlornly","flexibility","hesitantly","humiliating","satisfaction"
+  ];
+
+  // Per-field quick hints (only fills EMPTY field)
+  const QUICK_HINTS = {
+    lunged:        { base:"lunge", affix:"suffix: -ed (already happened)", syll:"/lunged/", within:"", meaning:"moved forward suddenly" },
+    yelped:        { base:"yelp", affix:"suffix: -ed (already happened)", syll:"/yelped/", within:"", meaning:"made a short sharp cry" },
+    errands:       { base:"errand", affix:"suffix: -s (more than one)", syll:"/er/rands/", within:"", meaning:"small jobs you go out to do" },
+    shoved:        { base:"shove", affix:"suffix: -d (already happened)", syll:"/shoved/", within:"", meaning:"pushed hard/roughly" },
+    tugging:       { base:"tug", affix:"suffix: -ing (happening now)", syll:"/tug/ging/", within:"", meaning:"pulling with small strong pulls" },
+    sprinted:      { base:"sprint", affix:"suffix: -ed (already happened)", syll:"/spr/in/ted/", within:"print", meaning:"ran very fast for a short time" },
+    smirked:       { base:"smirk", affix:"suffix: -ed (already happened)", syll:"/smirked/", within:"", meaning:"smiled in a rude/proud way" },
+    dreaded:       { base:"dread", affix:"suffix: -ed (already happened)", syll:"/dread/ed/", within:"red", meaning:"felt very worried/afraid about" },
+    bellowed:      { base:"bellow", affix:"suffix: -ed (already happened)", syll:"/bel/lowed/", within:"low", meaning:"shouted loudly" },
+    yearning:      { base:"yearn", affix:"suffix: -ing (happening now)", syll:"/yearn/ing/", within:"year", meaning:"really wanting something" },
+    forlornly:     { base:"forlorn", affix:"suffix: -ly (in a ___ way)", syll:"/for/lorn/ly/", within:"", meaning:"in a sad/lonely way" },
+    flexibility:   { base:"flex", affix:"suffix: -ity (state/quality of)", syll:"/flex/i/bil/i/ty/", within:"flex", meaning:"ability to bend/change easily" },
+    hesitantly:    { base:"hesitant", affix:"suffix: -ly (in a ___ way)", syll:"/hez/i/tant/ly/", within:"", meaning:"in an unsure way" },
+    humiliating:   { base:"humiliate", affix:"suffix: -ing (happening now)", syll:"/hyoo/mil/ee/ay/ting/ (approx.)", within:"", meaning:"making someone feel ashamed" },
+    satisfaction:  { base:"satisfy", affix:"suffix: -tion (the act/result)", syll:"/sat/is/fac/tion/", within:"", meaning:"a pleased feeling because you did well" }
+  };
+
+  const STORAGE_KEY = "wordAttack_v2_finishCongrats";
+  const $ = (id)=>document.getElementById(id);
+
+  function loadAll(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    }catch(e){ return {}; }
+  }
+  function saveAll(data){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function toast(msg){
+    const t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toast._tm);
+    toast._tm = setTimeout(()=>t.classList.remove("show"), 1000);
+  }
+
+  function safeSpeak(text){
+    try{
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 0.95;
+      u.pitch = 1.05;
+      window.speechSynthesis.speak(u);
+    }catch(e){
+      toast("Speech not supported on this device.");
+    }
+  }
+
+  // ✅ Celebration sound
+  function playCelebrate(){
+    const a = $("celebrateAudio");
+    if(!a) return;
+    try{
+      a.currentTime = 0;
+      a.volume = 0.9;
+      const p = a.play();
+      if(p && typeof p.catch === "function") p.catch(()=>{});
+    }catch(e){}
+  }
+
+  // ✅ Optional: unlock audio on first user interaction (helps Chrome autoplay rules)
+  let audioUnlocked = false;
+  document.addEventListener("pointerdown", ()=>{
+    if(audioUnlocked) return;
+    audioUnlocked = true;
+    const a = $("celebrateAudio");
+    if(!a) return;
+    a.muted = true;
+    a.play().then(()=>{
+      a.pause();
+      a.currentTime = 0;
+      a.muted = false;
+    }).catch(()=>{ a.muted = false; });
+  }, { once:true });
+
+  function buildExportText(store){
+    const lines = [];
+    // ✅ changed export title
+    lines.push("P5U1 Vocabulary-Spelling");
+    lines.push("========================");
+    lines.push("");
+
+    WORDS.forEach((w, i)=>{
+      const d = store[w] || {};
+      lines.push(`${i+1}. ${w}`);
+      lines.push(`   Base/Root: ${d.base || ""}`);
+      lines.push(`   Prefix/Suffix: ${d.affix || ""}`);
+      lines.push(`   Meaning: ${d.meaning || ""}`);
+      lines.push(`   Sound it out: ${d.syllables || ""}`);
+      lines.push(`   Word within a word: ${d.within || ""}`);
+      lines.push("");
+    });
+
+    return lines.join("\n");
+  }
+
+  async function exportAsDocx(store){
+    try{
+      if(!window.docx || !window.saveAs){
+        toast("DOCX export library not loaded.");
+        return;
+      }
+
+      const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = window.docx;
+
+      const paras = [];
+      // ✅ changed doc title
+      paras.push(new Paragraph({
+        heading: HeadingLevel.TITLE,
+        children: [new TextRun({ text: "P5U1 Vocabulary-Spelling", bold: true })]
+      }));
+      paras.push(new Paragraph({ text: "" }));
+
+      WORDS.forEach((w, i)=>{
+        const d = store[w] || {};
+        paras.push(new Paragraph({
+          children: [new TextRun({ text: `${i+1}. ${w}`, bold: true })]
+        }));
+
+        [
+          ["Base/Root: ", d.base || ""],
+          ["Prefix/Suffix: ", d.affix || ""],
+          ["Meaning: ", d.meaning || ""],
+          ["Sound it out: ", d.syllables || ""],
+          ["Word within a word: ", d.within || ""],
+        ].forEach(([k,v])=>{
+          paras.push(new Paragraph({
+            children: [new TextRun({ text: k, bold: true }), new TextRun({ text: v })]
+          }));
+        });
+
+        paras.push(new Paragraph({ text: "" }));
+      });
+
+      const yr = new Date().getFullYear();
+      paras.push(new Paragraph({ text: "" }));
+      paras.push(new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [new TextRun({ text: `© ${yr} Sng Qi Wen`, italics: true })]
+      }));
+
+      const doc = new Document({ sections: [{ properties: {}, children: paras }] });
+      const blob = await Packer.toBlob(doc);
+      const filename = `P5U1-Vocabulary-Spelling-${new Date().toISOString().slice(0,10)}.docx`;
+      window.saveAs(blob, filename);
+      toast("DOCX downloaded ✅");
+    }catch(e){
+      console.error(e);
+      toast("Could not export DOCX on this device.");
+    }
+  }
+
+  // -----------------------------
+  // State
+  // -----------------------------
+  let store = loadAll();
+  let currentIndex = 0;
+  let current = WORDS[currentIndex];
+
+  function saveFieldsToWord(word){
+    if(!word) return;
+    const prev = store[word] || {};
+    store[word] = {
+      ...prev,
+      base: $("base").value.trim(),
+      affix: $("affix").value.trim(),
+      meaning: $("meaning").value.trim(),
+      syllables: $("syllables").value.trim(),
+      within: $("within").value.trim(),
+    };
+    saveAll(store);
+  }
+
+  function updateNavAndFinish(){
+    const atFirst = (currentIndex === 0);
+    const atLast  = (currentIndex === WORDS.length - 1);
+
+    // ✅ disable Previous on Word 1
+    $("prevWordBtn").disabled = atFirst;
+
+    // disable Next on Word 15
+    $("nextWordBtn").disabled = atLast;
+
+    // enable Finish only on Word 15 (sync both desktop + mobile buttons)
+    $("finishBtn").disabled = !atLast;
+    if($("finishBtn_mobile")) $("finishBtn_mobile").disabled = !atLast;
+
+    const titleText = atLast ? "Finish and view your export" : "Go to Word 15 to finish";
+    $("finishBtn").title = titleText;
+    if($("finishBtn_mobile")) $("finishBtn_mobile").title = titleText;
+  }
+
+  function loadWordToFields(word){
+    const d = store[word] || {};
+    $("wordBig").textContent = word;
+    $("posText").textContent = `Word ${WORDS.indexOf(word)+1}`;
+
+    $("base").value = d.base || "";
+    $("affix").value = d.affix || "";
+    $("meaning").value = d.meaning || "";
+    $("syllables").value = d.syllables || "";
+    $("within").value = d.within || "";
+
+    updateNavAndFinish();
+  }
+
+  function goToIndex(idx){
+    saveFieldsToWord(current);
+    currentIndex = Math.max(0, Math.min(idx, WORDS.length - 1));
+    current = WORDS[currentIndex];
+    loadWordToFields(current);
+    toast("Switched word");
+  }
+
+  // Auto-save (debounced)
+  let debounce;
+  ["base","affix","meaning","syllables","within"].forEach(id=>{
+    $(id).addEventListener("input", ()=>{
+      clearTimeout(debounce);
+      debounce = setTimeout(()=>{
+        saveFieldsToWord(current);
+        toast("Saved");
+      }, 350);
+    });
+  });
+
+  // Say word
+  $("speakBtn").addEventListener("click", ()=>safeSpeak(current));
+
+  // Per-field hint buttons (only fill that one field if empty)
+  function hintFor(field){
+    const h = QUICK_HINTS[current];
+    if(!h){ toast("No hint available."); return; }
+
+    const map = {
+      base: { el:$("base"), value:h.base },
+      affix:{ el:$("affix"), value:h.affix },
+      meaning:{ el:$("meaning"), value:h.meaning },
+      syllables:{ el:$("syllables"), value:h.syll },
+      within:{ el:$("within"), value:h.within }
+    };
+
+    const item = map[field];
+    if(!item) return;
+
+    if(item.el.value.trim()){
+      toast("This box already has something 🙂");
+      return;
+    }
+    if(!item.value){
+      toast("No hint for this box.");
+      return;
+    }
+    item.el.value = item.value;
+    saveFieldsToWord(current);
+    toast("Hint added");
+  }
+
+  $("hintBaseBtn").addEventListener("click", ()=>hintFor("base"));
+  $("hintAffixBtn").addEventListener("click", ()=>hintFor("affix"));
+  $("hintMeaningBtn").addEventListener("click", ()=>hintFor("meaning"));
+  $("hintSyllBtn").addEventListener("click", ()=>hintFor("syllables"));
+  $("hintWithinBtn").addEventListener("click", ()=>hintFor("within"));
+
+  // Prev/Next
+  $("prevWordBtn").addEventListener("click", ()=>{
+    if(currentIndex === 0) return;
+    goToIndex(currentIndex - 1);
+  });
+  $("nextWordBtn").addEventListener("click", ()=>{
+    if(currentIndex === WORDS.length - 1) return;
+    goToIndex(currentIndex + 1);
+  });
+
+  // Clear this word
+  $("clearWordBtn").addEventListener("click", ()=>{
+    store[current] = {};
+    saveAll(store);
+    loadWordToFields(current);
+    toast("Cleared this word");
+  });
+
+  // Reset all (shared handler)
+  function handleResetAll(){
+    if(!confirm("Reset ALL words? This clears every box for all 15 words.")) return;
+    store = {};
+    saveAll(store);
+    currentIndex = 0;
+    current = WORDS[currentIndex];
+    loadWordToFields(current);
+    toast("Reset all");
+  }
+
+  $("resetAllBtn").addEventListener("click", handleResetAll);
+  if($("resetAllBtn_mobile")) $("resetAllBtn_mobile").addEventListener("click", handleResetAll);
+
+  // Finish -> Congrats (only enabled on Word 15)
+  function goCongrats(){
+    saveFieldsToWord(current);
+    $("exportBox").textContent = buildExportText(store);
+
+    $("appView").classList.add("hidden");
+    $("congratsView").classList.remove("hidden");
+
+    // ✅ celebratory sound on congrats
+    playCelebrate();
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function handleFinish(){
+    // guard: use desktop button state (synced anyway)
+    if($("finishBtn").disabled) return;
+    goCongrats();
+  }
+
+  $("finishBtn").addEventListener("click", handleFinish);
+  if($("finishBtn_mobile")) $("finishBtn_mobile").addEventListener("click", handleFinish);
+
+  $("backBtn").addEventListener("click", ()=>{
+    $("congratsView").classList.add("hidden");
+    $("appView").classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  $("practiceAgainBtn").addEventListener("click", ()=>{
+    if(!confirm("Practice Again? This will clear ALL saved work and restart from Word 1.")) return;
+    store = {};
+    saveAll(store);
+    currentIndex = 0;
+    current = WORDS[currentIndex];
+    $("congratsView").classList.add("hidden");
+    $("appView").classList.remove("hidden");
+    loadWordToFields(current);
+    toast("Restarted");
+  });
+
+  $("exportDocxBtn").addEventListener("click", ()=>exportAsDocx(store));
+
+  // Footer years
+  const yr = new Date().getFullYear();
+  $("year").textContent = yr;
+  $("year2").textContent = yr;
+
+  // Initial render
+  loadWordToFields(current);
+})();
+</script>
+</body>
+</html>
