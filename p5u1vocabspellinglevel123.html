@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Spelling — Level 1 / Level 2 / Level 3</title>
+
+<style>
+:root{
+  --ink:#0b1220;
+  --muted:#5b6474;
+  --line:#e7e9f3;
+  --shadow:0 14px 40px rgba(12,20,40,.10);
+  --shadow2:0 10px 26px rgba(12,20,40,.10);
+  --good:#1f9d55;
+  --bad:#d64545;
+  --grad:linear-gradient(135deg,#7b6cff,#3a86ff);
+
+  --p1:#ffd6e7;
+  --p2:#d9f2ff;
+  --p3:#e8ddff;
+  --p4:#fff1c7;
+  --p5:#ddffe7;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(1200px 700px at 10% 0%, var(--p1), transparent 55%),
+    radial-gradient(1200px 700px at 90% 10%, var(--p2), transparent 55%),
+    radial-gradient(1200px 700px at 30% 90%, var(--p3), transparent 55%),
+    radial-gradient(1200px 700px at 90% 90%, var(--p4), transparent 55%),
+    linear-gradient(180deg, #fff, #fbfbff);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+.wrap{
+  width:min(980px,calc(100% - 24px));
+  margin:22px auto 18px;
+  flex:1 0 auto;
+}
+
+header{
+  background:#ffffffee;
+  border:1px solid var(--line);
+  border-radius:20px;
+  box-shadow:var(--shadow);
+  padding:16px;
+}
+
+.topRow{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+h1{margin:0;font-size:18px}
+
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+
+.tab{
+  border:0;
+  padding:8px 14px;
+  border-radius:999px;
+  font-weight:900;
+  background:#eef1ff;
+  cursor:pointer;
+  user-select:none;
+}
+
+.tab.active{background:var(--grad);color:#fff;}
+.tab[disabled]{opacity:.45;cursor:not-allowed;}
+
+.sectionHead{
+  display:flex;
+  justify-content:space-between;
+  margin:18px 2px 10px;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.scorePill{
+  padding:6px 12px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:#fff;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.grid{display:grid;gap:12px;}
+
+.card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  box-shadow:var(--shadow2);
+  padding:14px;
+}
+
+.qTop{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:8px;
+}
+
+.badge{
+  font-size:11px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#eef1ff;
+  font-weight:900;
+}
+
+.tag{
+  font-size:11px;
+  padding:4px 8px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  min-height:22px;
+  display:inline-flex;
+  align-items:center;
+}
+
+.tag.good{background:#e6f7ef;color:var(--good);}
+.tag.bad{background:#fdeaea;color:var(--bad);}
+
+.promptTitle{font-weight:900;margin-bottom:6px;font-size:13px;}
+.sentence{font-size:12px;color:var(--muted);}
+
+.choices{display:grid;gap:6px;margin-top:10px;}
+.choice{display:flex;gap:8px;align-items:center;font-weight:900;}
+
+input[type="text"],select{
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:8px 10px;
+  font-weight:900;
+}
+
+.checkBtn{
+  margin-top:10px;
+  border:0;
+  border-radius:10px;
+  padding:8px 12px;
+  font-weight:900;
+  color:#fff;
+  background:var(--grad);
+  cursor:pointer;
+}
+
+.spellParts{display:flex;gap:6px;align-items:center;margin-top:10px;flex-wrap:wrap;}
+
+.actionWrap{
+  margin-top:24px;
+  text-align:center;
+}
+
+.primaryBtn{
+  border:0;
+  border-radius:999px;
+  padding:10px 20px;
+  font-weight:900;
+  background:var(--grad);
+  color:#fff;
+  cursor:pointer;
+}
+
+.primaryBtn[disabled]{opacity:.5;cursor:not-allowed;}
+
+.hint{
+  margin-top:10px;
+  font-size:12px;
+  color:var(--muted);
+}
+
+/* ===== Congrats page ===== */
+.congratsCard{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:18px;
+  box-shadow:var(--shadow);
+  padding:18px;
+}
+
+.congratsTitle{
+  margin:0 0 10px;
+  font-size:22px;
+  font-weight:950;
+}
+
+.congratsSub{
+  margin:0 0 14px;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.tableWrap{
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius:14px;
+}
+
+table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  min-width:720px;
+  background:#fff;
+}
+
+th,td{
+  padding:12px 12px;
+  border-bottom:1px solid var(--line);
+  vertical-align:top;
+  font-size:13px;
+}
+
+th{
+  text-align:left;
+  background:#f6f7ff;
+  font-weight:950;
+}
+
+tr:last-child td{border-bottom:0;}
+
+.wordCell{
+  font-weight:950;
+  white-space:nowrap;
+}
+
+.footer{
+  margin-top:auto;
+  text-align:center;
+  padding:12px;
+  font-size:12px;
+  color:var(--muted);
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<!-- ===== GAME VIEW ===== -->
+<section id="gameView">
+  <header>
+    <div class="topRow">
+      <h1>Spelling — Level 1 / Level 2 / Level 3</h1>
+      <div class="tabs">
+        <button class="tab" id="tabL1">Level 1</button>
+        <button class="tab" id="tabL2">Level 2</button>
+        <button class="tab" id="tabL3">Level 3</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="sectionHead">
+    <h2 id="sectionTitle">Level 1 — 15 Questions</h2>
+    <div class="scorePill">Score: <span id="scoreNow">0</span>/15</div>
+  </div>
+
+  <main class="grid" id="qList"></main>
+
+  <!-- Level 1/2 Next Level button (only shows when 15/15) -->
+  <div class="actionWrap" id="nextLevelWrap" style="display:none;">
+    <button class="primaryBtn" id="btnNextLevel">Next Level</button>
+    <div class="hint" id="nextHint"></div>
+  </div>
+
+  <!-- Level 3 Finish button (only shows when 15/15) -->
+  <div class="actionWrap" id="finishWrap" style="display:none;">
+    <button class="primaryBtn" id="btnFinish">Finish</button>
+    <div class="hint">🎉 Great job! Click Finish to see your words & sentences.</div>
+  </div>
+</section>
+
+<!-- ===== CONGRATS VIEW ===== -->
+<section id="congratsView" style="display:none;">
+  <div class="congratsCard">
+    <h2 class="congratsTitle">Congratulations! 🎉</h2>
+    <p class="congratsSub">Here is the full list of spelling words and their sentences.</p>
+
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:220px;">Spelling Word</th>
+            <th>Sentence</th>
+          </tr>
+        </thead>
+        <tbody id="congratsTbody"></tbody>
+      </table>
+    </div>
+
+    <div class="actionWrap">
+      <button class="primaryBtn" id="btnPracticeAgain">Practice Again</button>
+      <div class="hint">This will bring you back to Level 1.</div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<footer class="footer">
+© <span id="year"></span> Sng Qi Wen
+</footer>
+
+<script>
+const WORDS=[
+  "lunged","yelped","errands","shoved","tugging",
+  "sprinted","smirked","dreaded","bellowed","yearning",
+  "forlornly","flexibility","hesitantly","humiliating","satisfaction"
+];
+
+const SENTENCES=[
+  "He lunged forward to catch the ball just before it hit the ground.",
+  "Ali yelped in pain when he tripped over his friend’s school bag and fell.",
+  "I had to run some errands for my mom, like picking up groceries and fetching my little sister from the day care centre.",
+  "He shoved the heavy door open with all his strength.",
+  "She kept tugging on the rope to pull the kite down from the tree.",
+  "The deer sprinted across the field, trying to escape the tiger.",
+  "Thomas smirked when he realized he had solved the puzzle before anyone else.",
+  "I dreaded going to the dentist because I do not like the sound of the dental drill.",
+  "The football coach bellowed instructions from the sidelines during the game.",
+  "Robin missed his family so much during the 5 days school camp that he was yearning to go back.",
+  "Ahmad’s mother sensed that something was amiss when he stared forlornly out the window after school.",
+  "Having flexibility helped her do amazing tricks in her gymnastics routine.",
+  "John hesitantly raised his hand to answer the difficult question.",
+  "It was humiliating for Eva when she forgot her lines during her drama performance in front of the school.",
+  "Ivy felt great satisfaction after finishing her school project on time."
+];
+
+function shuffle(arr){ return arr.sort(()=>Math.random()-0.5); }
+
+/* ===== Sound Effects (Web Audio API) ===== */
+let audioCtx=null;
+function getAudioCtx(){
+  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==="suspended") audioCtx.resume().catch(()=>{});
+  return audioCtx;
+}
+function playTone({freq=880,duration=0.12,type="sine",gain=0.18,detune=0,when=0}){
+  const ctx=getAudioCtx();
+  const t0=ctx.currentTime+when;
+  const o=ctx.createOscillator();
+  const g=ctx.createGain();
+  o.type=type;
+  o.frequency.setValueAtTime(freq,t0);
+  o.detune.setValueAtTime(detune,t0);
+  g.gain.setValueAtTime(0.0001,t0);
+  g.gain.exponentialRampToValueAtTime(gain,t0+0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001,t0+duration);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(t0); o.stop(t0+duration+0.02);
+}
+function playCorrectSound(){
+  playTone({freq:1046.5,duration:0.10,type:"triangle",gain:0.14});
+  playTone({freq:1568.0,duration:0.12,type:"triangle",gain:0.12,when:0.06});
+}
+function playWrongSound(){
+  playTone({freq:220,duration:0.16,type:"sine",gain:0.16,detune:-10});
+  playTone({freq:164.8,duration:0.22,type:"sine",gain:0.14,detune:10,when:0.10});
+}
+
+/* ===== Levels ===== */
+const LEVELS=["L1","L2","L3"];
+let levelIndex=0;                 // only current level tab enabled
+let score={L1:0,L2:0,L3:0};
+
+const MP_PARTS = {
+  lunged:{prefix:"lun",correct:"g",suffix:"ed",options:["g","gg","dge","j"]},
+  yelped:{prefix:"yel",correct:"p",suffix:"ed",options:["p","pp","b","pe"]},
+  errands:{prefix:"er",correct:"r",suffix:"ands",options:["r","rr","ra","re"]},
+  shoved:{prefix:"sho",correct:"v",suffix:"ed",options:["v","ve","f","ff"]},
+  tugging:{prefix:"tu",correct:"gg",suffix:"ing",options:["g","gg","gue","j"]},
+  sprinted:{prefix:"spr",correct:"in",suffix:"ted",options:["in","en","im","inn"]},
+  smirked:{prefix:"smir",correct:"k",suffix:"ed",options:["k","ck","c","kk"]},
+  dreaded:{prefix:"dre",correct:"ad",suffix:"ed",options:["ad","ed","aid","add"]},
+  bellowed:{prefix:"bell",correct:"ow",suffix:"ed",options:["ow","o","oa","ou"]},
+  yearning:{prefix:"year",correct:"n",suffix:"ing",options:["n","nn","m","ng"]},
+  forlornly:{prefix:"for",correct:"lor",suffix:"nly",options:["lor","lorn","lern","lornn"]},
+  flexibility:{prefix:"flex",correct:"ibil",suffix:"ity",options:["ibil","able","abil","ibilit"]},
+  hesitantly:{prefix:"hesit",correct:"ant",suffix:"ly",options:["ant","ent","and","annt"]},
+  humiliating:{prefix:"humil",correct:"iat",suffix:"ing",options:["iat","ate","ait","eiat"]},
+  satisfaction:{prefix:"satis",correct:"fact",suffix:"ion",options:["fact","fect","fat","fakt"]}
+};
+
+function currentLevel(){ return LEVELS[levelIndex]; }
+function levelLabel(lv){ return lv==="L1"?"Level 1":lv==="L2"?"Level 2":"Level 3"; }
+function promptText(lv){
+  return lv==="L1" ? "Choose the correct spelling:" :
+         lv==="L2" ? "Complete the spelling:" :
+                     "Fill in the blank. Type the correct spelling:";
+}
+function blank(i){ return SENTENCES[i].replace(new RegExp(WORDS[i],"i"),"____"); }
+
+function applyTabStates(){
+  const lv=currentLevel();
+  const tabs=[
+    {id:"tabL1",lv:"L1",idx:0},
+    {id:"tabL2",lv:"L2",idx:1},
+    {id:"tabL3",lv:"L3",idx:2},
+  ];
+  tabs.forEach(t=>{
+    const el=document.getElementById(t.id);
+    el.disabled = (t.idx !== levelIndex);      // ✅ ONLY current enabled
+    el.classList.toggle("active", t.lv===lv);
+  });
+}
+
+function updateActionButtons(){
+  const lv=currentLevel();
+  const perfect = score[lv]===15;
+  const isLast = levelIndex===LEVELS.length-1;
+
+  // Next Level (only for L1/L2)
+  const nextWrap=document.getElementById("nextLevelWrap");
+  const nextHint=document.getElementById("nextHint");
+  if(!isLast){
+    nextWrap.style.display = perfect ? "block" : "none";
+    const nextLv=LEVELS[levelIndex+1];
+    nextHint.textContent = perfect ? `${levelLabel(nextLv)} is ready — click “Next Level” to continue.` : "";
+  }else{
+    nextWrap.style.display="none";
+  }
+
+  // Finish (only for L3)
+  const finishWrap=document.getElementById("finishWrap");
+  finishWrap.style.display = (isLast && perfect) ? "block" : "none";
+}
+
+function render(){
+  const lv=currentLevel();
+  document.getElementById("sectionTitle").textContent = levelLabel(lv)+" — 15 Questions";
+  document.getElementById("scoreNow").textContent = score[lv];
+
+  applyTabStates();
+
+  const list=document.getElementById("qList");
+  list.innerHTML="";
+
+  WORDS.forEach((w,i)=>{
+    const card=document.createElement("div");
+    card.className="card";
+
+    const top=document.createElement("div");
+    top.className="qTop";
+    top.innerHTML=`<span class="badge">Q${i+1}/15</span><span class="tag" id="tag-${i}"></span>`;
+    card.appendChild(top);
+
+    const title=document.createElement("div");
+    title.className="promptTitle";
+    title.textContent = promptText(lv);
+    card.appendChild(title);
+
+    const sentence=document.createElement("div");
+    sentence.className="sentence";
+    sentence.innerHTML="<b>Sentence:</b> "+blank(i);
+    card.appendChild(sentence);
+
+    if(lv==="L1"){
+      const choices=document.createElement("div");
+      choices.className="choices";
+      const options=shuffle([w,...shuffle(WORDS.filter(x=>x!==w)).slice(0,3)]);
+      options.forEach(opt=>{
+        const label=document.createElement("label");
+        label.className="choice";
+        label.innerHTML=`<input type="radio" name="q${i}" value="${opt}">${opt}`;
+        choices.appendChild(label);
+      });
+      card.appendChild(choices);
+    }
+
+    if(lv==="L2"){
+      const parts=MP_PARTS[w];
+      const row=document.createElement("div");
+      row.className="spellParts";
+
+      const sel=document.createElement("select");
+      const opts=shuffle([...parts.options]);
+      sel.innerHTML=`<option value="">Select…</option>`+
+        opts.map(o=>`<option value="${o}">${o}</option>`).join("");
+
+      row.innerHTML=`<span>${parts.prefix}</span>`;
+      row.appendChild(sel);
+      row.innerHTML+=`<span>${parts.suffix}</span>`;
+      card.appendChild(row);
+    }
+
+    if(lv==="L3"){
+      const row=document.createElement("div");
+      row.style.marginTop="10px";
+      row.innerHTML=`<input type="text" id="input-${i}" />`;
+      card.appendChild(row);
+    }
+
+    const check=document.createElement("button");
+    check.className="checkBtn";
+    check.textContent="Check";
+    check.onclick=()=>checkAnswer(i);
+    card.appendChild(check);
+
+    list.appendChild(card);
+  });
+
+  updateActionButtons();
+}
+
+function calcScore(){
+  const lv=currentLevel();
+  return WORDS.reduce((a,word,index)=>{
+    let u="";
+    if(lv==="L1"){
+      const r=document.querySelector(`input[name="q${index}"]:checked`);
+      u=r?r.value:"";
+    }
+    if(lv==="L2"){
+      const sel=document.querySelectorAll("select")[index];
+      u=sel?(MP_PARTS[word].prefix+sel.value+MP_PARTS[word].suffix):"";
+    }
+    if(lv==="L3"){
+      const inp=document.getElementById("input-"+index);
+      u=inp?inp.value:"";
+    }
+    return a+(u.toLowerCase()===word.toLowerCase()?1:0);
+  },0);
+}
+
+function checkAnswer(i){
+  const lv=currentLevel();
+  const w=WORDS[i];
+  let user="";
+
+  if(lv==="L1"){
+    const r=document.querySelector(`input[name="q${i}"]:checked`);
+    user=r?r.value:"";
+  }
+  if(lv==="L2"){
+    const sel=document.querySelectorAll("select")[i];
+    user=sel?sel.value:"";
+    user=(MP_PARTS[w].prefix+user+MP_PARTS[w].suffix);
+  }
+  if(lv==="L3"){
+    user=document.getElementById("input-"+i).value;
+  }
+
+  const correct=user.toLowerCase()===w.toLowerCase();
+  const tag=document.getElementById("tag-"+i);
+  tag.className="tag "+(correct?"good":"bad");
+  tag.textContent=correct?"Correct":"Try again";
+
+  if(correct) playCorrectSound();
+  else playWrongSound();
+
+  score[lv]=calcScore();
+  document.getElementById("scoreNow").textContent=score[lv];
+
+  updateActionButtons();
+}
+
+/* Tabs are always disabled except current (so click does nothing) */
+document.getElementById("tabL1").onclick=()=>{};
+document.getElementById("tabL2").onclick=()=>{};
+document.getElementById("tabL3").onclick=()=>{};
+
+/* Next Level: only if perfect */
+document.getElementById("btnNextLevel").onclick=()=>{
+  const lv=currentLevel();
+  if(score[lv]!==15) return;
+  if(levelIndex>=LEVELS.length-1) return;
+  levelIndex++;
+  render();
+  window.scrollTo({top:0,behavior:"smooth"});
+};
+
+/* ===== Congrats page logic ===== */
+function buildCongratsTable(){
+  const tbody=document.getElementById("congratsTbody");
+  tbody.innerHTML="";
+  WORDS.forEach((w,i)=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML = `<td class="wordCell">${w}</td><td>${SENTENCES[i]}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function showCongrats(){
+  buildCongratsTable();
+  document.getElementById("gameView").style.display="none";
+  document.getElementById("congratsView").style.display="block";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function showGame(){
+  document.getElementById("congratsView").style.display="none";
+  document.getElementById("gameView").style.display="block";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* Finish: only if Level 3 perfect */
+document.getElementById("btnFinish").onclick=()=>{
+  const lv=currentLevel();
+  const isLast = levelIndex===LEVELS.length-1;
+  if(!isLast) return;
+  if(score[lv]!==15) return;
+  showCongrats();
+};
+
+/* Practice Again: reset everything and go back to Level 1 */
+document.getElementById("btnPracticeAgain").onclick=()=>{
+  score={L1:0,L2:0,L3:0};
+  levelIndex=0;
+  showGame();
+  render();
+};
+
+document.getElementById("year").textContent=new Date().getFullYear();
+render();
+</script>
+</body>
+</html>
