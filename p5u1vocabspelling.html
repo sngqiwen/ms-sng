@@ -197,6 +197,18 @@ button:disabled{
 .next{ background:var(--next); border-color:var(--next); color:#fff; }
 .danger{ background:#fff1f2; border-color:#fecaca; color:#991b1b; }
 
+/* Footer under buttons (inside sticky controls) */
+.controlsFooter{
+  margin-top:24px;   /* increased spacing from buttons */
+  padding-top:10px;  /* extra breathing space */
+  text-align:center;
+  font-size:14px;
+  font-weight:800;
+  color:var(--muted);
+  letter-spacing:.2px;
+  user-select:none;
+}
+
 /* Congrats page */
 .congratsWrap{
   display:grid;
@@ -250,6 +262,7 @@ button:disabled{
   .tag{ font-size:16px; padding:8px 12px; }
   .congratsTitle{ font-size:34px; }
   .wordsGrid{ font-size:22px; gap:10px 16px; }
+  .controlsFooter{ font-size:13px; }
 }
 
 @media (max-width: 520px){
@@ -305,6 +318,9 @@ button:disabled{
         <button id="btnNext" class="next">Next Word</button>
         <button id="btnReset" class="danger">Reset Word</button>
       </div>
+
+      <!-- Footer text below buttons (year set dynamically in JS) -->
+      <div class="controlsFooter" id="controlsFooter">© <span id="year"></span> Sng Qi Wen</div>
     </div>
   </div>
 
@@ -358,6 +374,9 @@ const btnSay=document.getElementById("btnSay");
 const btnCover=document.getElementById("btnCover");
 const btnWrite=document.getElementById("btnWrite");
 const btnCheck=document.getElementById("btnCheck");
+
+// ✅ Dynamic year
+document.getElementById("year").textContent = new Date().getFullYear();
 
 let audioCtx=null;
 function tone(f,d){
