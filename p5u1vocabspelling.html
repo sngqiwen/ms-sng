@@ -1,211 +1,305 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>P5U1 Vocabulary-Spelling</title>
-
 <style>
 /* =========================
-   Ms Sng Pastel Rainbow UI
+   P5U1 Vocabulary-Spelling
+   Beautified UI (drop-in)
    ========================= */
 
 :root{
-  --p1:#ffd1e8;
-  --p2:#ffe6a7;
-  --p3:#d8f5c7;
-  --p4:#cfe9ff;
-  --p5:#e5d7ff;
-  --p6:#ffd7c7;
+  /* Core colors */
+  --ink:#0b1220;
+  --muted:#64748b;
+  --line:rgba(15,23,42,.12);
 
-  --ink:#1f2937;
-  --muted:#6b7280;
-  --line:rgba(31,41,55,.12);
+  --accent:#2563eb;
+  --accent2:#60a5fa;
 
-  --accent:#ff6fb4;
-  --accent2:#7dd3fc;
-  --next:#34d399;
-  --next2:#60a5fa;
+  --next:#06b6d4;
+  --next2:#22c55e;
 
-  --good:#22c55e;
-  --bad:#ef4444;
+  --good:#16a34a;
+  --bad:#dc2626;
 
-  --panelW:min(1180px,96vw);
-  --btnH:64px;
-  --btnPadX:20px;
-  --controlsPad:160px;
+  /* Surface */
+  --bg1:#f7f9ff;
+  --bg2:#f6fbff;
 
-  --titleSize:32px;
-  --wordSize:90px;
-  --inputSize:22px;
-  --pad:20px;
+  --card:#ffffff;
+  --card2:rgba(255,255,255,.86);
+
+  /* Effects */
+  --shadow: 0 18px 55px rgba(2,6,23,.10);
+  --shadow2: 0 8px 20px rgba(2,6,23,.10);
+  --ring: 0 0 0 6px rgba(147,197,253,.35);
+
+  --radius:22px;
+  --radius2:18px;
+
+  --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+
+  /* Layout sizing */
+  --panelW: min(1180px, 96vw);
+  --btnH: 68px;
+  --btnPadX: 22px;
+
+  /* JS will override */
+  --controlsPad: 160px;
+
+  /* Type scale */
+  --titleSize: 32px;
+  --metaSize: 18px;
+  --wordSize: 88px;
+  --inputSize: 24px;
+  --pad: 22px;
 }
 
-*{box-sizing:border-box}
-html,body{height:100%}
-
+/* Reset + base */
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
 body{
   margin:0;
-  font-family:ui-sans-serif,system-ui;
+  font-family:var(--sans);
+  color:var(--ink);
+
+  /* Soft gradient background */
+  background:
+    radial-gradient(900px 500px at 18% 10%, rgba(96,165,250,.18), transparent 60%),
+    radial-gradient(900px 600px at 85% 0%, rgba(34,197,94,.14), transparent 60%),
+    radial-gradient(800px 600px at 50% 105%, rgba(6,182,212,.12), transparent 60%),
+    linear-gradient(180deg, var(--bg1), var(--bg2));
+
   display:flex;
   justify-content:center;
   padding:18px;
-  background:
-    radial-gradient(900px 520px at 10% 10%, rgba(255,209,232,.55), transparent 60%),
-    radial-gradient(850px 520px at 92% 0%, rgba(207,233,255,.55), transparent 62%),
-    linear-gradient(180deg,#fff9fd,#f7fbff);
 }
 
+/* Panel “app card” */
 .panel{
   width:var(--panelW);
-  border-radius:28px;
-  background:rgba(255,255,255,.92);
-  box-shadow:0 25px 60px rgba(0,0,0,.12);
+  background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.92));
+  border:1px solid rgba(15,23,42,.10);
+  border-radius: calc(var(--radius) + 4px);
+  box-shadow: var(--shadow);
   overflow:hidden;
+
+  min-height:100vh;
   display:flex;
   flex-direction:column;
-  min-height:100vh;
-  position:relative;
-}
 
-/* Confetti */
-#confettiCanvas{
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  display:none;
+  position:relative; /* for confetti overlay */
 }
 
 /* Header */
 header{
   padding:18px 22px;
-  position:relative;
-  background:white;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78));
+  border-bottom:1px solid rgba(15,23,42,.10);
 }
-header:before{
-  content:"";
-  position:absolute;
-  top:0;left:0;right:0;
-  height:8px;
-  background:linear-gradient(90deg,var(--p1),var(--p2),var(--p3),var(--p4),var(--p5),var(--p6));
-}
-h1{
-  margin:8px 0 0 0;
-  font-size:var(--titleSize);
-  font-weight:900;
-}
-h1::before{content:"🌈 ";}
 
-/* Main */
+h1{
+  margin:0;
+  font-size:var(--titleSize);
+  letter-spacing:.2px;
+  font-weight:1000;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* Main layout */
 .main{
-  padding:var(--pad) var(--pad) calc(var(--controlsPad)+16px);
+  padding:var(--pad) var(--pad) calc(var(--controlsPad) + 16px);
   display:grid;
   gap:18px;
   flex:1;
 }
 
+/* Meta row */
 .topRow{
   display:flex;
   justify-content:space-between;
-  font-size:16px;
+  gap:12px;
+  flex-wrap:wrap;
+  font-size:var(--metaSize);
   color:var(--muted);
 }
+.topRow > div{
+  background: rgba(255,255,255,.70);
+  border:1px solid rgba(15,23,42,.10);
+  border-radius: 999px;
+  padding:8px 12px;
+  box-shadow: 0 6px 16px rgba(2,6,23,.04);
+}
 
+/* Word stage card */
 .wordBox{
-  border-radius:28px;
-  background:white;
-  box-shadow:0 15px 35px rgba(0,0,0,.08);
-  padding:50px 20px;
+  border-radius: calc(var(--radius) + 6px);
+  border:1px solid rgba(15,23,42,.10);
+  background:
+    radial-gradient(900px 220px at 50% 0%, rgba(96,165,250,.18), transparent 70%),
+    linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.84));
+  box-shadow: var(--shadow2);
+
+  padding: 54px 22px;
+  min-height:220px;
+
   display:flex;
   align-items:center;
   justify-content:center;
+  text-align:center;
 }
 
 .word{
   font-size:var(--wordSize);
   font-weight:1000;
+  letter-spacing: 1px;
+  line-height:1.02;
+  text-wrap: balance;
+  word-break:break-word;
+
+  /* subtle depth */
+  text-shadow: 0 2px 0 rgba(2,6,23,.05);
 }
 
+/* Covered blur */
 .covered{
-  filter:blur(18px);
-  opacity:.15;
+  filter: blur(18px);
+  opacity:.14;
+  user-select:none;
+  pointer-events:none;
+}
+
+/* Write row */
+.writeRow{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+  scroll-margin-bottom: calc(var(--controlsPad) + 24px);
 }
 
 /* Input */
-.writeRow{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
 input{
-  flex:1;
-  padding:16px;
-  border-radius:18px;
-  border:1px solid var(--line);
+  flex:1 1 520px;
+  min-width:240px;
+  padding:16px 18px;
+  border-radius: 16px;
+  border:1px solid rgba(15,23,42,.14);
+  background: rgba(255,255,255,.92);
   font-size:var(--inputSize);
-  font-weight:700;
+  font-weight:800;
+  letter-spacing:.2px;
+  box-shadow: 0 10px 24px rgba(2,6,23,.06);
+  outline:none;
 }
 input:focus{
-  outline:none;
-  box-shadow:0 0 0 4px rgba(255,111,180,.25);
+  border-color: rgba(37,99,235,.35);
+  box-shadow: 0 10px 24px rgba(2,6,23,.06), var(--ring);
 }
+
+/* Tags */
+.hidden{ display:none !important; }
 
 .tag{
-  padding:8px 12px;
+  font-size:16px;
+  padding:10px 14px;
   border-radius:999px;
-  font-weight:900;
+  font-weight:1000;
+  border:1px solid rgba(15,23,42,.10);
+  box-shadow: 0 8px 18px rgba(2,6,23,.06);
 }
-.tag.good{background:#d8f5c7;color:#14532d}
-.tag.bad{background:#ffd1e8;color:#7f1d1d}
-.hidden{display:none !important}
+.tag.good{
+  background: linear-gradient(180deg, rgba(240,253,244,.95), rgba(220,252,231,.92));
+  color:#14532d;
+  border-color: rgba(22,163,74,.22);
+}
+.tag.bad{
+  background: linear-gradient(180deg, rgba(255,241,242,.95), rgba(254,226,226,.92));
+  color:#7f1d1d;
+  border-color: rgba(220,38,38,.22);
+}
 
-/* Controls */
+/* Sticky controls bar */
 .controls{
   position:sticky;
   bottom:0;
-  padding:14px;
-  background:white;
-  border-top:1px solid var(--line);
+  padding:14px 14px 16px;
+  border-top:1px solid rgba(15,23,42,.10);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.60), rgba(255,255,255,.92));
+  backdrop-filter: blur(10px);
 }
-.controls:before{
-  content:"";
-  display:block;
-  height:6px;
-  margin:-14px -14px 10px;
-  background:linear-gradient(90deg,var(--p1),var(--p2),var(--p3),var(--p4),var(--p5),var(--p6));
-}
+
+/* Button row */
 .btnRow{
   display:flex;
-  gap:10px;
   flex-wrap:wrap;
+  gap:10px;
   justify-content:center;
 }
+
+/* Buttons (base) */
 button{
   height:var(--btnH);
   padding:0 var(--btnPadX);
-  border-radius:18px;
-  border:none;
-  font-weight:900;
-  font-size:16px;
-  cursor:pointer;
-  box-shadow:0 8px 20px rgba(0,0,0,.12);
-}
-button:disabled{opacity:.4;cursor:not-allowed}
+  border-radius: 16px;
+  border:1px solid rgba(15,23,42,.14);
+  background: rgba(255,255,255,.92);
 
-.primary{
-  background:linear-gradient(135deg,#ff6fb4,#7dd3fc);
-  color:white;
+  font-weight:1000;
+  font-size:18px;
+  letter-spacing:.2px;
+
+  cursor:pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+
+  box-shadow: 0 10px 20px rgba(2,6,23,.08);
+  transform: translateY(0);
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease, opacity .12s ease;
 }
-.next{
-  background:linear-gradient(135deg,#34d399,#60a5fa);
+
+button:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px rgba(2,6,23,.12);
+  border-color: rgba(15,23,42,.18);
+}
+
+button:active{
+  transform: translateY(1px);
+  box-shadow: 0 8px 18px rgba(2,6,23,.10);
+}
+
+button:disabled{
+  opacity:.40;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow:none;
+}
+
+/* Button variants */
+.primary{
   color:white;
+  border-color: rgba(37,99,235,.30);
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+}
+.primary:hover{ border-color: rgba(37,99,235,.44); }
+
+.next{
+  color:white;
+  border-color: rgba(6,182,212,.28);
+  background: linear-gradient(135deg, var(--next), var(--next2));
 }
 .danger{
-  background:#ffe4e6;
+  border-color: rgba(220,38,38,.20);
+  background: linear-gradient(180deg, rgba(255,241,242,.96), rgba(254,226,226,.92));
   color:#991b1b;
 }
+.ghost{
+  background: rgba(255,255,255,.86);
+}
 
-/* Congrats */
+/* Congrats page */
 .congratsWrap{
   display:grid;
   gap:16px;
@@ -213,231 +307,108 @@ button:disabled{opacity:.4;cursor:not-allowed}
   text-align:center;
   flex:1;
 }
+
 .congratsTitle{
   font-size:42px;
+  font-weight:1100;
+  letter-spacing:.3px;
+}
+
+/* Words grid (borderless “table”) */
+.wordsGrid{
+  max-width: 980px;
+  margin: 10px auto 0;
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap:12px 22px;
+
+  padding: 14px;
+  border-radius: 20px;
+  border:1px solid rgba(15,23,42,.10);
+  background: rgba(255,255,255,.80);
+  box-shadow: 0 12px 26px rgba(2,6,23,.06);
+
+  font-size:22px;
   font-weight:1000;
 }
-.wordsGrid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-  font-weight:900;
-  font-size:20px;
-  margin:auto;
-  max-width:800px;
+.wordCell{
+  padding: 6px 4px;
+}
+
+/* Perfect score badge */
+.badgeWrap{
+  display:flex;
+  justify-content:center;
+  margin-top: 2px;
 }
 .badge{
-  padding:8px 16px;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 16px;
   border-radius:999px;
-  background:linear-gradient(135deg,#ffe6a7,#e5d7ff);
-  font-weight:1000;
+  border:1px solid rgba(245,158,11,.35);
+  background: linear-gradient(180deg, rgba(255,247,237,.96), rgba(255,251,235,.92));
+  color:#7c2d12;
+  font-weight:1100;
+  font-size:16px;
   opacity:0;
-  transform:scale(.6);
+  transform: scale(.6);
+  filter: drop-shadow(0 10px 16px rgba(2,6,23,.10));
 }
 .badge.show{
-  animation:pop .8s forwards;
+  animation: badgePop 900ms cubic-bezier(.2,1.2,.2,1) forwards;
 }
-@keyframes pop{
-  0%{opacity:0;transform:scale(.6)}
-  70%{opacity:1;transform:scale(1.1)}
-  100%{opacity:1;transform:scale(1)}
+@keyframes badgePop{
+  0%{ opacity:0; transform: scale(.6) translateY(6px); }
+  60%{ opacity:1; transform: scale(1.08) translateY(0); }
+  80%{ opacity:1; transform: scale(.98); }
+  100%{ opacity:1; transform: scale(1); }
 }
 
 /* Footer */
 footer{
+  border-top:1px solid rgba(15,23,42,.10);
+  background: rgba(255,255,255,.88);
   padding:12px;
   text-align:center;
   font-size:14px;
-  font-weight:800;
   color:var(--muted);
-  background:white;
-  border-top:1px solid var(--line);
+  font-weight:800;
 }
 
-/* Mobile */
-@media(max-width:600px){
-  .word{font-size:58px}
-  .wordsGrid{grid-template-columns:1fr}
-  button{width:100%}
+/* Confetti canvas */
+#confettiCanvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  display:none;
+}
+
+/* Mobile tuning */
+@media (max-width: 900px){
+  :root{
+    --titleSize: 26px;
+    --metaSize: 16px;
+    --wordSize: 64px;
+    --inputSize: 20px;
+    --btnH: 58px;
+    --btnPadX: 16px;
+    --pad: 16px;
+  }
+  .wordBox{ min-height:180px; padding:38px 14px; }
+  button{ font-size:16px; }
+  .congratsTitle{ font-size:32px; }
+  .wordsGrid{ font-size:18px; gap:10px 14px; padding:12px; }
+}
+
+@media (max-width: 520px){
+  .btnRow{ gap:10px; }
+  button{ width:100%; }
+  input{ flex:1 1 100%; }
+  .topRow > div{ width:100%; justify-content:center; text-align:center; }
+  .wordsGrid{ grid-template-columns: 1fr; }
 }
 </style>
-</head>
-
-<body>
-<section class="panel">
-
-<canvas id="confettiCanvas"></canvas>
-
-<header>
-<h1>P5U1 Vocabulary-Spelling</h1>
-</header>
-
-<div class="main" id="gamePage">
-
-<div class="topRow">
-<div id="progress">Word 1 of 15</div>
-<div id="score">0/15 correct</div>
-</div>
-
-<div class="wordBox">
-<div class="word covered" id="targetWord"></div>
-</div>
-
-<div class="writeRow">
-<input id="inputBox" class="hidden" placeholder="Type..." autocomplete="off" spellcheck="false" />
-<span id="resultTag" class="hidden"></span>
-</div>
-
-<div class="controls" id="controls">
-<div class="btnRow">
-<button id="btnLook">Look</button>
-<button id="btnSay" disabled>Say</button>
-<button id="btnCover" disabled>Cover</button>
-<button id="btnWrite" disabled>Write</button>
-<button id="btnCheck" class="primary" disabled>Check</button>
-<button id="btnNext" class="next">Next Word</button>
-<button id="btnReset" class="danger">Reset Word</button>
-</div>
-</div>
-
-</div>
-
-<div class="congratsWrap hidden" id="congratsPage">
-<div class="congratsTitle">🎉 Congratulations! 🎉</div>
-<div>You scored <span id="finalScore">15/15</span></div>
-<div class="badge" id="perfectBadge">🏆 Perfect Score</div>
-<div class="wordsGrid" id="wordsGrid"></div>
-<button id="btnPlayAgain" class="primary">Play Again</button>
-</div>
-
-<footer>
-© <span id="currentYear"></span> Sng Qi Wen
-</footer>
-
-</section>
-
-<script>
-const words=["lunged","yelped","errands","shoved","tugging","sprinted","smirked","dreaded","bellowed","yearning","forlornly","flexibility","hesitantly","humiliating","satisfaction"];
-
-let idx=0, stage=0, finished=false;
-const stats=new Map();
-words.forEach(w=>stats.set(w,false));
-
-const targetWord=document.getElementById("targetWord");
-const inputBox=document.getElementById("inputBox");
-const progress=document.getElementById("progress");
-const score=document.getElementById("score");
-const resultTag=document.getElementById("resultTag");
-const gamePage=document.getElementById("gamePage");
-const congratsPage=document.getElementById("congratsPage");
-const wordsGrid=document.getElementById("wordsGrid");
-const perfectBadge=document.getElementById("perfectBadge");
-
-function update(){
-targetWord.textContent=words[idx];
-progress.textContent=`Word ${idx+1} of ${words.length}`;
-score.textContent=`${[...stats.values()].filter(v=>v).length}/${words.length} correct`;
-if([...stats.values()].every(v=>v) && !finished){finished=true;showCongrats();}
-}
-function resetStages(){
-stage=0;
-btnLook.disabled=false;
-btnSay.disabled=true;
-btnCover.disabled=true;
-btnWrite.disabled=true;
-btnCheck.disabled=true;
-inputBox.classList.add("hidden");
-inputBox.value="";
-resultTag.className="hidden";
-targetWord.classList.add("covered");
-}
-
-btnLook.onclick=()=>{if(stage!==0)return;targetWord.classList.remove("covered");btnSay.disabled=false;stage=1;}
-btnSay.onclick=()=>{if(stage!==1)return;speechSynthesis.speak(new SpeechSynthesisUtterance(words[idx]));btnCover.disabled=false;stage=2;}
-btnCover.onclick=()=>{if(stage!==2)return;targetWord.classList.add("covered");btnWrite.disabled=false;stage=3;}
-btnWrite.onclick=()=>{if(stage!==3)return;inputBox.classList.remove("hidden");btnCheck.disabled=false;stage=4;inputBox.focus();}
-btnCheck.onclick=()=>{
-if(stage!==4)return;
-if(inputBox.value.trim().toLowerCase()===words[idx]){
-stats.set(words[idx],true);
-resultTag.className="tag good";
-resultTag.textContent="Correct";
-targetWord.classList.remove("covered");
-}else{
-resultTag.className="tag bad";
-resultTag.textContent="Try again";
-}
-resultTag.classList.remove("hidden");
-update();
-};
-btnNext.onclick=()=>{idx=(idx+1)%words.length;update();resetStages();}
-btnReset.onclick=()=>{stats.set(words[idx],false);update();resetStages();}
-
-function showCongrats(){
-gamePage.classList.add("hidden");
-congratsPage.classList.remove("hidden");
-wordsGrid.innerHTML="";
-words.forEach(w=>{
-const div=document.createElement("div");
-div.textContent=w;
-wordsGrid.appendChild(div);
-});
-perfectBadge.classList.add("show");
-startConfetti();
-playSound();
-}
-
-btnPlayAgain.onclick=()=>{
-finished=false;
-idx=0;
-words.forEach(w=>stats.set(w,false));
-congratsPage.classList.add("hidden");
-gamePage.classList.remove("hidden");
-perfectBadge.classList.remove("show");
-update();resetStages();
-};
-
-document.getElementById("currentYear").textContent=new Date().getFullYear();
-
-/* Celebration Sound */
-function playSound(){
-const ctx=new (window.AudioContext||window.webkitAudioContext)();
-const o=ctx.createOscillator();
-o.type="triangle";o.frequency.value=880;
-o.connect(ctx.destination);o.start();
-setTimeout(()=>o.stop(),300);
-}
-
-/* Confetti */
-function startConfetti(){
-const canvas=document.getElementById("confettiCanvas");
-const ctx=canvas.getContext("2d");
-canvas.width=canvas.offsetWidth;
-canvas.height=canvas.offsetHeight;
-canvas.style.display="block";
-let pieces=[...Array(120)].map(()=>({
-x:Math.random()*canvas.width,
-y:Math.random()*-canvas.height,
-size:6+Math.random()*6,
-speed:2+Math.random()*4,
-color:`hsl(${Math.random()*360},100%,75%)`
-}));
-let t=0;
-function draw(){
-ctx.clearRect(0,0,canvas.width,canvas.height);
-pieces.forEach(p=>{
-ctx.fillStyle=p.color;
-ctx.fillRect(p.x,p.y,p.size,p.size);
-p.y+=p.speed;
-if(p.y>canvas.height)p.y=0;
-});
-if(t<200){requestAnimationFrame(draw);t++;}
-else canvas.style.display="none";
-}
-draw();
-}
-
-update();resetStages();
-</script>
-</body>
-</html>
