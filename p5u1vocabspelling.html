@@ -1,167 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>P5U1 Vocabulary-Spelling</title>
+
 <style>
-/* =========================
-   P5U1 Vocabulary-Spelling
-   Beautified UI (drop-in)
-   ========================= */
-
 :root{
-  /* Core colors */
   --ink:#0b1220;
-  --muted:#64748b;
-  --line:rgba(15,23,42,.12);
-
-  --accent:#2563eb;
-  --accent2:#60a5fa;
-
-  --next:#06b6d4;
-  --next2:#22c55e;
-
+  --muted:#4b5563;
+  --line:#d1d5db;
+  --accent:#1d4ed8;
+  --next:#0284c7;
   --good:#16a34a;
   --bad:#dc2626;
 
-  /* Surface */
-  --bg1:#f7f9ff;
-  --bg2:#f6fbff;
-
-  --card:#ffffff;
-  --card2:rgba(255,255,255,.86);
-
-  /* Effects */
-  --shadow: 0 18px 55px rgba(2,6,23,.10);
-  --shadow2: 0 8px 20px rgba(2,6,23,.10);
-  --ring: 0 0 0 6px rgba(147,197,253,.35);
-
   --radius:22px;
-  --radius2:18px;
+  --sans: ui-sans-serif, system-ui;
 
-  --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  --panelW: min(1200px, 96vw);
+  --btnH: 70px;
+  --btnPadX: 24px;
 
-  /* Layout sizing */
-  --panelW: min(1180px, 96vw);
-  --btnH: 68px;
-  --btnPadX: 22px;
-
-  /* JS will override */
   --controlsPad: 160px;
 
-  /* Type scale */
   --titleSize: 32px;
-  --metaSize: 18px;
   --wordSize: 88px;
-  --inputSize: 24px;
-  --pad: 22px;
+  --inputSize: 26px;
+  --pad: 24px;
 }
 
-/* Reset + base */
 *{ box-sizing:border-box; }
 html,body{ height:100%; }
+
 body{
   margin:0;
   font-family:var(--sans);
+  background:#ffffff;
   color:var(--ink);
-
-  /* Soft gradient background */
-  background:
-    radial-gradient(900px 500px at 18% 10%, rgba(96,165,250,.18), transparent 60%),
-    radial-gradient(900px 600px at 85% 0%, rgba(34,197,94,.14), transparent 60%),
-    radial-gradient(800px 600px at 50% 105%, rgba(6,182,212,.12), transparent 60%),
-    linear-gradient(180deg, var(--bg1), var(--bg2));
-
   display:flex;
   justify-content:center;
   padding:18px;
 }
 
-/* Panel “app card” */
 .panel{
   width:var(--panelW);
-  background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.92));
-  border:1px solid rgba(15,23,42,.10);
-  border-radius: calc(var(--radius) + 4px);
-  box-shadow: var(--shadow);
-  overflow:hidden;
+  border:3px solid var(--line);
+  border-radius:var(--radius);
+  background:#fff;
+  box-shadow:0 10px 30px rgba(0,0,0,.06);
 
+  /* Sticky footer structure */
   min-height:100vh;
   display:flex;
   flex-direction:column;
-
-  position:relative; /* for confetti overlay */
 }
 
-/* Header */
 header{
   padding:18px 22px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78));
-  border-bottom:1px solid rgba(15,23,42,.10);
+  border-bottom:3px solid var(--line);
 }
 
 h1{
   margin:0;
   font-size:var(--titleSize);
-  letter-spacing:.2px;
-  font-weight:1000;
-  display:flex;
-  align-items:center;
-  gap:10px;
 }
 
-/* Main layout */
 .main{
-  padding:var(--pad) var(--pad) calc(var(--controlsPad) + 16px);
+  padding:var(--pad) var(--pad) calc(var(--controlsPad) + 18px);
   display:grid;
-  gap:18px;
+  gap:22px;
   flex:1;
 }
 
-/* Meta row */
 .topRow{
   display:flex;
   justify-content:space-between;
-  gap:12px;
-  flex-wrap:wrap;
-  font-size:var(--metaSize);
+  font-size:18px;
   color:var(--muted);
 }
-.topRow > div{
-  background: rgba(255,255,255,.70);
-  border:1px solid rgba(15,23,42,.10);
-  border-radius: 999px;
-  padding:8px 12px;
-  box-shadow: 0 6px 16px rgba(2,6,23,.04);
-}
 
-/* Word stage card */
 .wordBox{
-  border-radius: calc(var(--radius) + 6px);
-  border:1px solid rgba(15,23,42,.10);
-  background:
-    radial-gradient(900px 220px at 50% 0%, rgba(96,165,250,.18), transparent 70%),
-    linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.84));
-  box-shadow: var(--shadow2);
-
-  padding: 54px 22px;
+  border:4px solid var(--line);
+  border-radius:var(--radius);
+  padding:50px 20px;
+  text-align:center;
   min-height:220px;
-
   display:flex;
   align-items:center;
   justify-content:center;
-  text-align:center;
 }
 
 .word{
   font-size:var(--wordSize);
-  font-weight:1000;
-  letter-spacing: 1px;
-  line-height:1.02;
-  text-wrap: balance;
-  word-break:break-word;
-
-  /* subtle depth */
-  text-shadow: 0 2px 0 rgba(2,6,23,.05);
+  font-weight:900;
 }
 
-/* Covered blur */
 .covered{
   filter: blur(18px);
   opacity:.14;
@@ -169,140 +103,66 @@ h1{
   pointer-events:none;
 }
 
-/* Write row */
 .writeRow{
   display:flex;
-  gap:12px;
+  gap:14px;
   align-items:center;
   flex-wrap:wrap;
-  scroll-margin-bottom: calc(var(--controlsPad) + 24px);
 }
 
-/* Input */
 input{
-  flex:1 1 520px;
-  min-width:240px;
-  padding:16px 18px;
-  border-radius: 16px;
-  border:1px solid rgba(15,23,42,.14);
-  background: rgba(255,255,255,.92);
+  flex:1;
+  padding:16px 20px;
+  border-radius:18px;
+  border:3px solid var(--line);
   font-size:var(--inputSize);
-  font-weight:800;
-  letter-spacing:.2px;
-  box-shadow: 0 10px 24px rgba(2,6,23,.06);
-  outline:none;
-}
-input:focus{
-  border-color: rgba(37,99,235,.35);
-  box-shadow: 0 10px 24px rgba(2,6,23,.06), var(--ring);
 }
 
-/* Tags */
 .hidden{ display:none !important; }
 
 .tag{
-  font-size:16px;
-  padding:10px 14px;
+  font-size:18px;
+  padding:8px 14px;
   border-radius:999px;
-  font-weight:1000;
-  border:1px solid rgba(15,23,42,.10);
-  box-shadow: 0 8px 18px rgba(2,6,23,.06);
+  font-weight:900;
 }
-.tag.good{
-  background: linear-gradient(180deg, rgba(240,253,244,.95), rgba(220,252,231,.92));
-  color:#14532d;
-  border-color: rgba(22,163,74,.22);
-}
-.tag.bad{
-  background: linear-gradient(180deg, rgba(255,241,242,.95), rgba(254,226,226,.92));
-  color:#7f1d1d;
-  border-color: rgba(220,38,38,.22);
-}
+.tag.good{ background:#f0fdf4; color:#14532d; }
+.tag.bad{ background:#fff1f2; color:#7f1d1d; }
 
-/* Sticky controls bar */
 .controls{
   position:sticky;
   bottom:0;
-  padding:14px 14px 16px;
-  border-top:1px solid rgba(15,23,42,.10);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.60), rgba(255,255,255,.92));
-  backdrop-filter: blur(10px);
+  background:#fff;
+  border-top:3px solid var(--line);
+  padding:14px;
 }
 
-/* Button row */
 .btnRow{
   display:flex;
+  gap:12px;
   flex-wrap:wrap;
-  gap:10px;
   justify-content:center;
 }
 
-/* Buttons (base) */
 button{
   height:var(--btnH);
   padding:0 var(--btnPadX);
-  border-radius: 16px;
-  border:1px solid rgba(15,23,42,.14);
-  background: rgba(255,255,255,.92);
-
-  font-weight:1000;
+  border-radius:18px;
+  border:3px solid var(--line);
+  background:#fff;
+  font-weight:900;
   font-size:18px;
-  letter-spacing:.2px;
-
   cursor:pointer;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
+}
+button:disabled{ opacity:.4; }
 
-  box-shadow: 0 10px 20px rgba(2,6,23,.08);
-  transform: translateY(0);
-  transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease, opacity .12s ease;
-}
+.primary{ background:var(--accent); color:#fff; border-color:var(--accent); }
+.next{ background:var(--next); color:#fff; border-color:var(--next); }
+.danger{ background:#fff1f2; color:#991b1b; }
 
-button:hover{
-  transform: translateY(-1px);
-  box-shadow: 0 14px 26px rgba(2,6,23,.12);
-  border-color: rgba(15,23,42,.18);
-}
-
-button:active{
-  transform: translateY(1px);
-  box-shadow: 0 8px 18px rgba(2,6,23,.10);
-}
-
-button:disabled{
-  opacity:.40;
-  cursor:not-allowed;
-  transform:none;
-  box-shadow:none;
-}
-
-/* Button variants */
-.primary{
-  color:white;
-  border-color: rgba(37,99,235,.30);
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-}
-.primary:hover{ border-color: rgba(37,99,235,.44); }
-
-.next{
-  color:white;
-  border-color: rgba(6,182,212,.28);
-  background: linear-gradient(135deg, var(--next), var(--next2));
-}
-.danger{
-  border-color: rgba(220,38,38,.20);
-  background: linear-gradient(180deg, rgba(255,241,242,.96), rgba(254,226,226,.92));
-  color:#991b1b;
-}
-.ghost{
-  background: rgba(255,255,255,.86);
-}
-
-/* Congrats page */
 .congratsWrap{
   display:grid;
-  gap:16px;
+  gap:20px;
   padding:var(--pad);
   text-align:center;
   flex:1;
@@ -310,105 +170,188 @@ button:disabled{
 
 .congratsTitle{
   font-size:42px;
-  font-weight:1100;
-  letter-spacing:.3px;
-}
-
-/* Words grid (borderless “table”) */
-.wordsGrid{
-  max-width: 980px;
-  margin: 10px auto 0;
-  display:grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap:12px 22px;
-
-  padding: 14px;
-  border-radius: 20px;
-  border:1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.80);
-  box-shadow: 0 12px 26px rgba(2,6,23,.06);
-
-  font-size:22px;
   font-weight:1000;
 }
-.wordCell{
-  padding: 6px 4px;
+
+.wordsGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px 24px;
+  font-size:24px;
+  font-weight:900;
+  max-width:900px;
+  margin:auto;
 }
 
-/* Perfect score badge */
-.badgeWrap{
-  display:flex;
-  justify-content:center;
-  margin-top: 2px;
-}
-.badge{
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  padding:10px 16px;
-  border-radius:999px;
-  border:1px solid rgba(245,158,11,.35);
-  background: linear-gradient(180deg, rgba(255,247,237,.96), rgba(255,251,235,.92));
-  color:#7c2d12;
-  font-weight:1100;
-  font-size:16px;
-  opacity:0;
-  transform: scale(.6);
-  filter: drop-shadow(0 10px 16px rgba(2,6,23,.10));
-}
-.badge.show{
-  animation: badgePop 900ms cubic-bezier(.2,1.2,.2,1) forwards;
-}
-@keyframes badgePop{
-  0%{ opacity:0; transform: scale(.6) translateY(6px); }
-  60%{ opacity:1; transform: scale(1.08) translateY(0); }
-  80%{ opacity:1; transform: scale(.98); }
-  100%{ opacity:1; transform: scale(1); }
-}
-
-/* Footer */
 footer{
-  border-top:1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.88);
+  border-top:3px solid var(--line);
   padding:12px;
   text-align:center;
-  font-size:14px;
+  font-size:15px;
   color:var(--muted);
-  font-weight:800;
+  font-weight:600;
 }
 
-/* Confetti canvas */
-#confettiCanvas{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  pointer-events:none;
-  display:none;
-}
-
-/* Mobile tuning */
-@media (max-width: 900px){
-  :root{
-    --titleSize: 26px;
-    --metaSize: 16px;
-    --wordSize: 64px;
-    --inputSize: 20px;
-    --btnH: 58px;
-    --btnPadX: 16px;
-    --pad: 16px;
-  }
-  .wordBox{ min-height:180px; padding:38px 14px; }
-  button{ font-size:16px; }
-  .congratsTitle{ font-size:32px; }
-  .wordsGrid{ font-size:18px; gap:10px 14px; padding:12px; }
-}
-
-@media (max-width: 520px){
-  .btnRow{ gap:10px; }
+/* Mobile */
+@media(max-width:600px){
+  .word{ font-size:56px; }
+  .wordsGrid{ grid-template-columns:1fr; font-size:20px; }
   button{ width:100%; }
-  input{ flex:1 1 100%; }
-  .topRow > div{ width:100%; justify-content:center; text-align:center; }
-  .wordsGrid{ grid-template-columns: 1fr; }
 }
 </style>
+</head>
+
+<body>
+<section class="panel">
+
+<header>
+<h1>P5U1 Vocabulary-Spelling</h1>
+</header>
+
+<div class="main" id="gamePage">
+
+<div class="topRow">
+<div id="progress">Word 1 of 15</div>
+<div id="score">0/15 correct</div>
+</div>
+
+<div class="wordBox">
+<div class="word covered" id="targetWord"></div>
+</div>
+
+<div class="writeRow">
+<input id="inputBox" class="hidden" placeholder="Type..." autocomplete="off" spellcheck="false" />
+<span id="resultTag" class="hidden"></span>
+</div>
+
+<div class="controls" id="controls">
+<div class="btnRow">
+<button id="btnLook">Look</button>
+<button id="btnSay" disabled>Say</button>
+<button id="btnCover" disabled>Cover</button>
+<button id="btnWrite" disabled>Write</button>
+<button id="btnCheck" class="primary" disabled>Check</button>
+<button id="btnNext" class="next">Next Word</button>
+<button id="btnReset" class="danger">Reset Word</button>
+</div>
+</div>
+
+</div>
+
+<div class="congratsWrap hidden" id="congratsPage">
+<div class="congratsTitle">🎉 Congratulations! 🎉</div>
+<div>You scored 15/15!</div>
+<div class="wordsGrid" id="wordsGrid"></div>
+<button id="btnPlayAgain" class="primary">Play Again</button>
+</div>
+
+<footer>
+© <span id="currentYear"></span> Sng Qi Wen
+</footer>
+
+</section>
+
+<script>
+const words=[
+"lunged","yelped","errands","shoved","tugging","sprinted","smirked","dreaded","bellowed","yearning",
+"forlornly","flexibility","hesitantly","humiliating","satisfaction"
+];
+
+let idx=0;
+let stage=0;
+
+const stats=new Map();
+function initStats(){
+stats.clear();
+words.forEach(w=>stats.set(w,{correct:false}));
+}
+initStats();
+
+const targetWord=document.getElementById("targetWord");
+const inputBox=document.getElementById("inputBox");
+const progress=document.getElementById("progress");
+const score=document.getElementById("score");
+const resultTag=document.getElementById("resultTag");
+const gamePage=document.getElementById("gamePage");
+const congratsPage=document.getElementById("congratsPage");
+const wordsGrid=document.getElementById("wordsGrid");
+const controls=document.getElementById("controls");
+
+function setControlsPad(){
+const h=controls.getBoundingClientRect().height;
+document.documentElement.style.setProperty("--controlsPad",(h+24)+"px");
+}
+setControlsPad();
+window.addEventListener("resize",setControlsPad);
+
+function update(){
+targetWord.textContent=words[idx];
+progress.textContent=`Word ${idx+1} of ${words.length}`;
+let c=[...stats.values()].filter(v=>v.correct).length;
+score.textContent=`${c}/${words.length} correct`;
+if(c===words.length) showCongrats();
+}
+
+function resetStages(){
+stage=0;
+btnLook.disabled=false;
+btnSay.disabled=true;
+btnCover.disabled=true;
+btnWrite.disabled=true;
+btnCheck.disabled=true;
+inputBox.classList.add("hidden");
+inputBox.value="";
+resultTag.className="hidden";
+targetWord.classList.add("covered");
+}
+
+btnLook.onclick=()=>{ if(stage!==0)return; targetWord.classList.remove("covered"); btnSay.disabled=false; stage=1; };
+btnSay.onclick=()=>{ if(stage!==1)return; speechSynthesis.speak(new SpeechSynthesisUtterance(words[idx])); btnCover.disabled=false; stage=2; };
+btnCover.onclick=()=>{ if(stage!==2)return; targetWord.classList.add("covered"); btnWrite.disabled=false; stage=3; };
+btnWrite.onclick=()=>{ if(stage!==3)return; inputBox.classList.remove("hidden"); btnCheck.disabled=false; stage=4; inputBox.focus(); };
+btnCheck.onclick=()=>{
+if(stage!==4)return;
+if(inputBox.value.trim().toLowerCase()===words[idx]){
+stats.get(words[idx]).correct=true;
+resultTag.className="tag good";
+resultTag.textContent="Correct";
+targetWord.classList.remove("covered");
+}else{
+resultTag.className="tag bad";
+resultTag.textContent="Try again";
+}
+resultTag.classList.remove("hidden");
+update();
+};
+
+btnNext.onclick=()=>{ idx=(idx+1)%words.length; update(); resetStages(); };
+btnReset.onclick=()=>{ stats.get(words[idx]).correct=false; update(); resetStages(); };
+
+function showCongrats(){
+gamePage.classList.add("hidden");
+congratsPage.classList.remove("hidden");
+wordsGrid.innerHTML="";
+words.forEach(w=>{
+const div=document.createElement("div");
+div.textContent=w;
+wordsGrid.appendChild(div);
+});
+}
+
+btnPlayAgain.onclick=()=>{
+idx=0;
+initStats();
+congratsPage.classList.add("hidden");
+gamePage.classList.remove("hidden");
+update();
+resetStages();
+};
+
+document.getElementById("currentYear").textContent=new Date().getFullYear();
+
+update();
+resetStages();
+</script>
+
+</body>
+</html>
