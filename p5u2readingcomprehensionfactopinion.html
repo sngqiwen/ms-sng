@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>P5U2 Reading Comprehension — Revisit & WALT</title>
 
+<!-- ✅ Google Font: Balsamiq Sans -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
   :root{
     --bg:#ffffff;
@@ -44,7 +49,7 @@
   *{ box-sizing:border-box; }
   body{
     margin:0;
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+    font-family: "Balsamiq Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
     background: var(--bg);
     color: var(--ink);
     line-height: 1.55;
@@ -87,7 +92,7 @@
     padding: 10px 14px;
     border-radius: 999px;
     cursor: pointer;
-    font-weight: 900;
+    font-weight: 700;
     font-size: var(--small);
     box-shadow: 0 10px 22px rgba(12,20,40,.06);
     transition: transform .08s ease, box-shadow .12s ease, background .12s ease;
@@ -149,6 +154,7 @@
   .secHead h2{
     margin:0;
     font-size: var(--h2);
+    font-weight: 700;
   }
   .secHead .meta{
     color: var(--muted);
@@ -183,7 +189,7 @@
     margin-bottom: 10px;
   }
   .panelTitle .t{
-    font-weight: 900;
+    font-weight: 700;
     letter-spacing: .2px;
     font-size: calc(var(--base) + 2px);
   }
@@ -226,7 +232,7 @@
   th{
     text-align: left;
     background: rgba(0,0,0,.03);
-    font-weight: 900;
+    font-weight: 700;
   }
 
   .qCard{
@@ -245,7 +251,7 @@
     flex-wrap: wrap;
   }
   .qTitle{
-    font-weight: 900;
+    font-weight: 700;
     font-size: calc(var(--base) + 1px);
     margin: 0;
   }
@@ -257,7 +263,7 @@
     padding: 10px 12px;
     border-radius: 12px;
     cursor: pointer;
-    font-weight: 900;
+    font-weight: 700;
     font-size: var(--small);
     box-shadow: 0 8px 18px rgba(12,20,40,.06);
     transition: transform .08s ease, box-shadow .12s ease;
@@ -288,13 +294,9 @@
   }
 
   /* ===== Revisit page styling ===== */
-  .revisitHero{
-    padding: var(--pad);
-  }
-  .revisitHero h2{
-    margin: 0 0 10px;
-    font-size: var(--h2);
-  }
+  .revisitHero{ padding: var(--pad); }
+  .revisitHero h2{ margin: 0 0 10px; font-size: var(--h2); }
+
   .bubbleGrid{
     display:grid;
     grid-template-columns: 1.1fr .9fr 1.3fr;
@@ -311,12 +313,11 @@
     box-shadow: 0 10px 22px rgba(12,20,40,.08);
     padding: 16px 16px;
     font-size: clamp(15px, 1.25vw, 20px);
-    font-weight: 800;
+    font-weight: 700;
     position: relative;
     overflow: hidden;
     background: #fff;
   }
-  .bubble small{ display:block; font-weight: 700; opacity:.85; margin-top: 6px; font-size: var(--small); color: rgba(0,0,0,.60); }
   .bubble.orange{ background: linear-gradient(180deg, var(--pOrange), var(--pOrange2)); }
   .bubble.yellow{ background: linear-gradient(180deg, #ffeaa3, var(--pYellow)); }
   .bubble.greenWave{
@@ -335,6 +336,7 @@
     border-radius: 28px;
     position: relative;
     padding-bottom: 26px;
+    text-align:center;
   }
   .bubble.cloud:after{
     content:"";
@@ -367,6 +369,7 @@
   @media (max-width: 980px){
     .bubbleRow2{ grid-template-columns: 1fr; }
   }
+
   .noteBox{
     border: 1px solid var(--line);
     border-radius: var(--r);
@@ -375,18 +378,14 @@
     box-shadow: var(--shadow2);
     margin-top: 14px;
   }
-  .noteBox h3{
-    margin:0 0 8px;
-    font-size: var(--h3);
-  }
-  .noteBox ul{ margin: 10px 0 0 18px; font-size: var(--base); }
+  .noteBox h3{ margin:0 0 8px; font-size: var(--h3); font-weight: 700; }
   .callout{
     display:inline-block;
     padding: 10px 14px;
     border: 2px solid #ff9a3c;
     border-radius: 12px;
     background: rgba(255,154,60,.10);
-    font-weight: 900;
+    font-weight: 700;
     margin-top: 12px;
   }
 
@@ -403,13 +402,13 @@
     position: relative;
     padding-top: 22px;
     font-size: clamp(18px, 1.6vw, 26px);
-    font-weight: 800;
+    font-weight: 700;
   }
   .tag{
     position:absolute;
     top: 0px;
     font-size: var(--small);
-    font-weight: 900;
+    font-weight: 700;
     color: #1f5fbf;
   }
   .tag.when{ left: 2px; }
@@ -428,10 +427,7 @@
     margin-top: 10px;
     font-size: clamp(16px, 1.3vw, 20px);
   }
-  .why{
-    color: #1f5fbf;
-    font-weight: 900;
-  }
+  .why{ color: #1f5fbf; font-weight: 700; }
   .qMark{
     width: 34px; height: 34px;
     border-radius: 999px;
@@ -439,7 +435,7 @@
     place-items:center;
     border: 2px solid #1f5fbf;
     color:#1f5fbf;
-    font-weight: 1000;
+    font-weight: 700;
     background: rgba(31,95,191,.06);
   }
   .squiggle{
@@ -447,7 +443,6 @@
     text-decoration-thickness: 2px;
     text-underline-offset: 6px;
   }
-
 </style>
 </head>
 
@@ -469,14 +464,9 @@
       </div>
     </div>
 
-    <!-- ✅ Tabs: Revisit first, then WALT -->
     <nav class="tabs" role="tablist" aria-label="Pages">
-      <button class="tabBtn" role="tab" id="tab-revisit" aria-controls="page-revisit" aria-selected="true" data-page="revisit">
-        Revisit
-      </button>
-      <button class="tabBtn" role="tab" id="tab-walt" aria-controls="page-walt" aria-selected="false" data-page="walt">
-        WALT
-      </button>
+      <button class="tabBtn" role="tab" id="tab-revisit" aria-controls="page-revisit" aria-selected="true" data-page="revisit">Revisit</button>
+      <button class="tabBtn" role="tab" id="tab-walt" aria-controls="page-walt" aria-selected="false" data-page="walt">WALT</button>
     </nav>
   </div>
 </header>
@@ -484,11 +474,8 @@
 <main>
   <div class="wrap">
 
-    <!-- ===================== -->
-    <!-- PAGE: REVISIT         -->
-    <!-- ===================== -->
+    <!-- PAGE: REVISIT -->
     <section class="page active" id="page-revisit" role="tabpanel" aria-labelledby="tab-revisit">
-
       <section class="section">
         <div class="secHead">
           <h2>When we read, we apply some or all of these skills:</h2>
@@ -497,41 +484,21 @@
 
         <div class="revisitHero">
           <div class="bubbleGrid">
-            <div class="bubble orange">
-              Think about the audience and purpose of the text.
-            </div>
-
-            <div class="bubble yellow" style="text-align:center;">
-              Ask questions<br>about the text.
-            </div>
-
-            <div class="bubble greenWave">
-              Make connections by linking the text to what we already know and the words in the text to their referents.
-            </div>
+            <div class="bubble orange">Think about the audience and purpose of the text.</div>
+            <div class="bubble yellow" style="text-align:center;">Ask questions<br>about the text.</div>
+            <div class="bubble greenWave">Make connections by linking the text to what we already know and the words in the text to their referents.</div>
           </div>
 
           <div class="bubbleRow2">
-            <div class="bubble star">
-              Make inferences<br>to draw<br>conclusions.
-            </div>
-
-            <div class="bubble yellow">
-              Identify key information about the text.<br>
-              (e.g., who is involved? When did it happen?)
-            </div>
+            <div class="bubble star">Make inferences<br>to draw<br>conclusions.</div>
+            <div class="bubble yellow">Identify key information about the text.<br>(e.g., who is involved? When did it happen?)</div>
           </div>
 
-          <div class="bubble cloud" style="margin-top:14px; text-align:center;">
-            Sequence<br>details or<br>events.
-          </div>
+          <div class="bubble cloud" style="margin-top:14px;">Sequence<br>details or<br>events.</div>
 
           <div class="noteBox" style="margin-top:16px;">
-            <p style="margin:0 0 10px;">
-              Show students the various reading skills a reader applies when reading a text.
-            </p>
-            <p style="margin:0;">
-              Have students refer to LS2.5 and read Part 1 of the text. Remind students to make their reading visible by annotating on the text.
-            </p>
+            <p style="margin:0 0 10px;">Show students the various reading skills a reader applies when reading a text.</p>
+            <p style="margin:0;">Have students refer to LS2.5 and read Part 1 of the text. Remind students to make their reading visible by annotating on the text.</p>
           </div>
         </div>
       </section>
@@ -543,13 +510,11 @@
         </div>
 
         <div class="revisitHero">
-
           <div class="annotDemo" aria-label="Annotation demo">
             <div class="annotLine">
               <span class="tag when">when</span>
               <span class="tag where">where</span>
               <span class="tag who">who</span>
-
               <span class="under">In 2003, inside a dark garden shed in England, a dog</span> whimpered.
             </div>
 
@@ -574,15 +539,11 @@
               <li>What does “desperate” mean? I think it really needs food as the story says that it grew weaker day by day. If I do not eat for a day, I will feel very hungry. This dog had not eaten for DAYS!</li>
             </ol>
           </div>
-
         </div>
       </section>
-
     </section>
 
-    <!-- ===================== -->
-    <!-- PAGE: WALT            -->
-    <!-- ===================== -->
+    <!-- PAGE: WALT -->
     <section class="page" id="page-walt" role="tabpanel" aria-labelledby="tab-walt">
 
       <!-- SECTION A -->
@@ -940,7 +901,6 @@
       </footer>
 
     </section>
-
   </div>
 </main>
 
@@ -954,13 +914,13 @@
     const isOpen = el.classList.toggle('show');
     btn.textContent = isOpen ? "Hide Answer" : "Show Answer";
   }
+
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-toggle]');
     if(btn){
       toggleAnswer(btn.getAttribute('data-toggle'), btn);
       return;
     }
-
     const tab = e.target.closest('.tabBtn[data-page]');
     if(tab){
       switchPage(tab.getAttribute('data-page'));
@@ -969,30 +929,21 @@
 
   // tabs
   function switchPage(page){
-    // set aria-selected
     document.querySelectorAll('.tabBtn').forEach(b=>{
       b.setAttribute('aria-selected', b.dataset.page === page ? 'true' : 'false');
     });
-    // pages
     document.querySelectorAll('.page').forEach(p=>{
       p.classList.toggle('active', p.id === `page-${page}`);
     });
-    // persist
     try{ localStorage.setItem('P5U2_RC_activeTab', page); }catch(_){}
-    // move focus for accessibility
-    const activePanel = document.getElementById(`page-${page}`);
-    if(activePanel) activePanel.focus?.();
   }
 
   // load last tab
   (function(){
     let saved = null;
     try{ saved = localStorage.getItem('P5U2_RC_activeTab'); }catch(_){}
-    if(saved === 'walt' || saved === 'revisit'){
-      switchPage(saved);
-    }else{
-      switchPage('revisit');
-    }
+    if(saved === 'walt' || saved === 'revisit') switchPage(saved);
+    else switchPage('revisit');
   })();
 </script>
 
