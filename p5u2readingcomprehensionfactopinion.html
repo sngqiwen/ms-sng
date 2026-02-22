@@ -1,0 +1,1000 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>P5U2 Reading Comprehension — Revisit & WALT</title>
+
+<style>
+  :root{
+    --bg:#ffffff;
+    --card:#ffffff;
+    --ink:#0b1220;
+    --muted:#5b6474;
+    --line:#e7e9f3;
+
+    --fact:#bff2c7;      /* green */
+    --opinion:#bfe6ff;   /* blue */
+    --answer:#ffeaa3;    /* yellow */
+
+    --shadow: 0 14px 40px rgba(12, 20, 40, .10);
+    --shadow2: 0 10px 26px rgba(12, 20, 40, .10);
+    --r:18px;
+
+    /* projector-friendly sizing */
+    --wrapW: min(1450px, 96vw);
+    --h1: clamp(24px, 2.4vw, 40px);
+    --h2: clamp(18px, 1.7vw, 28px);
+    --h3: clamp(16px, 1.4vw, 22px);
+    --base: clamp(16px, 1.25vw, 20px);
+    --small: clamp(13px, 1.05vw, 16px);
+    --pad: clamp(14px, 1.4vw, 22px);
+
+    /* pastel revisit palette */
+    --pOrange:#ffd4b8;
+    --pOrange2:#ffb98f;
+    --pYellow:#ffe79c;
+    --pGreen:#cfeec7;
+    --pGreen2:#a8de9c;
+    --pBlue:#cfe2ff;
+    --pBlue2:#a9c6ff;
+    --pOrangeDeep:#ffb36b;
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+  }
+
+  .wrap{ width: var(--wrapW); margin: 0 auto; }
+
+  /* ===== Top bar + Tabs ===== */
+  header{
+    background:#fff;
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+  .top{
+    padding: calc(var(--pad) + 6px) var(--pad) 14px;
+  }
+  .titleRow{
+    display:flex;
+    gap: 12px;
+    align-items:flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  h1{ margin:0; font-size: var(--h1); letter-spacing: .2px; }
+  .sub{ margin-top: 6px; color: var(--muted); font-size: var(--base); }
+
+  .tabs{
+    display:flex;
+    gap:10px;
+    flex-wrap: wrap;
+    padding: 0 var(--pad) 14px;
+  }
+  .tabBtn{
+    appearance:none;
+    border: 1px solid rgba(0,0,0,.12);
+    background:#fff;
+    color: var(--ink);
+    padding: 10px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 900;
+    font-size: var(--small);
+    box-shadow: 0 10px 22px rgba(12,20,40,.06);
+    transition: transform .08s ease, box-shadow .12s ease, background .12s ease;
+    user-select: none;
+  }
+  .tabBtn:hover{ transform: translateY(-1px); box-shadow: 0 14px 24px rgba(12,20,40,.10); }
+  .tabBtn[aria-selected="true"]{
+    background: rgba(0,0,0,.04);
+    border-color: rgba(0,0,0,.16);
+  }
+
+  main{ padding: var(--pad) 0 44px; }
+
+  /* ===== Common blocks ===== */
+  .legend{
+    display:flex;
+    gap:10px;
+    flex-wrap: wrap;
+    align-items:center;
+    margin-top: 10px;
+    font-size: var(--small);
+    color: var(--muted);
+  }
+  .pill{
+    display:inline-flex;
+    gap:8px;
+    align-items:center;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fff;
+  }
+  .dot{ width:12px; height:12px; border-radius: 999px; border: 1px solid rgba(0,0,0,.08); }
+  .dot.fact{ background: var(--fact); }
+  .dot.opinion{ background: var(--opinion); }
+  .dot.answer{ background: var(--answer); }
+
+  .page{ display:none; }
+  .page.active{ display:block; }
+
+  .section{
+    border: 1px solid var(--line);
+    border-radius: calc(var(--r) + 6px);
+    box-shadow: var(--shadow);
+    background: var(--card);
+    overflow: hidden;
+    margin: 18px 0;
+  }
+  .secHead{
+    padding: 14px var(--pad);
+    border-bottom: 1px solid var(--line);
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,0));
+  }
+  .secHead h2{
+    margin:0;
+    font-size: var(--h2);
+  }
+  .secHead .meta{
+    color: var(--muted);
+    font-size: var(--small);
+  }
+
+  .grid2{
+    display:grid;
+    grid-template-columns: 1.05fr .95fr;
+    gap: 14px;
+    padding: var(--pad);
+  }
+  @media (max-width: 980px){
+    .grid2{ grid-template-columns: 1fr; }
+  }
+
+  .panel{
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    box-shadow: var(--shadow2);
+    background: #fff;
+    padding: var(--pad);
+    min-height: 120px;
+  }
+
+  .panelTitle{
+    display:flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .panelTitle .t{
+    font-weight: 900;
+    letter-spacing: .2px;
+    font-size: calc(var(--base) + 2px);
+  }
+  .panelTitle .hint{
+    color: var(--muted);
+    font-size: var(--small);
+  }
+
+  p{ margin: 10px 0; font-size: var(--base); }
+
+  .hl{
+    padding: 1px 4px;
+    border-radius: 8px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    border: 1px solid rgba(0,0,0,.06);
+  }
+  .hl.fact{ background: var(--fact); }
+  .hl.opinion{ background: var(--opinion); }
+  .hl.answer{ background: var(--answer); }
+
+  table{
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    font-size: var(--base);
+  }
+  th, td{
+    padding: 12px 12px;
+    border-bottom: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    vertical-align: top;
+    background: #fff;
+  }
+  th:last-child, td:last-child{ border-right: 0; }
+  tr:last-child td{ border-bottom: 0; }
+  th{
+    text-align: left;
+    background: rgba(0,0,0,.03);
+    font-weight: 900;
+  }
+
+  .qCard{
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 14px 14px;
+    box-shadow: var(--shadow2);
+    background:#fff;
+    margin: 12px 0;
+  }
+  .qTop{
+    display:flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .qTitle{
+    font-weight: 900;
+    font-size: calc(var(--base) + 1px);
+    margin: 0;
+  }
+  .btn{
+    appearance:none;
+    border: 1px solid rgba(0,0,0,.12);
+    background:#fff;
+    color: var(--ink);
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 900;
+    font-size: var(--small);
+    box-shadow: 0 8px 18px rgba(12,20,40,.06);
+    transition: transform .08s ease, box-shadow .12s ease;
+    user-select: none;
+  }
+  .btn:hover{ transform: translateY(-1px); box-shadow: 0 12px 22px rgba(12,20,40,.10); }
+  .btn:active{ transform: translateY(0px); }
+  .btn.small{ padding: 8px 10px; border-radius: 10px; }
+
+  .ans{
+    margin-top: 10px;
+    display:none;
+    border-left: 6px solid #ffd24d;
+    background: rgba(255, 210, 77, .18);
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: var(--base);
+  }
+  .ans.show{ display:block; }
+
+  footer{
+    border-top: 1px solid var(--line);
+    padding: 16px var(--pad);
+    color: var(--muted);
+    font-size: var(--small);
+    text-align:center;
+    background:#fff;
+  }
+
+  /* ===== Revisit page styling ===== */
+  .revisitHero{
+    padding: var(--pad);
+  }
+  .revisitHero h2{
+    margin: 0 0 10px;
+    font-size: var(--h2);
+  }
+  .bubbleGrid{
+    display:grid;
+    grid-template-columns: 1.1fr .9fr 1.3fr;
+    gap: 14px;
+    align-items: stretch;
+    margin-top: 14px;
+  }
+  @media (max-width: 980px){
+    .bubbleGrid{ grid-template-columns: 1fr; }
+  }
+  .bubble{
+    border-radius: 22px;
+    border: 1px solid rgba(0,0,0,.10);
+    box-shadow: 0 10px 22px rgba(12,20,40,.08);
+    padding: 16px 16px;
+    font-size: clamp(15px, 1.25vw, 20px);
+    font-weight: 800;
+    position: relative;
+    overflow: hidden;
+    background: #fff;
+  }
+  .bubble small{ display:block; font-weight: 700; opacity:.85; margin-top: 6px; font-size: var(--small); color: rgba(0,0,0,.60); }
+  .bubble.orange{ background: linear-gradient(180deg, var(--pOrange), var(--pOrange2)); }
+  .bubble.yellow{ background: linear-gradient(180deg, #ffeaa3, var(--pYellow)); }
+  .bubble.greenWave{
+    background: linear-gradient(90deg, var(--pGreen), var(--pGreen2));
+    border-radius: 18px;
+    clip-path: polygon(0 12%, 6% 0, 100% 0, 100% 88%, 94% 100%, 0 100%);
+  }
+  .bubble.star{
+    background: linear-gradient(180deg, var(--pBlue), var(--pBlue2));
+    clip-path: polygon(50% 0%, 60% 18%, 82% 8%, 76% 30%, 100% 35%, 78% 46%, 92% 70%, 68% 64%, 62% 92%, 50% 74%, 38% 92%, 32% 64%, 8% 70%, 22% 46%, 0% 35%, 24% 30%, 18% 8%, 40% 18%);
+    padding: 26px 22px;
+    text-align:center;
+  }
+  .bubble.cloud{
+    background: linear-gradient(180deg, #ffc58b, var(--pOrangeDeep));
+    border-radius: 28px;
+    position: relative;
+    padding-bottom: 26px;
+  }
+  .bubble.cloud:after{
+    content:"";
+    position:absolute;
+    right: 18px;
+    bottom: -14px;
+    width: 14px; height: 14px;
+    border-radius: 999px;
+    background: rgba(255, 179, 107, .95);
+    border: 1px solid rgba(0,0,0,.10);
+  }
+  .bubble.cloud:before{
+    content:"";
+    position:absolute;
+    right: 38px;
+    bottom: -28px;
+    width: 10px; height: 10px;
+    border-radius: 999px;
+    background: rgba(255, 179, 107, .85);
+    border: 1px solid rgba(0,0,0,.10);
+  }
+
+  .bubbleRow2{
+    display:grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 14px;
+    margin-top: 14px;
+    align-items: stretch;
+  }
+  @media (max-width: 980px){
+    .bubbleRow2{ grid-template-columns: 1fr; }
+  }
+  .noteBox{
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    background: #fff;
+    padding: var(--pad);
+    box-shadow: var(--shadow2);
+    margin-top: 14px;
+  }
+  .noteBox h3{
+    margin:0 0 8px;
+    font-size: var(--h3);
+  }
+  .noteBox ul{ margin: 10px 0 0 18px; font-size: var(--base); }
+  .callout{
+    display:inline-block;
+    padding: 10px 14px;
+    border: 2px solid #ff9a3c;
+    border-radius: 12px;
+    background: rgba(255,154,60,.10);
+    font-weight: 900;
+    margin-top: 12px;
+  }
+
+  /* Simple annotate demo */
+  .annotDemo{
+    margin-top: 10px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 16px;
+    background: #fff;
+    box-shadow: var(--shadow2);
+  }
+  .annotLine{
+    position: relative;
+    padding-top: 22px;
+    font-size: clamp(18px, 1.6vw, 26px);
+    font-weight: 800;
+  }
+  .tag{
+    position:absolute;
+    top: 0px;
+    font-size: var(--small);
+    font-weight: 900;
+    color: #1f5fbf;
+  }
+  .tag.when{ left: 2px; }
+  .tag.where{ left: 46%; transform: translateX(-50%); }
+  .tag.who{ right: 6px; }
+  .under{
+    text-decoration: underline;
+    text-decoration-thickness: 4px;
+    text-underline-offset: 6px;
+    text-decoration-color: #3a6edc;
+  }
+  .whyRow{
+    display:flex;
+    gap: 10px;
+    align-items:center;
+    margin-top: 10px;
+    font-size: clamp(16px, 1.3vw, 20px);
+  }
+  .why{
+    color: #1f5fbf;
+    font-weight: 900;
+  }
+  .qMark{
+    width: 34px; height: 34px;
+    border-radius: 999px;
+    display:inline-grid;
+    place-items:center;
+    border: 2px solid #1f5fbf;
+    color:#1f5fbf;
+    font-weight: 1000;
+    background: rgba(31,95,191,.06);
+  }
+  .squiggle{
+    text-decoration: underline wavy #111;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+  }
+
+</style>
+</head>
+
+<body>
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div class="titleRow">
+        <div>
+          <h1>P5U2 Reading Comprehension</h1>
+          <div class="sub"><b>WALT:</b> Make inferences based on the facts or opinions in a text.</div>
+
+          <div class="legend" aria-label="Highlight legend">
+            <span class="pill"><span class="dot fact"></span> Fact (Green)</span>
+            <span class="pill"><span class="dot opinion"></span> Opinion (Blue)</span>
+            <span class="pill"><span class="dot answer"></span> Answer Evidence (Yellow)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ Tabs: Revisit first, then WALT -->
+    <nav class="tabs" role="tablist" aria-label="Pages">
+      <button class="tabBtn" role="tab" id="tab-revisit" aria-controls="page-revisit" aria-selected="true" data-page="revisit">
+        Revisit
+      </button>
+      <button class="tabBtn" role="tab" id="tab-walt" aria-controls="page-walt" aria-selected="false" data-page="walt">
+        WALT
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <!-- ===================== -->
+    <!-- PAGE: REVISIT         -->
+    <!-- ===================== -->
+    <section class="page active" id="page-revisit" role="tabpanel" aria-labelledby="tab-revisit">
+
+      <section class="section">
+        <div class="secHead">
+          <h2>When we read, we apply some or all of these skills:</h2>
+          <div class="meta">Revisit key reading skills before annotating</div>
+        </div>
+
+        <div class="revisitHero">
+          <div class="bubbleGrid">
+            <div class="bubble orange">
+              Think about the audience and purpose of the text.
+            </div>
+
+            <div class="bubble yellow" style="text-align:center;">
+              Ask questions<br>about the text.
+            </div>
+
+            <div class="bubble greenWave">
+              Make connections by linking the text to what we already know and the words in the text to their referents.
+            </div>
+          </div>
+
+          <div class="bubbleRow2">
+            <div class="bubble star">
+              Make inferences<br>to draw<br>conclusions.
+            </div>
+
+            <div class="bubble yellow">
+              Identify key information about the text.<br>
+              (e.g., who is involved? When did it happen?)
+            </div>
+          </div>
+
+          <div class="bubble cloud" style="margin-top:14px; text-align:center;">
+            Sequence<br>details or<br>events.
+          </div>
+
+          <div class="noteBox" style="margin-top:16px;">
+            <p style="margin:0 0 10px;">
+              Show students the various reading skills a reader applies when reading a text.
+            </p>
+            <p style="margin:0;">
+              Have students refer to LS2.5 and read Part 1 of the text. Remind students to make their reading visible by annotating on the text.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="secHead">
+          <h2>Reading and Annotating</h2>
+          <div class="meta">Model a sample annotation, then students try the next paragraph</div>
+        </div>
+
+        <div class="revisitHero">
+
+          <div class="annotDemo" aria-label="Annotation demo">
+            <div class="annotLine">
+              <span class="tag when">when</span>
+              <span class="tag where">where</span>
+              <span class="tag who">who</span>
+
+              <span class="under">In 2003, inside a dark garden shed in England, a dog</span> whimpered.
+            </div>
+
+            <div class="whyRow">
+              <span class="why">Why?</span>
+              <span class="qMark">?</span>
+              <span>Its future seemed dark. It was an <span class="under">abandoned</span> greyhound who was <span class="squiggle">desperate</span> for food. Day by day, <span class="under">it grew weaker.</span></span>
+            </div>
+
+            <div class="callout">Try reading the second paragraph and annotating it on your own.</div>
+          </div>
+
+          <div class="noteBox">
+            <p style="margin:0 0 10px;">
+              Revisit the various reading skills a reader applies when reading a text by annotating the text, Part 1.
+              You may use the following guiding points when going through the annotation with the students.
+            </p>
+            <ol style="margin: 0 0 0 20px; font-size: var(--base);">
+              <li>The first line orientates the reader to the when, where and character involved in the story.</li>
+              <li>I wonder why the writer says that the dog’s future seemed dark. What does it mean and what happened to the dog?</li>
+              <li>Oh, it is an abandoned dog. I think it might not be able to survive without food.</li>
+              <li>What does “desperate” mean? I think it really needs food as the story says that it grew weaker day by day. If I do not eat for a day, I will feel very hungry. This dog had not eaten for DAYS!</li>
+            </ol>
+          </div>
+
+        </div>
+      </section>
+
+    </section>
+
+    <!-- ===================== -->
+    <!-- PAGE: WALT            -->
+    <!-- ===================== -->
+    <section class="page" id="page-walt" role="tabpanel" aria-labelledby="tab-walt">
+
+      <!-- SECTION A -->
+      <section class="section" id="secA">
+        <div class="secHead">
+          <h2>Section A</h2>
+          <div class="meta">Left: highlight Facts (green) and Opinions (blue) • Right: table filled</div>
+        </div>
+
+        <div class="grid2">
+          <div class="panel">
+            <div class="panelTitle">
+              <div class="t">Left: Passage (A)</div>
+              <div class="hint">Green = Fact • Blue = Opinion</div>
+            </div>
+
+            <p><b>The Extraordinary Jasmine</b></p>
+
+            <p>
+              In <span class="hl fact">2003</span>, inside a
+              <span class="hl opinion">dark</span>
+              <span class="hl fact">garden shed in England, a dog</span>
+              whimpered.
+              <span class="hl opinion">Its</span>
+              <span class="hl opinion">future seemed dark.</span>
+              It was <span class="hl fact">an abandoned greyhound</span> which was
+              <span class="hl opinion">desperate</span> for food.
+              <span class="hl fact">Day by day, it grew weaker.</span>
+            </p>
+
+            <p>
+              <span class="hl opinion">Luckily</span>, the dog was
+              <span class="hl fact">discovered by some police officers</span>
+              <span class="hl opinion">before it was too</span>
+              <span class="hl opinion">late.</span>
+              <span class="hl fact">They took the greyhound to a wildlife sanctuary, which was founded and run by Geoff Baines to care for sick and injured animals.</span>
+              When Geoff first saw the greyhound,
+              <span class="hl opinion">its eyes were lifeless, and its skin lay on its ribs like a thin blanket.</span>
+              <span class="hl fact">He knew it needed immediate care and attention.</span>
+            </p>
+          </div>
+
+          <div class="panel">
+            <div class="panelTitle">
+              <div class="t">Right: Fact/Opinion → Inferences/Conclusions</div>
+              <div class="hint">Suggested answers (A)</div>
+            </div>
+
+            <table aria-label="Section A table">
+              <thead>
+                <tr>
+                  <th style="width:50%">Fact/Opinion</th>
+                  <th>Inferences/Conclusions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="hl fact"><b>Fact:</b></span> In 2003, inside a dark garden shed in England, a dog whimpered.</td>
+                  <td>The setting of time and place suggests that the extract is a recount of a real event.</td>
+                </tr>
+                <tr>
+                  <td><span class="hl opinion"><b>Opinion:</b></span> Its future seemed dark.</td>
+                  <td>The writer wants readers to feel sympathy for the dog.</td>
+                </tr>
+                <tr>
+                  <td><span class="hl opinion"><b>Opinion:</b></span> Luckily, the dog was discovered by some police officers before it was too late.</td>
+                  <td>The dog would not have survived if the police officers had not found it.</td>
+                </tr>
+                <tr>
+                  <td><span class="hl fact"><b>Fact:</b></span> Day by day, it grew weaker.</td>
+                  <td>The dog did not have any food for a few days.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION B -->
+      <section class="section" id="secB">
+        <div class="secHead">
+          <h2>Section B</h2>
+          <div class="meta">Same concept as Section A</div>
+        </div>
+
+        <div class="grid2">
+          <div class="panel">
+            <div class="panelTitle">
+              <div class="t">Left: Passage (B)</div>
+              <div class="hint">Green = Fact • Blue = Opinion</div>
+            </div>
+
+            <p>
+              <span class="hl fact">Geoff named the greyhound Jasmine. Nursing Jasmine back to health</span>
+              <span class="hl opinion">was a long journey.</span>
+              Jasmine had been <span class="hl opinion">emotionally affected</span> due to unpleasant past interactions with humans.
+              <span class="hl fact">She would be startled by sudden movements and loud noises.</span>
+              Hence, Geoff and his workers had to win her trust.
+              <span class="hl fact">They made gentle movements and talked softly whenever they were around her.</span>
+              <span class="hl opinion">Fortunately,</span>
+              <span class="hl fact">after several weeks of care, Jasmine was nursed back to health</span>
+              and <span class="hl opinion">began to trust them.</span>
+            </p>
+
+            <p>
+              <span class="hl fact">Geoff started to look for someone suitable to adopt Jasmine.</span>
+              However, <span class="hl opinion">it seemed like Jasmine had other plans.</span>
+              <span class="hl fact">She found herself a spot in the sanctuary. It was the couch near the entrance.</span>
+              <span class="hl fact">Every time someone brought in an animal, she would welcome them, no matter what species, by giving them a gentle welcoming lick.</span>
+              <span class="hl fact">Eventually, she became the official greeter at the sanctuary.</span>
+            </p>
+          </div>
+
+          <div class="panel">
+            <div class="panelTitle">
+              <div class="t">Right: Fact/Opinion → Inferences/Conclusions</div>
+              <div class="hint">Suggested answers (B)</div>
+            </div>
+
+            <table aria-label="Section B table">
+              <thead>
+                <tr>
+                  <th style="width:50%">Fact or Opinion</th>
+                  <th>Inference Made</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="hl fact"><b>Fact:</b></span> Geoff named the greyhound Jasmine.</td>
+                  <td>The greyhound was named by Geoff and its name was Jasmine. It is a female name so the dog must be a female dog.</td>
+                </tr>
+                <tr>
+                  <td><span class="hl fact"><b>Fact:</b></span> Nursing Jasmine back to health was a long journey.</td>
+                  <td>Jasmine was in very poor health and it took a lot of care and a long time for the team to help her recover fully.</td>
+                </tr>
+                <tr>
+                  <td><span class="hl opinion"><b>Opinion:</b></span> Jasmine… was trusting again.</td>
+                  <td>Jasmine recovered and started to trust Geoff and his workers because they took very good care of her.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION C -->
+      <section class="section" id="secC">
+        <div class="secHead">
+          <h2>Section C</h2>
+          <div class="meta">Suggested highlighting + suggested answers (created for you)</div>
+        </div>
+
+        <div class="grid2">
+          <div class="panel">
+            <div class="panelTitle">
+              <div class="t">Left: Passage (C)</div>
+              <div class="hint">Green = Fact • Blue = Opinion</div>
+            </div>
+
+            <p>
+              Apart from being the greeter of the sanctuary, Jasmine took on the role of a mother for many other animals which had come to the sanctuary.
+              <span class="hl fact">Once, a baby deer, a fawn, was found lying in the open by some hikers.</span>
+              <span class="hl fact">It was barely breathing.</span>
+              The hikers took the fawn to the veterinarian.
+              <span class="hl fact">Upon examination, the veterinarian concluded that the fawn could not be saved.</span>
+              However, the hikers decided to take a chance and drove to the sanctuary to seek further assistance,
+              <span class="hl opinion">even though the fawn had been alone without food for many days and its chance of survival was slim.</span>
+            </p>
+
+            <p>
+              <span class="hl fact">To everyone’s surprise, the fawn survived, thanks to Jasmine!</span>
+              <span class="hl fact">She mothered the fawn, snuggled with him on the couch and kept him warm.</span>
+              <span class="hl fact">Day by day, the fawn grew stronger and one day, he was finally out of danger.</span>
+              <span class="hl opinion">Jasmine had managed to keep the fawn alive!</span>
+              Since then, the fawn, named Bramble, stuck to Jasmine like glue.
+              <span class="hl fact">He would touch Jasmine’s nose the way a baby deer would touch its mother’s nose.</span>
+            </p>
+
+            <p>
+              <span class="hl opinion">Life is a rollercoaster.</span>
+              <span class="hl opinion">Who would have thought that a once abandoned dog could become such a loving figure to so many animals?</span>
+              <span class="hl opinion">The story of Jasmine was yet another amazing tale to tell and inspire people.</span>
+            </p>
+          </div>
+
+          <div class="panel">
+            <div class="panelTitle">
+              <div class="t">Right: Fact/Opinion → Inferences/Conclusions</div>
+              <div class="hint">Suggested answers (C)</div>
+            </div>
+
+            <table aria-label="Section C table">
+              <thead>
+                <tr>
+                  <th style="width:50%">Fact/Opinion</th>
+                  <th>Inferences/Conclusions (Suggested)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="hl fact"><b>Fact:</b></span> A baby deer (fawn) was found lying in the open… barely breathing.</td>
+                  <td>The fawn was extremely weak and might have been abandoned or separated from its mother. The hikers were worried and wanted to save it.</td>
+                </tr>
+                <tr>
+                  <td><span class="hl fact"><b>Fact:</b></span> The veterinarian concluded that the fawn could not be saved.</td>
+                  <td>The fawn’s condition was so serious that professionals believed it would die soon.</td>
+                </tr>
+                <tr>
+                  <td><span class="hl opinion"><b>Opinion:</b></span> …its chance of survival was slim.</td>
+                  <td>The situation was almost hopeless, but the hikers still decided to try their best to save the fawn.</td>
+                </tr>
+                <tr>
+                  <td><span class="hl fact"><b>Fact:</b></span> Jasmine mothered the fawn… kept him warm… the fawn grew stronger.</td>
+                  <td>Jasmine’s warmth and care likely helped the fawn recover. Jasmine behaved like a protective mother figure.</td>
+                </tr>
+                <tr>
+                  <td><span class="hl fact"><b>Fact:</b></span> The fawn touched Jasmine’s nose like a baby deer would touch its mother’s nose.</td>
+                  <td>The fawn treated Jasmine as its mother. They formed a strong and loving bond.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION D -->
+      <section class="section" id="secD">
+        <div class="secHead">
+          <h2>Section D</h2>
+          <div class="meta">Left: whole passage with yellow evidence • Right: Q1–Q5 with “Show Answer”</div>
+        </div>
+
+        <div class="grid2">
+          <div class="panel">
+            <div class="panelTitle">
+              <div class="t">Left: Whole Passage (A + B + C)</div>
+              <div class="hint">Yellow = suggested answer evidence</div>
+            </div>
+
+            <p><b>The Extraordinary Jasmine</b></p>
+
+            <p>
+              In 2003, inside a dark garden shed in England, a dog whimpered. Its future seemed dark.
+              It was an abandoned greyhound which was desperate for food. Day by day, it grew weaker.
+            </p>
+
+            <p>
+              Luckily, the dog was discovered by some police officers before it was too late. They took the greyhound to a wildlife sanctuary,
+              which was founded and run by Geoff Baines to care for sick and injured animals. When Geoff first saw the greyhound, its eyes were lifeless,
+              and its skin lay on its ribs like a thin blanket. He knew it needed immediate care and attention.
+            </p>
+
+            <p>
+              Geoff named the greyhound Jasmine.
+              <span class="hl answer">Nursing Jasmine back to health was a long journey.</span>
+              Jasmine had been emotionally affected due to unpleasant past interactions with humans.
+              <span class="hl answer">She would be startled by sudden movements and loud noises.</span>
+              Hence, Geoff and his workers had to win her trust. They made gentle movements and talked softly whenever they were around her.
+              <span class="hl answer">After several weeks of care</span>, Jasmine was nursed back to health and began to trust them.
+            </p>
+
+            <p>
+              Apart from being the greeter of the sanctuary, Jasmine took on the role of a mother for many other animals.
+              Once, a baby deer, a fawn, was found lying in the open by some hikers. It was barely breathing.
+              The hikers took the fawn to the veterinarian. Upon examination, the veterinarian concluded that the fawn could not be saved.
+              However, the hikers decided to <span class="hl answer">take a chance</span> and drove to the sanctuary to seek further assistance.
+            </p>
+
+            <p>
+              To everyone’s surprise, the fawn survived, thanks to Jasmine!
+              She mothered the fawn, snuggled with him on the couch and kept him warm.
+              Day by day, the fawn grew stronger and one day, he was finally out of danger.
+              Since then, the fawn, named Bramble, stuck to Jasmine like glue.
+              He would <span class="hl answer">touch Jasmine’s nose</span> the way a baby deer would touch its mother’s nose.
+            </p>
+          </div>
+
+          <div class="panel">
+            <div class="panelTitle">
+              <div class="t">Right: Questions (Q1–Q5)</div>
+              <div class="hint">Click “Show Answer” to reveal</div>
+            </div>
+
+            <div class="qCard" id="q1">
+              <div class="qTop">
+                <p class="qTitle">Q1. From Section B, which word has the same meaning as “shocked”?</p>
+                <button class="btn small" data-toggle="ans1">Show Answer</button>
+              </div>
+              <div class="ans" id="ans1"><b>Answer:</b> <u>startled</u></div>
+            </div>
+
+            <div class="qCard" id="q2a">
+              <div class="qTop">
+                <p class="qTitle">Q2(a). Was it an easy task for Geoff to nurse Jasmine back to health?</p>
+                <button class="btn small" data-toggle="ans2a">Show Answer</button>
+              </div>
+              <div class="ans" id="ans2a"><b>Answer:</b> <u>No</u>.</div>
+            </div>
+
+            <div class="qCard" id="q2b">
+              <div class="qTop">
+                <p class="qTitle">Q2(b). Give two reasons from the text to support your answer for Q2(a).</p>
+                <button class="btn small" data-toggle="ans2b">Show Answer</button>
+              </div>
+              <div class="ans" id="ans2b">
+                <b>Possible reasons (any two):</b>
+                <ol style="margin:10px 0 0 18px;">
+                  <li>Geoff (and his workers) had to be patient to gain her trust while helping her to heal.</li>
+                  <li>Jasmine’s recovery process took several weeks.</li>
+                </ol>
+              </div>
+            </div>
+
+            <div class="qCard" id="q3">
+              <div class="qTop">
+                <p class="qTitle">Q3. From Section C, True/False + reason.</p>
+                <button class="btn small" data-toggle="ans3">Show Answer</button>
+              </div>
+              <div class="ans" id="ans3">
+                <b>(a)</b> “The hikers knew that Geoff could heal the fawn.” → <b>False</b><br>
+                <b>Reason:</b> The hikers did not know if Geoff could heal the fawn, but they decided to take a chance at saving it by taking it to the sanctuary.<br><br>
+                <b>(b)</b> “Jasmine and the fawn formed an amazing bond.” → <b>True</b><br>
+                <b>Reason:</b> The fawn would touch Jasmine’s nose the way a baby deer would touch its mother’s nose (the fawn treated Jasmine like its mother).
+              </div>
+            </div>
+
+            <div class="qCard" id="q4">
+              <div class="qTop">
+                <p class="qTitle">Q4. Do you think Jasmine was the only reason why the fawn survived? Why/why not?</p>
+                <button class="btn small" data-toggle="ans4">Show Answer</button>
+              </div>
+              <div class="ans" id="ans4">
+                <b>Possible answers:</b><br>
+                • <b>Yes:</b> The fawn’s survival rate was low, and many said it would not survive. With Jasmine’s company and care, the fawn proved them wrong and survived.<br>
+                • <b>No:</b> Without medical support (and help from humans), the fawn might not have survived because it was too weak.
+              </div>
+            </div>
+
+            <div class="qCard" id="q5">
+              <div class="qTop">
+                <p class="qTitle">Q5. Do you think Jasmine was an amazing friend? Support your opinion with a reason from the text.</p>
+                <button class="btn small" data-toggle="ans5">Show Answer</button>
+              </div>
+              <div class="ans" id="ans5">
+                <b>Possible answer:</b> <b>Yes</b>. Jasmine mothered the fawn during his most difficult times. She stayed with him, kept him warm, and supported him through his recovery.
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        © <span id="year"></span> Sng Qi Wen
+      </footer>
+
+    </section>
+
+  </div>
+</main>
+
+<script>
+  // year
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // answer toggles
+  function toggleAnswer(id, btn){
+    const el = document.getElementById(id);
+    const isOpen = el.classList.toggle('show');
+    btn.textContent = isOpen ? "Hide Answer" : "Show Answer";
+  }
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-toggle]');
+    if(btn){
+      toggleAnswer(btn.getAttribute('data-toggle'), btn);
+      return;
+    }
+
+    const tab = e.target.closest('.tabBtn[data-page]');
+    if(tab){
+      switchPage(tab.getAttribute('data-page'));
+    }
+  });
+
+  // tabs
+  function switchPage(page){
+    // set aria-selected
+    document.querySelectorAll('.tabBtn').forEach(b=>{
+      b.setAttribute('aria-selected', b.dataset.page === page ? 'true' : 'false');
+    });
+    // pages
+    document.querySelectorAll('.page').forEach(p=>{
+      p.classList.toggle('active', p.id === `page-${page}`);
+    });
+    // persist
+    try{ localStorage.setItem('P5U2_RC_activeTab', page); }catch(_){}
+    // move focus for accessibility
+    const activePanel = document.getElementById(`page-${page}`);
+    if(activePanel) activePanel.focus?.();
+  }
+
+  // load last tab
+  (function(){
+    let saved = null;
+    try{ saved = localStorage.getItem('P5U2_RC_activeTab'); }catch(_){}
+    if(saved === 'walt' || saved === 'revisit'){
+      switchPage(saved);
+    }else{
+      switchPage('revisit');
+    }
+  })();
+</script>
+
+</body>
+</html>
