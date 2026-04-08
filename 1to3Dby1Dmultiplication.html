@@ -1,0 +1,1309 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Multiplication — Place Value Discs (Single Mat)</title>
+  <style>
+    :root{
+      --bg:#f3f6fb;
+      --card:#ffffff;
+      --ink:#0f2a4a;
+      --muted:#60738c;
+      --line:#d8e4f2;
+      --shadow:0 18px 34px rgba(15,42,74,.10);
+      --radius:22px;
+      --disc:34px;
+      --colW:92px;
+      --algoH:54px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--ink);
+      background:#ffffff;
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+    .shell{max-width:1400px;margin:0 auto;padding:14px 14px 28px}
+    .topbar{
+      position:sticky; top:0; z-index:35;
+      display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+      padding:12px 12px calc(12px + env(safe-area-inset-top));
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:rgba(255,255,255,.92);
+      backdrop-filter:blur(10px);
+      box-shadow:var(--shadow);
+      margin-bottom:14px;
+    }
+    .title{font-weight:1000; font-size:clamp(22px,2.8vw,34px)}
+    .title small{display:block; font-size:12px; color:var(--muted); font-weight:900; margin-top:3px}
+    .actions{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .btn{
+      border:1px solid var(--line); background:#fff; color:var(--ink);
+      border-radius:16px; padding:11px 14px; font-weight:1000; font-size:14px; cursor:pointer;
+      touch-action:manipulation;
+    }
+    .btn:disabled{opacity:.45; cursor:not-allowed}
+    .btn.primary{background:#0f2a4a; border-color:#0f2a4a; color:#fff}
+    .btn.blue{background:#e8f1ff; color:#1f5da8; border-color:#cfe0fb}
+    .btn.gold{background:#fff4de; color:#a86a04; border-color:#f6d18a}
+    .btn.green{background:#e9f8ef; color:#126b31; border-color:#c5ebd0}
+    .eqPill{
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      background:#eef6f4; border:1px solid #d9ebe5; border-radius:18px; padding:10px 14px;
+      box-shadow:0 10px 18px rgba(15,42,74,.06);
+      font-weight:1000; font-size:clamp(20px,3vw,30px);
+    }
+    .ansBox{
+      min-width:110px; height:44px; border-radius:12px;
+      background:#dce7c8; border:2px solid #9cab77;
+      display:flex; align-items:center; justify-content:center;
+      font-size:clamp(20px,3vw,30px); font-weight:1000; padding:0 12px;
+    }
+
+    .mainGrid{display:grid; grid-template-columns:minmax(0,1fr) 420px; gap:18px; align-items:start}
+    .leftCol{min-width:0}
+    .rightRail{display:grid; gap:14px; position:sticky; top:110px}
+    .panel,.card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow)}
+    .livePanel{padding:14px}
+    .liveHead{display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:flex-start; margin-bottom:12px}
+    .liveHead h2{margin:0; font-size:28px}
+    .liveHead p{margin:4px 0 0; color:var(--muted); font-weight:900}
+    .stepBadge{background:#eef4ff; color:#315a96; border:1px solid #d7e4fb; border-radius:999px; padding:8px 12px; font-size:13px; font-weight:1000}
+    .feedback{padding:12px 14px; border-radius:16px; font-weight:900; line-height:1.35; display:none}
+    .feedback.show{display:block}
+    .feedback.ok{background:rgba(34,197,94,.10); color:#14532d; border:1px solid rgba(34,197,94,.22)}
+    .feedback.bad{background:rgba(239,68,68,.10); color:#7f1d1d; border:1px solid rgba(239,68,68,.22)}
+    .feedback.hint{background:rgba(59,130,246,.10); color:#184a96; border:1px solid rgba(59,130,246,.18)}
+
+    .stageCard{padding:12px}
+    .stageInner{display:grid; grid-template-columns:minmax(0,1.2fr) 330px; gap:18px; align-items:start}
+    .matCard{
+      position:relative; border-radius:20px; overflow:hidden; border:1px solid #d6e3f1; background:#fff;
+      min-height:460px;
+    }
+
+    /* Group separators (only for columns not yet multiplied) */
+    .colGroupLines{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      z-index:3;
+    }
+    .gLine{
+      position:absolute;
+      left:14px; right:14px;
+      height:2px;
+      background-image: repeating-linear-gradient(to right, #ff1970 0 10px, transparent 10px 16px);
+      opacity:.95;
+    }
+.matCols{
+      position:relative; z-index:1;
+      display:grid; height:100%; min-height:460px;
+      grid-template-columns:repeat(var(--matCols,2), minmax(128px,1fr));
+    }
+    .matCol{
+      position:relative; padding:10px 10px 12px; border-right:1px solid rgba(15,42,74,.10);
+      display:grid; grid-template-rows:auto 34px 1fr; min-height:460px;
+    }
+    .matCol:last-child{border-right:none}
+    .matCol.place-o{background:linear-gradient(180deg,#edf9f3 0%, #dff2e8 100%)}
+.matCol.place-t{background:linear-gradient(180deg,#fff7e8 0%, #f7ead1 100%)}
+.matCol.place-h{background:linear-gradient(180deg,#f4f0ff 0%, #e8e0fb 100%)}
+.matCol.place-th{background:linear-gradient(180deg,#eef4f8 0%, #dbe7ef 100%)}
+    .colHead{font-size:13px; font-weight:1000; color:#2e567f; text-align:center; margin-bottom:6px}
+    .carrySlot{min-height:30px; display:flex; justify-content:center; align-items:center; gap:4px; margin-bottom:4px}
+    .rows{position:relative; height:340px; overflow:hidden}
+    .pileArea{position:relative; height:340px; overflow:hidden; display:flex; align-items:center; justify-content:center; padding:10px}
+    .afterBox{
+      position:absolute;
+      left:10px; right:10px; top:10px; bottom:10px;
+      border:2px dashed #e74b8f;
+      border-radius:16px;
+      pointer-events:none;
+      opacity:.95;
+    }
+
+    .fitWrap{
+      width:100%; height:100%; display:flex; align-items:center; justify-content:center; overflow:hidden;
+    }
+    .fitInner{transform-origin:center center; will-change:transform}
+    .rowsInner{
+      position:relative;
+      display:grid;
+      gap:0;
+      width:100%;
+      height:100%;
+      grid-template-rows: repeat(var(--groups), 1fr);
+      justify-items:center;
+      align-items:center;
+    }
+    
+    .groupRow{
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
+      overflow:hidden;
+      position:relative;
+    }
+    .groupGrid{
+      display:grid;
+      grid-template-columns: repeat(var(--gridCols, 3), var(--discCol, var(--disc)));
+      grid-auto-rows: var(--discCol, var(--disc));
+      gap: var(--discGap, 8px);
+      justify-content:center;
+      align-content:center;
+      width: max-content;
+      max-width: 100%;
+    }
+    .pile{
+      position:relative; display:grid; grid-template-columns:repeat(5,max-content); gap:8px;
+      justify-content:center; align-content:center; min-height:86px; min-width:max-content;
+    }
+
+    /* ✅ Neater “pile” layout after multiplying: 2 columns like textbook screenshots */
+    .pileTwoCol{
+      display:grid;
+      grid-template-columns:max-content max-content;
+      column-gap:14px;
+      align-items:end;
+      justify-content:center;
+      padding:6px 6px 8px;
+      min-width:max-content;
+    }
+    .pileCol{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-end;
+      gap:var(--discGap);
+      min-height:0;
+    }
+
+    .pileStack{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-end;
+      gap:var(--discGap);
+      padding:6px 6px 8px;
+      min-width:max-content;
+    }
+    .colCircle{position:absolute; inset:4px; border:2px dashed #e74b8f; border-radius:18px; pointer-events:none}
+    
+    .disc{
+      width: var(--discCol, var(--disc));
+      height: var(--discCol, var(--disc));
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:1000;
+      font-size: calc(var(--discCol, var(--disc)) * 0.38);
+      color:#08304b;
+      border:2px solid rgba(0,0,0,.18);
+      box-shadow:0 8px 12px rgba(15,42,74,.10);
+      user-select:none;
+      position:relative;
+      z-index:4;
+    }
+    .disc.o{background:#32afe8}
+    .disc.t{background:#f0a126}
+    .disc.h{background:#f066af}
+    .disc.th{background:#9a70f2; color:#fff}
+    .disc.grouped{outline:3px solid rgba(255,255,255,.5)}
+    .disc.carry{box-shadow:0 0 0 4px rgba(255,231,184,.9), 0 8px 12px rgba(15,42,74,.10)}
+    .disc.ghost{position:fixed; z-index:100; margin:0; pointer-events:none}
+
+    .algoBox{
+      border:1px solid var(--line); border-radius:20px; background:#fff; overflow:hidden;
+      box-shadow:0 10px 18px rgba(15,42,74,.07);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .algoWrap{padding:14px}
+    .algoFit{transform-origin:center; will-change:transform}
+    .algoLabels{
+      display:grid; grid-template-columns:48px repeat(var(--algoCols,4), var(--colW)); justify-content:center;
+      gap:0; margin-bottom:3px;
+    }
+    .algoLabels div{font-weight:1000; text-align:center; font-size:14px}
+    .labTh{color:#8258d8}.labH{color:#d33b86}.labT{color:#d48810}.labO{color:#1b9bdb}
+    .algoGrid{
+      display:grid; grid-template-columns:48px repeat(var(--algoCols,4), var(--colW));
+      justify-content:center; gap:0;
+    }
+    .aCell,.aSym,.carryCell{
+      min-height:var(--algoH); display:flex; align-items:center; justify-content:center; font-weight:1000;
+      border-right:1px solid #d9e5f4; border-bottom:1px solid #d9e5f4; background:#fff;
+      font-size:30px;
+    }
+    .leadBlank{opacity:0;}
+
+    /* ✅ Tint algorithm columns to match the mat */
+   .algoGrid .place-o{background:linear-gradient(180deg,#edf9f3 0%, #dff2e8 100%)}
+.algoGrid .place-t{background:linear-gradient(180deg,#fff7e8 0%, #f7ead1 100%)}
+.algoGrid .place-h{background:linear-gradient(180deg,#f4f0ff 0%, #e8e0fb 100%)}
+.algoGrid .place-th{background:linear-gradient(180deg,#eef4f8 0%, #dbe7ef 100%)}
+    .carryCell{min-height:40px; font-size:22px; color:#cc8a08; background:#fffaf0}
+    .aSym{font-size:34px}
+    .aCell:last-child,.carryCell:last-child{border-right:none}
+    .lineRow{grid-column:1 / -1; height:4px; background:#233f63; margin:0}
+    .digitBox,.digitInput{
+      width:54px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+      font-weight:1000; font-size:28px; border:2px solid #a9c2a2; background:#dce9cf; color:#000;
+    }
+    .digitInput{text-align:center; outline:none; background:#fff; border:2px solid #93b8eb}
+    .digitInput:focus{box-shadow:0 0 0 3px rgba(59,130,246,.18)}
+    .digitBox.blank{background:#f8fbff; border-style:dashed; border-color:#c8d8ef; color:transparent}
+    .carryChip{display:inline-flex; min-width:24px; height:24px; padding:0 8px; border-radius:999px; align-items:center; justify-content:center; background:#ffe9c2; border:1px solid #f0c36d}
+
+    .carryInput{
+      width:44px; height:30px;
+      border-radius:10px;
+      border:2px dashed #93b8eb;
+      background:#fff;
+      font-weight:1000;
+      font-size:20px;
+      text-align:center;
+      outline:none;
+    }
+    .carryInput:focus{box-shadow:0 0 0 3px rgba(59,130,246,.18); border-style:solid}
+    .algoNote{font-size:12px; font-weight:900; color:var(--muted); margin-top:10px}
+
+    .noteBox{
+      border:2px solid #f0a22a; border-radius:18px; background:#fff; padding:12px 14px;
+      box-shadow:0 10px 18px rgba(15,42,74,.07); margin-top:12px;
+    }
+    .noteTitle{font-size:30px; color:#f0a22a; text-decoration:underline; text-underline-offset:6px; font-weight:1000; margin-bottom:4px}
+    .noteText{font-size:16px; font-weight:1000; line-height:1.35; color:#000}
+
+    .railCard{padding:14px}
+    .railCard h3{margin:0 0 8px; font-size:22px}
+    .smallMuted{font-size:12px; color:var(--muted); font-weight:900}
+    .railBtns{display:flex; gap:10px; flex-wrap:wrap}
+
+    .drawerBackdrop{position:fixed; inset:0; background:rgba(15,42,74,.28); z-index:60; display:none}
+    .drawerBackdrop.show{display:block}
+    .drawer{
+      position:fixed; top:0; right:0; bottom:0; width:min(420px,100vw); background:#fff; z-index:70;
+      border-left:1px solid var(--line); box-shadow:-16px 0 28px rgba(15,42,74,.16);
+      transform:translateX(100%); transition:transform .22s ease; overflow:auto; padding:16px;
+    }
+    .drawer.show{transform:translateX(0)}
+    .drawer h3{margin:0 0 10px; font-size:28px}
+    .drawer small{display:block; color:var(--muted); font-weight:900; margin-bottom:12px}
+    .formGrid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+    .formGrid .full{grid-column:1 / -1}
+    label{display:block; font-size:13px; font-weight:1000; margin-bottom:5px; color:#47627f}
+    input,select{
+      width:100%; padding:11px 12px; border-radius:14px; border:1px solid #c6d7eb; font-size:16px; background:#fff;
+    }
+    input:focus,select:focus{outline:none; box-shadow:0 0 0 3px rgba(59,130,246,.16); border-color:#7da7de}
+    .exampleBtns{display:flex; gap:10px; flex-wrap:wrap}
+    .pillBtn{border-radius:999px; padding:9px 12px; background:#eef4ff; color:#2b5a9d; border:1px solid #d5e3fa; font-weight:1000; cursor:pointer}
+    .drawerFoot{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
+    .credit{margin-top:18px; text-align:right; font-size:12px; color:var(--muted); font-weight:900}
+
+    /* ✅ Right-rail layout refinements */
+    .rightRail #algoCard .algoBox{ width:100%; height:270px; box-shadow:none; }
+    .rightRail #algoCard .algoWrap{ height:100%; padding:10px; }
+    .rightRail #stepCardHost .noteBox{ margin-top:0; }
+    .rightRail #stepCardHost{ padding:14px; }
+
+    @media (max-width:1100px){
+      .mainGrid{grid-template-columns:1fr}
+      .rightRail{position:static}
+    }
+    @media (max-width:820px){
+      .rightRail #algoCard .algoBox{height:auto;}
+      .rightRail #algoCard .algoWrap{height:auto;}
+
+      .stageInner{grid-template-columns:1fr}
+      .algoLabels,.algoGrid{grid-template-columns:38px repeat(var(--algoCols,4), minmax(56px,1fr))}
+      :root{--colW:72px; --algoH:48px; --disc:28px}
+      .topbar{border-radius:18px}
+      .eqPill{font-size:22px}
+      .liveHead h2{font-size:22px}
+      .matCard,.matCols,.matCol{min-height:300px}
+      .rows,.pileArea{height:210px}
+    }
+    @media (max-width:560px){
+      .shell{padding:10px 10px 24px}
+      .actions{width:100%}
+      .actions .btn{flex:1 1 auto}
+      .formGrid{grid-template-columns:1fr}
+      .algoWrap{padding:10px}
+      .algoLabels div{font-size:12px}
+      :root{--colW:62px}
+    }
+  
+    /* ✅ Confetti */
+    .confettiLayer{position:fixed; inset:0; pointer-events:none; z-index:120; overflow:hidden}
+    .confetti{position:absolute; width:10px; height:14px; border-radius:3px; opacity:.95}
+
+  </style>
+  <script src="https://cdn.counter.dev/script.js" data-id="825e93b6-ce99-40ef-8bcc-125f13297433" data-utcoffset="8"></script>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <div class="title">
+        Multiplication
+        <small>Place Value Discs — single mat, 1 to 3 digits × 1 digit</small>
+      </div>
+      <div class="actions">
+        <div class="eqPill">
+          <span id="eqText">12 × 4 =</span>
+          <div class="ansBox" id="eqAns">?</div>
+        </div>
+        <button class="btn blue" id="btnSettings">⚙ Settings</button>
+        <button class="btn" id="btnReset">↺ Reset</button>
+        <button class="btn primary" id="btnNext">Next ▶</button>
+      </div>
+    </div>
+
+    <div class="mainGrid">
+      <section class="leftCol">
+        <div class="card livePanel">
+          <div class="liveHead">
+            <div>
+              <h2 id="questionTitle">Multiply 12 by 4.</h2>
+              <p id="questionSub">Teacher can press Next, or pupils can type the current digit into the algorithm and check.</p>
+            </div>
+            <div class="stepBadge" id="progressBadge">Step 0 of 2</div>
+          </div>
+          <div class="feedback" id="feedbackBox"></div>
+        </div>
+
+        <div id="stageHost"></div>
+      </section>
+
+      <aside class="rightRail">
+        <div class="railCard panel" id="algoCard">
+          <h3>Algorithm</h3>
+          <div class="smallMuted" style="margin:-2px 0 10px">Type the current digit in the answer row (or press Next in Demonstration mode).</div>
+          <div id="algoHost"></div>
+        </div>
+
+        <div class="railCard panel" id="stepCardHost">
+          <div id="stepHost"></div>
+        </div>
+
+        <div class="railCard panel" id="controlsCard">
+          <h3>Current Controls</h3>
+          <div class="smallMuted" id="currentPrompt">Multiply the ones first.</div>
+          <div class="smallMuted" id="algoSupport" style="margin-top:10px">Pupils: type the digit in the algorithm above, then press Check Digit.</div>
+          <div class="railBtns" style="margin-top:12px">
+            <button class="btn green" id="btnCheck">Check Digit</button>
+            <button class="btn gold" id="btnHint">Hint</button>
+            <button class="btn blue" id="btnNewQ" style="display:none">New Question</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="credit">© 2026</div>
+  </div>
+
+  <div class="drawerBackdrop" id="drawerBackdrop"></div>
+  <aside class="drawer" id="drawer">
+    <h3>Teacher Setup</h3>
+    <small>Hidden until the settings button is pressed.</small>
+
+    <div class="formGrid">
+      <div>
+        <label>Multiplicand size</label>
+        <select id="selDigits">
+          <option value="1">1 digit</option>
+          <option value="2">2 digits</option>
+          <option value="3" selected>3 digits</option>
+        </select>
+      </div>
+      <div>
+        <label>Question type</label>
+        <select id="selType">
+          <option value="any">Any</option>
+          <option value="without">Without regrouping</option>
+          <option value="with" selected>With regrouping</option>
+        </select>
+      </div>
+      <div>
+        <label>View</label>
+        <select id="selView">
+          <option value="practice" selected>Practice (pupils type digit)</option>
+          <option value="demo">Demonstration (teacher presses Next)</option>
+        </select>
+      </div>
+      <div>
+        <label>Multiplier</label>
+        <input id="inpMultiplier" type="number" min="2" max="9" step="1" placeholder="2 to 9" />
+      </div>
+      <div class="full">
+        <label>Manual multiplicand (optional)</label>
+        <input id="inpMultiplicand" type="number" min="0" max="999" step="1" placeholder="e.g. 7, 12, 25 or 348" />
+      </div>
+    </div>
+
+    <div class="drawerFoot">
+      <button class="btn primary" id="btnApply">Apply</button>
+      <button class="btn blue" id="btnRandom">New Question</button>
+      <button class="btn" id="btnCloseDrawer">Close</button>
+    </div>
+
+    <div style="margin-top:16px">
+      <label>Examples</label>
+      <div class="exampleBtns">
+        <button class="pillBtn" data-example="12x4">Example: 12 × 4</button>
+        <button class="pillBtn" data-example="25x3">Example: 25 × 3</button>
+        <button class="pillBtn" data-example="348x4">Example: 348 × 4</button>
+      </div>
+    </div>
+  </aside>
+
+
+  <div class="confettiLayer" id="confettiLayer"></div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const ui = {
+    eqText: $("eqText"), eqAns: $("eqAns"),
+    questionTitle: $("questionTitle"), questionSub: $("questionSub"),
+    progressBadge: $("progressBadge"), feedbackBox: $("feedbackBox"),
+    stageHost: $("stageHost"),
+    algoHost: $("algoHost"),
+    stepHost: $("stepHost"),
+    currentPrompt: $("currentPrompt"), algoSupport: $("algoSupport"),
+    btnNext: $("btnNext"), btnCheck: $("btnCheck"), btnHint: $("btnHint"), btnNewQ: $("btnNewQ"), btnReset: $("btnReset"),
+    btnSettings: $("btnSettings"), drawer: $("drawer"), drawerBackdrop: $("drawerBackdrop"),
+    btnCloseDrawer: $("btnCloseDrawer"), btnApply: $("btnApply"), btnRandom: $("btnRandom"),
+    selDigits: $("selDigits"), selType: $("selType"), selView: $("selView"),
+    inpMultiplier: $("inpMultiplier"), inpMultiplicand: $("inpMultiplicand"),
+  };
+
+  const PLACE_ORDER = ["o","t","h","th"];
+  const PLACE_META = {
+    o:{label:"Ones", short:"1", className:"o", lab:"labO"},
+    t:{label:"Tens", short:"10", className:"t", lab:"labT"},
+    h:{label:"Hundreds", short:"100", className:"h", lab:"labH"},
+    th:{label:"Thousands", short:"1000", className:"th", lab:"labTh"},
+  };
+
+  let settings = { digits:3, type:"with", view:"practice" };
+  let question = { multiplicand:251, multiplier:4 };
+  let steps = [];
+  let currentState = null;
+  let busy = false;
+
+
+  // ===== Pop sound for regrouping =====
+  let audioCtx = null;
+  function ensureAudio(){
+    if (audioCtx) return audioCtx;
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    audioCtx = new Ctx();
+    return audioCtx;
+  }
+  function resumeAudio(){
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume().catch(()=>{});
+  }
+  window.addEventListener('pointerdown', resumeAudio, { passive:true });
+
+  let popLock = false;
+  function playPop(){
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    if (ctx.state === 'suspended'){
+      ctx.resume().then(()=>playPop()).catch(()=>{});
+      return;
+    }
+    if (popLock) return;
+    popLock = true;
+    setTimeout(()=>{ popLock = false; }, 140);
+
+    const t = ctx.currentTime;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(620, t);
+    o.frequency.exponentialRampToValueAtTime(220, t + 0.09);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.28, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.11);
+    o.connect(g).connect(ctx.destination);
+    o.start(t);
+    o.stop(t + 0.12);
+  }
+
+
+  // ===== Correct / Wrong sounds (user will provide ./correct.mp3 and ./wrong.mp3) =====
+  const sfx = {
+    correct: new Audio('./correct.mp3'),
+    wrong: new Audio('./wrong.mp3'),
+  };
+  Object.values(sfx).forEach(a => {
+    try{
+      a.preload = 'auto';
+      a.volume = 0.9;
+      a.playsInline = true;
+    }catch(e){}
+  });
+  let sfxUnlocked = false;
+  function unlockSfx(){
+    if (sfxUnlocked) return;
+    sfxUnlocked = true;
+    // Silent unlock attempt (volume 0 for first play)
+    Object.values(sfx).forEach(a => {
+      try{
+        const prev = a.volume;
+        a.volume = 0;
+        const p = a.play();
+        if (p && p.then) p.then(() => { a.pause(); a.currentTime = 0; a.volume = prev; }).catch(() => { a.volume = prev; });
+        else { a.pause(); a.currentTime = 0; a.volume = prev; }
+      }catch(e){}
+    });
+  }
+  window.addEventListener('pointerdown', unlockSfx, { passive:true });
+
+  function playSfx(name){
+    const a = sfx[name];
+    if (!a) return;
+    try{
+      a.pause();
+      a.currentTime = 0;
+      const p = a.play();
+      if (p && p.catch) p.catch(()=>{});
+    }catch(e){}
+  }
+
+  // ===== Confetti =====
+  const confettiLayer = document.getElementById('confettiLayer');
+  function burstConfetti(big=false){
+    if (!confettiLayer) return;
+    confettiLayer.innerHTML = '';
+    const W = window.innerWidth || 900;
+    const H = window.innerHeight || 600;
+    const count = big ? 180 : 90;
+
+    for (let i=0;i<count;i++){
+      const p = document.createElement('div');
+      p.className = 'confetti';
+      const size = 6 + Math.random()*7;
+      p.style.width = size + 'px';
+      p.style.height = (size * (0.6 + Math.random()*1.0)) + 'px';
+      p.style.left = (Math.random()*W) + 'px';
+      p.style.top = (-20 - Math.random()*H*0.22) + 'px';
+      p.style.borderRadius = (Math.random() < 0.25) ? '999px' : '3px';
+      p.style.background = `hsl(${Math.floor(Math.random()*360)} 90% 55%)`;
+      p.style.transform = `rotate(${Math.random()*360}deg)`;
+      confettiLayer.appendChild(p);
+
+      const drift = (Math.random()*2 - 1) * W * 0.25;
+      const endY = H + 120 + Math.random()*140;
+      const rot = (Math.random()*2 - 1) * 950;
+      const dur = (big ? 1650 : 1250) + Math.random()*750;
+      const delay = Math.random()*140;
+
+      p.animate([
+        { transform: 'translate(0px, 0px) rotate(0deg)', opacity: 1 },
+        { transform: `translate(${drift}px, ${endY}px) rotate(${rot}deg)`, opacity: 1 }
+      ], { duration: dur, delay, easing:'cubic-bezier(.2,.9,.2,1)', fill:'forwards' });
+
+      p.animate([
+        { opacity: 1 },
+        { opacity: 0 }
+      ], { duration: 450, delay: delay + dur - 340, easing:'ease-out', fill:'forwards' });
+    }
+
+    setTimeout(() => { confettiLayer.innerHTML = ''; }, big ? 3400 : 2600);
+  }
+
+
+  function clampInt(v, min, max){
+    let n = parseInt(String(v ?? "").trim(), 10);
+    if (!Number.isFinite(n)) n = min;
+    return Math.max(min, Math.min(max, n));
+  }
+  function digitsOf(n){
+    return { o:n%10, t:Math.floor(n/10)%10, h:Math.floor(n/100)%10, th:Math.floor(n/1000)%10 };
+  }
+  function getPlaceKeys(){
+    const result = question.multiplicand * question.multiplier;
+    const count = Math.max(String(question.multiplicand).length, String(result).length);
+    return count >= 4 ? ["th","h","t","o"] : count === 3 ? ["h","t","o"] : ["t","o"];
+  }
+  function nextPlaceKey(stepObj){
+    if (!stepObj) return null;
+    const idx = PLACE_ORDER.indexOf(stepObj.place);
+    return PLACE_ORDER[idx + 1] || null;
+  }
+  function answerString(){ return String(question.multiplicand * question.multiplier); }
+
+  function computeSteps(){
+    const d = digitsOf(question.multiplicand);
+    const len = String(question.multiplicand).length;
+
+    // Steps follow the standard algorithm:
+    // - Multiply each digit of the multiplicand (ones → tens → hundreds)
+    // - If there is a final carry, add extra step(s) to write that carry in the next place.
+    const basePlaces = (len === 3) ? ['o','t','h'] : (len === 2) ? ['o','t'] : ['o'];
+
+    let carry = 0;
+    const out = [];
+
+    for (const place of basePlaces){
+      const baseDigit = d[place] || 0;
+      const groupedTotal = baseDigit * question.multiplier;
+      const total = groupedTotal + carry;
+      const writeDigit = total % 10;
+      const carryOut = Math.floor(total / 10);
+      out.push({ place, placeLabel: PLACE_META[place].label, baseDigit, groupedTotal, carryIn: carry, total, writeDigit, carryOut });
+      carry = carryOut;
+    }
+
+    // If there is a carry after the highest digit, write it in the next place(s).
+    let idx = PLACE_ORDER.indexOf(basePlaces[basePlaces.length - 1]);
+    while (carry > 0){
+      const place = PLACE_ORDER[idx + 1];
+      if (!place) break;
+      const baseDigit = d[place] || 0; // should be 0 for the extra place
+      const groupedTotal = baseDigit * question.multiplier;
+      const total = groupedTotal + carry;
+      const writeDigit = total % 10;
+      const carryOut = Math.floor(total / 10);
+      out.push({ place, placeLabel: PLACE_META[place].label, baseDigit, groupedTotal, carryIn: carry, total, writeDigit, carryOut });
+      carry = carryOut;
+      idx++;
+    }
+
+    return out;
+  }
+
+  function buildInitialState(){
+    return { done:0, resultDigits:{}, carryShown:{} };
+  }
+  function stepForCurrent(){ return steps[currentState.done] || null; }
+
+  function setFeedback(kind, html){
+    ui.feedbackBox.className = `feedback show ${kind}`;
+    ui.feedbackBox.innerHTML = html;
+  }
+  function clearFeedback(){
+    ui.feedbackBox.className = "feedback";
+    ui.feedbackBox.innerHTML = "";
+  }
+
+  function explainCompletedStep(lastStep){
+    if (!lastStep) return "Start by multiplying the ones first.";
+    const baseName = lastStep.placeLabel.toLowerCase();
+    let text = `<b>${baseName[0].toUpperCase() + baseName.slice(1)} step completed.</b> `;
+    text += `${lastStep.baseDigit} ${baseName} × ${question.multiplier} = ${lastStep.groupedTotal} ${baseName}. `;
+    if (lastStep.carryIn > 0) text += `Add the carried ${lastStep.carryIn}. `;
+    if (lastStep.carryOut > 0 && nextPlaceKey(lastStep)){
+      text += `Write ${lastStep.writeDigit} and regroup ${lastStep.carryOut} ${PLACE_META[nextPlaceKey(lastStep)].label.toLowerCase()}.`;
+    } else {
+      text += `Write ${lastStep.writeDigit}.`;
+    }
+    return text;
+  }
+
+  function explainHint(){
+    const s = stepForCurrent();
+    if (!s) return `The answer is ${answerString()}.`;
+    let msg = `Multiply the ${s.placeLabel.toLowerCase()}: ${s.baseDigit} × ${question.multiplier} = ${s.groupedTotal}.`;
+    if (s.carryIn > 0) msg += ` Then add the carried ${s.carryIn}.`;
+    if (s.carryOut > 0) msg += ` ${s.total} means write ${s.writeDigit} and carry ${s.carryOut}.`;
+    else msg += ` So write ${s.writeDigit}.`;
+    return msg;
+  }
+
+  function renderToken(place, extraClass=''){
+    return `<div class="disc ${PLACE_META[place].className} ${extraClass}">${PLACE_META[place].short}</div>`;
+  }
+
+  function buildMatHTML(state, interactive){
+    const keys = getPlaceKeys();
+    const d = digitsOf(question.multiplicand);
+    const current = stepForCurrent();
+    const currentPlace = current ? current.place : null;
+    const currentStep = (interactive && state.done < steps.length) ? steps[state.done] : null;
+    const expectCarryPlace = (currentStep && currentStep.carryOut > 0) ? nextPlaceKey(currentStep) : null;
+    const processedLowOrder = keys.slice().reverse().slice(0, state.done);
+
+    let html = `<div class="matCard"><div class="matCols" style="--matCols:${keys.length}">`;
+    for (const place of keys){
+      const baseDigit = d[place] || 0;
+      const isProcessed = processedLowOrder.includes(place);
+      const isCurrent = (!isProcessed && place === currentPlace && state.done < steps.length);
+      const carryShown = state.carryShown[place] || 0;
+      const resultDigit = state.resultDigits[place];
+
+      html += `<div class="matCol place-${place}" data-place="${place}" data-base="${baseDigit}">`;
+      html += `<div class="colHead">${PLACE_META[place].label}</div>`;
+      html += `<div class="carrySlot">`;
+      for (let i=0;i<carryShown;i++) html += renderToken(place, 'carry');
+      html += `</div>`;
+
+      if (isProcessed){
+        const cnt = (Number.isFinite(resultDigit) ? resultDigit : 0);
+        if (place === 'o'){
+          const leftN = Math.ceil(cnt/2);
+          const rightN = cnt - leftN;
+          html += `<div class="pileArea"><div class="afterBox"></div><div class="fitWrap"><div class="fitInner"><div class="pileTwoCol">`;
+          html += `<div class="pileCol">`;
+          for (let i=0;i<leftN;i++) html += renderToken(place);
+          html += `</div><div class="pileCol">`;
+          for (let i=0;i<rightN;i++) html += renderToken(place);
+          html += `</div></div></div></div></div>`;
+        } else {
+          html += `<div class="pileArea"><div class="afterBox"></div><div class="fitWrap"><div class="fitInner"><div class="pileStack">`;
+          for (let i=0;i<cnt;i++) html += renderToken(place);
+          html += `</div></div></div></div>`;
+        }
+      } else {
+        html += `<div class="rows"><div class="colGroupLines" aria-hidden="true"></div><div class="fitWrap"><div class="fitInner rowsInner" style="--groups:${question.multiplier}">`;
+        for (let r=0;r<question.multiplier;r++){
+          html += `<div class="groupRow"><div class="groupGrid">`;
+          for (let i=0;i<baseDigit;i++) html += renderToken(place, isCurrent ? 'grouped' : '');
+          html += `</div></div>`;
+        }
+        if (isCurrent) html += `<div class="colCircle"></div>`;
+        html += `</div></div></div>`;
+      }
+      html += `</div>`;
+    }
+    html += `</div></div>`;
+    return html;
+  }
+
+  function makeAlgorithmHTML(state, interactive){
+    const keys = getPlaceKeys();
+    const multiplicandDigits = digitsOf(question.multiplicand);
+    const mLen = String(question.multiplicand).length;
+    const POS = { o:1, t:2, h:3, th:4 };
+    const current = stepForCurrent();
+    const currentPlace = current ? current.place : null;
+    const currentStep = (interactive && state.done < steps.length) ? steps[state.done] : null;
+    const expectCarryPlace = (currentStep && currentStep.carryOut > 0) ? nextPlaceKey(currentStep) : null;
+
+    let html = `<div class="algoBox"><div class="algoWrap"><div class="algoFit" id="algoFit">`;
+    html += `<div class="algoLabels" style="--algoCols:${keys.length}"><div></div>`;
+    for (const place of keys) html += `<div class="${PLACE_META[place].lab}">${PLACE_META[place].label}</div>`;
+    html += `</div>`;
+
+    html += `<div class="algoGrid" style="--algoCols:${keys.length}">`;
+    html += `<div class="carryCell"></div>`;
+    for (const place of keys){
+      const val = state.carryShown[place] || 0;
+      const wantInput = interactive && state.done < steps.length && place === expectCarryPlace;
+      if (val){
+        html += `<div class="carryCell place-${place}"><span class="carryChip">${val}</span></div>`;
+      } else if (wantInput){
+        html += `<div class="carryCell place-${place}"><input class="carryInput" id="carryInput" inputmode="numeric" maxlength="1"/></div>`;
+      } else {
+        html += `<div class="carryCell place-${place}"></div>`;
+      }
+    }
+
+    html += `<div class="aSym"></div>`;
+    for (const place of keys){
+      const md = multiplicandDigits[place];
+      const isLeadBlank = (mLen < (POS[place] || 1));
+      if (isLeadBlank){
+        html += `<div class="aCell place-${place}"><span class="leadBlank">&nbsp;</span></div>`;
+      } else {
+        html += `<div class="aCell place-${place}">${md}</div>`;
+      }
+    }
+
+    html += `<div class="aSym">×</div>`;
+    for (let i=0;i<keys.length-1;i++) html += `<div class="aCell"></div>`;
+    html += `<div class="aCell place-${keys[keys.length-1]}">${question.multiplier}</div>`;
+
+    html += `<div class="lineRow"></div>`;
+    html += `<div class="aSym"></div>`;
+    const stepPlaces = new Set(steps.map(s => s.place));
+    for (const place of keys){
+      const inSteps = stepPlaces.has(place);
+      const digit = state.resultDigits[place];
+      const isCurrent = interactive && currentState.done < steps.length && place === currentPlace;
+
+      if (!inSteps){
+        // Do not show leading 0s (e.g. 4 × 2 = 8 should not show 0 tens).
+        html += `<div class="aCell place-${place}"><div class="digitBox blank">&nbsp;</div></div>`;
+      } else if (Number.isFinite(digit)){
+        html += `<div class="aCell place-${place}"><div class="digitBox">${digit}</div></div>`;
+      } else if (isCurrent){
+        html += `<div class="aCell place-${place}"><input class="digitInput" id="currentDigitInput" inputmode="numeric" maxlength="1"/></div>`;
+      } else {
+        html += `<div class="aCell place-${place}"><div class="digitBox blank">?</div></div>`;
+      }
+    }
+    html += `</div>`;
+    if (currentState.done >= steps.length) html += `<div class="algoNote">Answer: ${question.multiplicand} × ${question.multiplier} = ${answerString()}</div>`;
+    html += `</div></div>`;
+    return html;
+  }
+
+  function makeStepNoteHTML(state){
+    if (state.done >= steps.length){
+      return `<div class="noteBox"><div class="noteTitle">DONE</div><div class="noteText">The full answer is ${answerString()}. All regrouping and writing steps are complete.</div></div>`;
+    }
+    const s = steps[state.done];
+    let detail = `${s.baseDigit} ${s.placeLabel.toLowerCase()} × ${question.multiplier} = ${s.groupedTotal} ${s.placeLabel.toLowerCase()}.`;
+    if (s.carryIn > 0) detail += ` Add the carried ${s.carryIn}.`;
+    if (s.carryOut > 0){
+      detail += ` Write ${s.writeDigit} in the ${s.placeLabel.toLowerCase()} column and regroup ${s.carryOut} ${PLACE_META[nextPlaceKey(s)].label.toLowerCase()}.`;
+    } else {
+      detail += ` Write ${s.writeDigit} in the ${s.placeLabel.toLowerCase()} column.`;
+    }
+    return `<div class="noteBox"><div class="noteTitle">STEP ${state.done + 1}</div><div class="noteText">Multiply the ${s.placeLabel.toLowerCase()} by ${question.multiplier}.<br>${detail}</div></div>`;
+  }
+
+  function buildStageHTML(interactive){
+    return `<div class="card stageCard" id="liveStageCard">${buildMatHTML(currentState, interactive)}</div>`;
+  }
+
+  function updateHeader(){
+    ui.eqText.textContent = `${question.multiplicand} × ${question.multiplier} =`;
+    ui.eqAns.textContent = currentState.done === steps.length ? answerString() : "?";
+    ui.questionTitle.textContent = `Multiply ${question.multiplicand} by ${question.multiplier}.`;
+    ui.questionSub.textContent = `Teacher can press Next, or pupils can type the current digit into the algorithm and check.`;
+    ui.progressBadge.textContent = `Step ${Math.min(currentState.done, steps.length)} of ${steps.length}`;
+  }
+
+  function renderLivePrompt(){
+    if (currentState.done >= steps.length){
+      ui.currentPrompt.textContent = `Completed. The full answer is ${answerString()}.`;
+      ui.algoSupport.textContent = `All steps are complete.`;
+      ui.btnNext.disabled = false;
+      ui.btnNext.textContent = 'New Question';
+      if (ui.btnNewQ) ui.btnNewQ.style.display = 'inline-flex';
+      ui.btnCheck.disabled = true;
+      ui.btnHint.disabled = true;
+      return;
+    }
+    const s = stepForCurrent();
+    ui.currentPrompt.textContent = `Next: multiply the ${s.placeLabel.toLowerCase()}.`;
+    ui.algoSupport.textContent = settings.view === 'practice'
+      ? (s.carryOut > 0 ? `Pupils: type the digit for the ${s.placeLabel.toLowerCase()} column AND the regrouping digit, then press Check Digit.` : `Pupils: type the digit for the ${s.placeLabel.toLowerCase()} column, then press Check Digit.`)
+      : `Teacher: press Next to demonstrate this step.`;
+    ui.btnNext.disabled = false;
+    ui.btnNext.textContent = 'Next ▶';
+    if (ui.btnNewQ) ui.btnNewQ.style.display = 'none';
+    ui.btnCheck.disabled = settings.view === 'demo';
+    ui.btnHint.disabled = false;
+  }
+
+  function fitMatItems(){
+    document.querySelectorAll('.fitWrap').forEach((wrap) => {
+      const inner = wrap.querySelector('.fitInner');
+      if (!inner) return;
+      inner.style.transform = 'scale(1)';
+      const aw = Math.max(10, wrap.clientWidth - 8);
+      const ah = Math.max(10, wrap.clientHeight - 8);
+      const iw = inner.scrollWidth;
+      const ih = inner.scrollHeight;
+      if (!iw || !ih) return;
+      inner.style.transform = `scale(${Math.min(1, aw/iw, ah/ih)})`;
+    });
+  }
+
+
+  function fitAlgo(){
+    const fit = $('algoFit');
+    if (!fit) return;
+    const wrap = fit.closest('.algoWrap');
+    if (!wrap) return;
+    fit.style.transform = 'scale(1)';
+    const aw = Math.max(10, wrap.clientWidth - 6);
+    const ah = Math.max(10, wrap.clientHeight - 6);
+    const iw = fit.scrollWidth;
+    const ih = fit.scrollHeight;
+    if (!iw || !ih) return;
+    const s = Math.min(1, aw / iw, ah / ih);
+    fit.style.transform = `scale(${s})`;
+  }
+
+  function layoutGroupLines(){
+    const stage = getLiveStageElement();
+    if (!stage) return;
+    const groups = clampInt(question.multiplier, 2, 9);
+    if (groups <= 1) return;
+
+    stage.querySelectorAll('.matCol').forEach(col => {
+      const rows = col.querySelector('.rows');
+      const host = col.querySelector('.colGroupLines');
+      if (!rows || !host) return;     // only for unprocessed columns
+      host.innerHTML = '';
+      const H = rows.clientHeight;
+      for (let i = 1; i < groups; i++){
+        const y = (H * i / groups);
+        const line = document.createElement('div');
+        line.className = 'gLine';
+        line.style.top = `${Math.round(y)}px`;
+        host.appendChild(line);
+      }
+    });
+  }
+
+  function layoutDiscSizing(){
+    const stage = getLiveStageElement();
+    if (!stage) return;
+    const groups = clampInt(question.multiplier, 2, 9);
+
+    stage.querySelectorAll('.matCol').forEach(col => {
+      const base = parseInt(col.dataset.base || '0', 10) || 0;
+      const rows = col.querySelector('.rows');
+      const body = rows || col.querySelector('.pileArea');
+      const groupsLocal = rows ? groups : 1;
+      if (!body) return;
+
+      const tokens = Math.max(1, base || 0);
+      // ✅ Horizontal layout: use as many columns as the digit (up to 9), so discs sit in one row per group
+      const cols = Math.max(1, Math.min(9, tokens));
+      const maxRows = Math.max(1, Math.ceil(tokens / cols));
+      const rowH = body.clientHeight / groupsLocal;
+
+      let gap = Math.max(4, Math.min(10, Math.floor(rowH * 0.14)));
+      const byH = Math.floor((rowH - (maxRows - 1) * gap - 6) / maxRows);
+      const byW = Math.floor((body.clientWidth - 18 - (cols - 1) * gap) / cols);
+
+      let disc = Math.min(byH, byW);
+      disc = Math.max(14, Math.min(34, disc));
+
+      col.style.setProperty('--discCol', `${disc}px`);
+      col.style.setProperty('--discGap', `${gap}px`);
+      col.style.setProperty('--gridCols', `${cols}`);
+    });
+  }
+
+
+  function renderAll(){
+    updateHeader();
+    renderLivePrompt();
+    const interactive = (settings.view === 'practice');
+    ui.stageHost.innerHTML = buildStageHTML(interactive);
+    ui.algoHost.innerHTML = makeAlgorithmHTML(currentState, interactive);
+    ui.stepHost.innerHTML = makeStepNoteHTML(currentState);
+
+    const input = $('currentDigitInput');
+    if (input){
+      input.addEventListener('keydown', (e) => { if (e.key === 'Enter') checkDigit(); });
+      setTimeout(() => input.focus(), 0);
+    }
+    const carryIn = $('carryInput');
+    if (carryIn){
+      carryIn.addEventListener('keydown', (e) => { if (e.key === 'Enter') checkDigit(); });
+    }
+    requestAnimationFrame(() => { layoutDiscSizing(); fitMatItems(); layoutGroupLines(); fitAlgo(); });
+  }
+
+  function openDrawer(){ ui.drawer.classList.add('show'); ui.drawerBackdrop.classList.add('show'); }
+  function closeDrawer(){ ui.drawer.classList.remove('show'); ui.drawerBackdrop.classList.remove('show'); }
+
+  function matchesType(multiplicand, multiplier, type){
+    const d = digitsOf(multiplicand);
+    const len = String(multiplicand).length;
+    const keys = len === 3 ? ['o','t','h'] : (len === 2 ? ['o','t'] : ['o']);
+    let carry = 0, hasCarry = false;
+    for (const place of keys){
+      const total = (d[place] || 0) * multiplier + carry;
+      const carryOut = Math.floor(total / 10);
+      if (carryOut > 0) hasCarry = true;
+      carry = carryOut;
+    }
+    if (type === 'with') return hasCarry;
+    if (type === 'without') return !hasCarry;
+    return true;
+  }
+
+  function randomQuestion(){
+    const digits = clampInt(ui.selDigits.value || settings.digits, 1, 3);
+    const type = ui.selType.value || settings.type;
+    for (let i=0;i<5000;i++){
+      const min = (digits === 1) ? 0 : (digits === 2 ? 10 : 100);
+      const max = (digits === 1) ? 9 : (digits === 2 ? 99 : 999);
+      const multiplicand = Math.floor(Math.random() * (max - min + 1)) + min;
+      const multiplier = Math.floor(Math.random() * 8) + 2;
+      if (matchesType(multiplicand, multiplier, type)) return { multiplicand, multiplier };
+    }
+    return { multiplicand: (digits === 1 ? 7 : (digits === 2 ? 12 : 251)), multiplier: 4 };
+  }
+
+  function loadQuestion(newQ){
+    question = { multiplicand:newQ.multiplicand, multiplier:newQ.multiplier };
+    steps = computeSteps();
+    currentState = buildInitialState();
+    clearFeedback();
+    renderAll();
+  }
+
+  function applySettings({preserveQuestion=false} = {}){
+    settings = {
+      digits: clampInt(ui.selDigits.value || settings.digits, 1, 3),
+      type: ui.selType.value || 'any',
+      view: ui.selView.value || 'practice'
+    };
+
+    let multiplicand = parseInt(String(ui.inpMultiplicand.value || '').trim(), 10);
+    let multiplier = parseInt(String(ui.inpMultiplier.value || '').trim(), 10);
+
+    if (!preserveQuestion && Number.isFinite(multiplicand) && Number.isFinite(multiplier)){
+      const minM = (settings.digits === 1) ? 0 : (settings.digits === 2 ? 10 : 100);
+      const maxM = (settings.digits === 1) ? 9 : (settings.digits === 2 ? 99 : 999);
+      multiplicand = clampInt(multiplicand, minM, maxM);
+      multiplier = clampInt(multiplier, 2, 9);
+      loadQuestion({ multiplicand, multiplier });
+      return;
+    }
+
+    if (preserveQuestion){
+      steps = computeSteps();
+      currentState = buildInitialState();
+      clearFeedback();
+      renderAll();
+      return;
+    }
+    loadQuestion(randomQuestion());
+  }
+
+  function correctCurrentDigit(){
+    const s = stepForCurrent();
+    return s ? s.writeDigit : null;
+  }
+
+  function applyStepState(){
+    const s = stepForCurrent();
+    if (!s) return null;
+    currentState.resultDigits[s.place] = s.writeDigit;
+    currentState.done += 1;
+    delete currentState.carryShown[s.place];
+    const nextKey = nextPlaceKey(s);
+    if (nextKey && s.carryOut > 0) currentState.carryShown[nextKey] = s.carryOut;
+    return s;
+  }
+
+  function getLiveStageElement(){ return $('liveStageCard'); }
+
+  function tokenRectsInLiveStage(place, count){
+    const stage = getLiveStageElement();
+    if (!stage) return [];
+    const col = stage.querySelector(`.matCol.place-${place}`);
+    if (!col) return [];
+    const discs = Array.from(col.querySelectorAll(`.carrySlot .disc.${place}, .groupRow .disc.${place}`)).slice(0, count);
+    return discs.map(el => ({ el, rect: el.getBoundingClientRect() }));
+  }
+
+  function carryTargetRect(place){
+    const stage = getLiveStageElement();
+    if (!stage) return null;
+    const slot = stage.querySelector(`.matCol.place-${place} .carrySlot`);
+    if (!slot) return null;
+    const r = slot.getBoundingClientRect();
+    return { left:r.left + r.width/2 - 17, top:r.top + r.height/2 - 17 };
+  }
+
+  function animateCarryIfNeeded(){
+  return new Promise((resolve) => {
+    const s = stepForCurrent();
+    if (!s || s.carryOut <= 0){ resolve(); return; }
+    const nextKey = nextPlaceKey(s);
+    if (!nextKey){ resolve(); return; }
+
+    // ✅ If carryOut is 2, we must regroup 20 discs (2 groups of 10), etc.
+    const need = Math.max(10, s.carryOut * 10);
+    const moving = tokenRectsInLiveStage(s.place, need);
+    const target = carryTargetRect(nextKey);
+    if (!moving.length || !target){ resolve(); return; }
+
+    const dur = 2600; // ✅ slower regrouping movement
+    const groups = Math.max(1, s.carryOut);
+
+    const ghosts = moving.map((item, idx) => {
+      const g = item.el.cloneNode(true);
+      g.classList.add('ghost');
+      g.style.left = item.rect.left + 'px';
+      g.style.top = item.rect.top + 'px';
+      document.body.appendChild(g);
+
+      // hide the real disc while the ghost moves
+      item.el.style.visibility = 'hidden';
+
+      const gIdx = Math.floor(idx / 10); // which carry-group (0..carryOut-1)
+      const offsetX = (gIdx - (groups - 1) / 2) * 32; // spread groups left/right
+      const targetX = target.left + offsetX;
+      const targetY = target.top;
+
+      const midX = targetX + (idx % 2 === 0 ? -18 : 18);
+      const midY = targetY - 18 + (Math.floor(idx/2) * 1.5);
+
+      g.animate([
+        { transform:'translate(0px,0px) scale(1)', opacity:1 },
+        { transform:`translate(${midX - item.rect.left}px, ${midY - item.rect.top}px) scale(.60)`, opacity:.92 },
+        { transform:`translate(${targetX - item.rect.left}px, ${targetY - item.rect.top}px) scale(.22)`, opacity:0.18 }
+      ], { duration:dur, easing:'cubic-bezier(.2,.8,.2,1)', fill:'forwards' });
+
+      return { source:item.el, ghost:g };
+    });
+
+    // ✅ pop sound when regrouping happens
+    setTimeout(() => { try{ playPop(); }catch(e){}; }, Math.round(dur * 0.62));
+
+    setTimeout(() => {
+      ghosts.forEach(g => { g.ghost.remove(); /* keep sources hidden until re-render */ });
+      resolve();
+    }, dur + 80);
+  });
+}
+
+  async function advanceStep(){
+    if (busy || currentState.done >= steps.length) return;
+    busy = true;
+    clearFeedback();
+    await animateCarryIfNeeded();
+    const lastStep = applyStepState();
+    renderAll();
+
+    // ✅ Only celebrate AFTER the whole answer is completed
+    if (currentState.done >= steps.length){
+      playSfx('correct');
+      burstConfetti(true);
+      setFeedback('ok', `<b>Well done.</b> The full answer is ${answerString()}.`);
+    } else {
+      setFeedback('ok', explainCompletedStep(lastStep));
+    }
+    busy = false;
+  }
+
+  function checkDigit(){
+    if (busy || currentState.done >= steps.length) return;
+    const s = stepForCurrent();
+    if (!s) return;
+
+    const digitEl = $('currentDigitInput');
+    if (!digitEl) return;
+
+    const guessDigit = String(digitEl.value || '').trim();
+    if (guessDigit === ''){ setFeedback('bad', `Type a digit first.`); return; }
+
+    const correctDigit = String(s.writeDigit);
+
+    const nextKey = nextPlaceKey(s);
+    const needsCarry = !!(nextKey && s.carryOut > 0);
+    let guessCarry = '';
+    if (needsCarry){
+      const carryEl = $('carryInput');
+      if (!carryEl){
+        playSfx('wrong');
+      setFeedback('bad', `Type the regrouping digit too.`); 
+        return;
+      }
+      guessCarry = String(carryEl.value || '').trim();
+      if (guessCarry === ''){
+        playSfx('wrong');
+      setFeedback('bad', `Type the regrouping digit too.`); 
+        return;
+      }
+    }
+
+    // ✅ Validate both: written digit AND regrouping digit (when needed)
+    if (guessDigit === correctDigit){
+      if (!needsCarry || guessCarry === String(s.carryOut)){
+        advanceStep();
+        return;
+      }
+      playSfx('wrong');
+      setFeedback('bad', `The written digit is correct, but the regrouping digit is not yet correct. Regroup ${s.carryOut} into the ${PLACE_META[nextKey].label.toLowerCase()}.`);
+      return;
+    }
+
+    // digit wrong
+    let msg = `Not yet. Check the ${s.placeLabel.toLowerCase()}. ${s.baseDigit} × ${question.multiplier}`;
+    if (s.carryIn > 0) msg += `, then add ${s.carryIn}`;
+    msg += '.';
+    playSfx('wrong');
+    setFeedback('bad', msg);
+  }
+
+
+  function resetQuestion(){
+    steps = computeSteps();
+    currentState = buildInitialState();
+    clearFeedback();
+    renderAll();
+  }
+
+  
+  function newQuestion(){
+    // Read latest selections in the (hidden) settings drawer, then generate a fresh question
+    settings.digits = clampInt(ui.selDigits?.value || settings.digits, 1, 3);
+    settings.type = ui.selType?.value || settings.type || 'with';
+    settings.view = ui.selView?.value || settings.view || 'practice';
+    loadQuestion(randomQuestion());
+  }
+
+ui.btnNext.addEventListener('click', () => {
+    if (currentState.done >= steps.length) newQuestion();
+    else advanceStep();
+  });
+  if (ui.btnNewQ) ui.btnNewQ.addEventListener('click', newQuestion);
+  ui.btnCheck.addEventListener('click', checkDigit);
+  ui.btnHint.addEventListener('click', () => setFeedback('hint', explainHint()));
+  ui.btnReset.addEventListener('click', resetQuestion);
+  ui.btnSettings.addEventListener('click', openDrawer);
+  ui.btnCloseDrawer.addEventListener('click', closeDrawer);
+  ui.drawerBackdrop.addEventListener('click', closeDrawer);
+
+  ui.btnApply.addEventListener('click', () => { applySettings(); closeDrawer(); });
+  ui.btnRandom.addEventListener('click', () => {
+    settings.digits = clampInt(ui.selDigits.value || settings.digits, 1, 3);
+    settings.type = ui.selType.value || 'any';
+    settings.view = ui.selView.value || 'practice';
+    loadQuestion(randomQuestion());
+  });
+
+  document.querySelectorAll('[data-example]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.getAttribute('data-example');
+      if (key === '12x4'){
+        ui.inpMultiplicand.value = '12'; ui.inpMultiplier.value = '4'; ui.selDigits.value = '2'; ui.selType.value = 'without';
+      } else if (key === '25x3'){
+        ui.inpMultiplicand.value = '25'; ui.inpMultiplier.value = '3'; ui.selDigits.value = '2'; ui.selType.value = 'with';
+      } else if (key === '348x4'){
+        ui.inpMultiplicand.value = '348'; ui.inpMultiplier.value = '4'; ui.selDigits.value = '3'; ui.selType.value = 'with';
+      }
+      applySettings();
+      closeDrawer();
+    });
+  });
+
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+  window.addEventListener('resize', () => requestAnimationFrame(() => { layoutDiscSizing(); fitMatItems(); layoutGroupLines(); fitAlgo(); }));
+
+  function init(){
+    ui.selDigits.value = String(settings.digits);
+    ui.selType.value = settings.type;
+    ui.selView.value = settings.view;
+    ui.inpMultiplicand.value = String(question.multiplicand);
+    ui.inpMultiplier.value = String(question.multiplier);
+    loadQuestion(question);
+  }
+  init();
+})();
+</script>
+</body>
+</html>
