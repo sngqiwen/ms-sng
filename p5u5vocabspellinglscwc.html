@@ -112,7 +112,7 @@ h1{
   display:flex;
   gap:12px;
   align-items:stretch;
-  flex-wrap:wrap;
+  flex-wrap:nowrap;
   width:100%;
 }
 
@@ -136,6 +136,8 @@ input:focus{
 .hidden{ display:none !important; }
 
 .tag{
+  white-space:nowrap; /* 🔑 prevents wrapping */
+  flex-shrink:0;
   font-size:20px;
   padding:10px 16px;
   border-radius:999px;
