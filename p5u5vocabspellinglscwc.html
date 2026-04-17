@@ -511,7 +511,17 @@ function resetStages(){
 }
 
 btnLook.onclick=()=>{if(stage!==0)return;targetWord.classList.remove("covered");btnSay.disabled=false;stage=1;}
-btnSay.onclick=()=>{if(stage!==1)return;speak(words[idx]);btnCover.disabled=false;stage=2;}
+btnSay.onclick = () => {
+  if(stage < 1) return; // only block if Look not done yet
+
+  speak(words[idx]); // ✅ ALWAYS play audio
+
+  // Only move to next stage once
+  if(stage === 1){
+    btnCover.disabled = false;
+    stage = 2;
+  }
+};
 btnCover.onclick=()=>{if(stage!==2)return;targetWord.classList.add("covered");btnWrite.disabled=false;stage=3;}
 btnWrite.onclick=()=>{if(stage!==3)return;inputBox.classList.remove("hidden");btnCheck.disabled=false;stage=4;inputBox.focus();}
 
