@@ -432,18 +432,31 @@ const btnWrite=document.getElementById("btnWrite");
 const btnCheck=document.getElementById("btnCheck");
 const btnNext=document.getElementById("btnNext");
 
-let audioCtx=null;
-function tone(f,d){
-  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-  const o=audioCtx.createOscillator();
-  const g=audioCtx.createGain();
-  o.frequency.value=f;
-  g.gain.value=0.06;
-  o.connect(g); g.connect(audioCtx.destination);
-  o.start(); setTimeout(()=>o.stop(),d);
+let audioCtx = null;
+
+function tone(f, d){
+  if(!audioCtx){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+
+  if(audioCtx.state === "suspended"){
+    audioCtx.resume();
+  }
+
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+
+  o.frequency.value = f;
+  g.gain.value = 0.06;
+
+  o.connect(g);
+  g.connect(audioCtx.destination);
+
+  o.start();
+  setTimeout(() => o.stop(), d);
 }
 function soundCorrect(){tone(880,100);setTimeout(()=>tone(1175,120),120);}
-function soundWrong(){tone(220,250);}
+function soundWrong(){tone(220,300);}
 
 function playCelebration(){
   if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
