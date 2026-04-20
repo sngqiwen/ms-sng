@@ -1,14 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spelling Drop Challenge</title>
-    <link rel="stylesheet" href="styles.css">
 
 <style>
-
 /* Global styles and reset */
 * {
     margin: 0;
@@ -445,7 +442,6 @@ body {
     </div>
 
 <script>
-
 // ============================================
 // GAME STATE AND CONFIGURATION
 // ============================================
@@ -471,11 +467,11 @@ const wordList = [
 
 // Celebration messages for game completion
 const celebrationMessages = [
-    "Fantastic spelling! ðŸŒŸ",
-    "You're a spelling champion! ðŸ†",
-    "Excellent work! Keep it up! ðŸŽ¯",
-    "Amazing progress! ðŸš€",
-    "Brilliant spelling skills! âœ¨"
+    "Fantastic spelling! 🌟",
+    "You're a spelling champion! 🏆",
+    "Excellent work! Keep it up! 🎯",
+    "Amazing progress! 🚀",
+    "Brilliant spelling skills! ✨"
 ];
 
 // MODIFIED: Game state object - adjusted fall speed for slower dropping (2-3 more seconds)
@@ -666,7 +662,7 @@ function correctSpelling(wordIndex) {
     const wordObj = gameState.fallingWords[wordIndex];
     
     // Show feedback
-    showFeedback('âœ“ Correct!', 'correct');
+    showFeedback('✓ Correct!', 'correct');
     
     // Create particle effect
     createParticles(wordObj.element);
@@ -689,7 +685,7 @@ function correctSpelling(wordIndex) {
 
 // Handle incorrect spelling
 function incorrectSpelling() {
-    showFeedback('âœ— Try again!', 'incorrect');
+    showFeedback('✗ Try again!', 'incorrect');
     
     // Shake input field
     elements.spellingInput.style.animation = 'shake 0.3s';
@@ -743,7 +739,7 @@ function gameComplete() {
     
     // Show celebration
     const randomMessage = celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)];
-    document.getElementById('celebrationTitle').textContent = `ðŸŽ‰ You Win!`;
+    document.getElementById('celebrationTitle').textContent = `🎉 You Win!`;
     document.getElementById('celebrationMessage').textContent = `${randomMessage} You cleared all 15 words with a score of ${gameState.score}!`;
     
     elements.levelCompleteOverlay.classList.remove('hidden');
@@ -806,8 +802,8 @@ function updateDisplays() {
     elements.progressDisplay.textContent = `${gameState.wordsCleared}/${gameState.totalWords}`;
     
     // Update lives display with hearts
-    const hearts = 'â¤ï¸'.repeat(gameState.lives);
-    const emptyHearts = 'ðŸ–¤'.repeat(3 - gameState.lives);
+    const hearts = '❤️'.repeat(gameState.lives);
+    const emptyHearts = '🖤'.repeat(3 - gameState.lives);
     elements.livesDisplay.textContent = hearts + emptyHearts;
 }
 
