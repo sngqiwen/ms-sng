@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Math Draw Interactive Tool</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&display=swap');
+
+    :root {
+      --red: #EA5C5A;
+      --orange: #F49147;
+      --yellow: #FBC235;
+      --green: #8EBF50;
+      --blue: #72A0D4;
+      --dark-blue: #4E78BD;
+      --purple: #9278BB;
+      --pink: #DE8AAC;
+      --ink: #2f2f2f;
+      --paper: #fffdf7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Balsamiq Sans', 'Comic Sans MS', cursive, sans-serif;
+      background: linear-gradient(135deg, #fff8f8, #f4fbff 45%, #fffaf0);
+      color: var(--ink);
+      padding: 24px;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: var(--paper);
+      border: 4px solid #ffffff;
+      border-radius: 28px;
+      box-shadow: 0 12px 30px rgba(78, 120, 189, 0.18);
+      padding: 26px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 12px;
+      background: linear-gradient(90deg, var(--red), var(--orange), var(--yellow), var(--green), var(--blue), var(--purple), var(--pink));
+    }
+
+    h1 {
+      margin: 10px 0 18px;
+      text-align: center;
+      font-size: clamp(1.8rem, 3vw, 2.7rem);
+      color: var(--dark-blue);
+      letter-spacing: 0.5px;
+    }
+
+    .question-card {
+      position: relative;
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 12px;
+      background: #ffffff;
+      border: 3px solid #dcecff;
+      border-radius: 24px;
+      padding: 22px 24px 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 6px 15px rgba(114, 160, 212, 0.16);
+    }
+
+    .annotation-symbol {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--purple);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 22px;
+    }
+
+    .question-area {
+      position: relative;
+      padding-top: 4px;
+    }
+
+    .sentence {
+      position: relative;
+      font-size: clamp(1.5rem, 2.6vw, 2.25rem);
+      line-height: 2.45;
+      margin: 20px 0;
+      white-space: normal;
+    }
+
+    .sentence.spaced {
+      margin-bottom: 44px;
+    }
+
+    .word-box {
+      position: relative;
+      display: inline-block;
+      padding: 0 6px;
+      border: 3px solid var(--dark-blue);
+      border-radius: 8px;
+      line-height: 1.35;
+      background: rgba(114, 160, 212, 0.08);
+    }
+
+    .circle-number,
+    .circle-q {
+      position: relative;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      min-width: 1.75em;
+      min-height: 1.55em;
+      padding: 0 5px;
+      border: 3px solid var(--red);
+      border-radius: 999px;
+      background: rgba(234, 92, 90, 0.08);
+      font-weight: 700;
+    }
+
+    .circle-q {
+      color: var(--ink);
+    }
+
+    .double-underline {
+      display: inline-block;
+      border-bottom: 7px double var(--purple);
+      line-height: 1.05;
+      padding-bottom: 3px;
+      font-weight: 700;
+    }
+
+    .select-wrap {
+      position: relative;
+      display: inline-block;
+      padding: 0 3px;
+    }
+
+    .select-wrap select {
+      position: absolute;
+      left: 50%;
+      top: -34px;
+      transform: translateX(-50%);
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border: 2px solid var(--green);
+      border-radius: 999px;
+      background: #f8fff1;
+      color: #456b22;
+      cursor: pointer;
+    }
+
+    .blank-line {
+      display: inline-block;
+      width: 120px;
+      border-bottom: 3px solid var(--ink);
+      transform: translateY(-4px);
+      margin: 0 4px;
+    }
+
+    .arrow-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: visible;
+      z-index: 0;
+    }
+
+    .question-area .sentence,
+    .question-area .practice-row {
+      position: relative;
+      z-index: 1;
+    }
+
+    .practice-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin: 14px 0 22px;
+      font-size: 1.1rem;
+      color: #555;
+    }
+
+    .practice-row input {
+      font-family: inherit;
+      font-size: 1.05rem;
+      padding: 8px 10px;
+      border: 2px solid #cde2ff;
+      border-radius: 14px;
+      background: #fbfdff;
+      width: 180px;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 1.65fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .panel {
+      background: #ffffff;
+      border: 3px solid #e9edf8;
+      border-radius: 24px;
+      box-shadow: 0 6px 14px rgba(146, 120, 187, 0.11);
+      min-height: 240px;
+      overflow: hidden;
+    }
+
+    .panel-title,
+    .row-title {
+      font-size: 2rem;
+      font-weight: 700;
+      padding: 12px 18px;
+      color: #ffffff;
+    }
+
+    .model-title {
+      background: var(--green);
+    }
+
+    .working-title {
+      background: var(--orange);
+    }
+
+    .equation-title {
+      background: var(--purple);
+    }
+
+    .answer-title {
+      background: var(--dark-blue);
+    }
+
+    .panel-content {
+      padding: 24px;
+    }
+
+    .model-area {
+      display: grid;
+      gap: 22px;
+      padding-top: 8px;
+    }
+
+    .model-row {
+      display: grid;
+      grid-template-columns: 90px 1fr 70px;
+      gap: 12px;
+      align-items: center;
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .bar {
+      min-height: 42px;
+      border: 3px solid var(--ink);
+      border-radius: 12px;
+      display: grid;
+      overflow: hidden;
+      background: #fffef9;
+    }
+
+    .bar.five {
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    .bar.one {
+      grid-template-columns: 1fr;
+      width: 22%;
+      min-width: 80px;
+    }
+
+    .unit {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 2px dashed #888;
+      background: rgba(251, 194, 53, 0.18);
+      font-size: 1rem;
+      color: #6a4c00;
+    }
+
+    .unit:last-child {
+      border-right: 0;
+    }
+
+    .value-input,
+    .working-box,
+    .equation-box,
+    .answer-input {
+      font-family: inherit;
+      border: 2px solid #d6dcec;
+      border-radius: 16px;
+      background: #fbfcff;
+      padding: 12px;
+      font-size: 1.1rem;
+    }
+
+    .value-input {
+      width: 100%;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .working-box {
+      min-height: 160px;
+      width: 100%;
+      resize: vertical;
+    }
+
+    .equation-row,
+    .answer-row {
+      margin-top: 16px;
+      background: #ffffff;
+      border: 3px solid #e9edf8;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 6px 14px rgba(78, 120, 189, 0.1);
+    }
+
+    .equation-content,
+    .answer-content {
+      padding: 18px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      font-size: 1.25rem;
+    }
+
+    .equation-box {
+      flex: 1;
+      min-width: 260px;
+    }
+
+    .answer-input {
+      flex: 1;
+      min-width: 240px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      border: 0;
+      border-radius: 999px;
+      padding: 11px 18px;
+      cursor: pointer;
+      color: white;
+      box-shadow: 0 5px 0 rgba(0, 0, 0, 0.12);
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 0 rgba(0, 0, 0, 0.12);
+    }
+
+    button:active {
+      transform: translateY(2px);
+      box-shadow: 0 3px 0 rgba(0, 0, 0, 0.12);
+    }
+
+    .check-btn {
+      background: var(--green);
+    }
+
+    .show-btn {
+      background: var(--blue);
+    }
+
+    .reset-btn {
+      background: var(--pink);
+    }
+
+    .feedback {
+      margin-top: 16px;
+      padding: 14px 18px;
+      border-radius: 18px;
+      background: #f5f8ff;
+      border: 2px dashed #c9d8ff;
+      text-align: center;
+      font-size: 1.12rem;
+      min-height: 54px;
+    }
+
+    .correct {
+      color: #4f7a24;
+      font-weight: 700;
+    }
+
+    .try {
+      color: #b35400;
+      font-weight: 700;
+    }
+
+    @media (max-width: 820px) {
+      body {
+        padding: 12px;
+      }
+
+      .page {
+        padding: 18px;
+      }
+
+      .question-card {
+        grid-template-columns: 1fr;
+      }
+
+      .annotation-symbol {
+        justify-content: flex-start;
+        padding-top: 0;
+      }
+
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .sentence {
+        line-height: 2.7;
+      }
+
+      .model-row {
+        grid-template-columns: 82px 1fr;
+      }
+
+      .model-row .value-input {
+        grid-column: 2;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <h1>Math Draw: Compare 5 Times</h1>
+
+    <section class="question-card">
+      <div class="annotation-symbol">Ⓐ*</div>
+
+      <div class="question-area" id="questionArea">
+        <svg class="arrow-svg" viewBox="0 0 900 330" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <marker id="arrowHeadBlue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#4E78BD" />
+            </marker>
+            <marker id="arrowHeadPurple" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#9278BB" />
+            </marker>
+            <marker id="arrowHeadRed" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#EA5C5A" />
+            </marker>
+          </defs>
+          <!-- 50 to Stanley -->
+          <path d="M315 69 C250 24, 165 24, 95 51" fill="none" stroke="#4E78BD" stroke-width="4" stroke-linecap="round" marker-end="url(#arrowHeadBlue)" />
+          <!-- He to Stanley -->
+          <path d="M183 139 C150 105, 118 82, 96 51" fill="none" stroke="#4E78BD" stroke-width="4" stroke-linecap="round" marker-end="url(#arrowHeadBlue)" />
+          <!-- Question mark to Keming -->
+          <path d="M405 258 C380 226, 363 190, 334 164" fill="none" stroke="#EA5C5A" stroke-width="4" stroke-linecap="round" marker-end="url(#arrowHeadRed)" />
+        </svg>
+
+        <p class="sentence spaced">
+          <span class="word-box">Stanley</span> has <span class="circle-number">50</span> stamps.
+        </p>
+
+        <p class="sentence spaced">
+          <span class="select-wrap">
+            <select id="heUnit" aria-label="Unit for he">
+              <option value="">?u</option>
+              <option value="1u">1u</option>
+              <option value="5u">5u</option>
+            </select>
+            <span>He</span>
+          </span>
+          has <span class="double-underline">5 times</span> as many stamps as
+          <span class="select-wrap">
+            <select id="kemingUnit" aria-label="Unit for Keming">
+              <option value="">?u</option>
+              <option value="1u">1u</option>
+              <option value="5u">5u</option>
+            </select>
+            <span class="word-box">Keming</span>
+          </span>.
+        </p>
+
+        <p class="sentence">
+          How many stamps does <span class="word-box">Keming</span> have <span class="circle-q">?</span>
+        </p>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div>
+        <div class="panel">
+          <div class="panel-title model-title">Ⓜ</div>
+          <div class="panel-content model-area">
+            <div class="model-row">
+              <div>Stanley</div>
+              <div class="bar five" aria-label="Stanley 5 units">
+                <div class="unit">1u</div>
+                <div class="unit">1u</div>
+                <div class="unit">1u</div>
+                <div class="unit">1u</div>
+                <div class="unit">1u</div>
+              </div>
+              <input class="value-input" id="stanleyValue" type="text" placeholder="50" />
+            </div>
+            <div class="model-row">
+              <div>Keming</div>
+              <div class="bar one" aria-label="Keming 1 unit">
+                <div class="unit">1u</div>
+              </div>
+              <input class="value-input" id="kemingValue" type="text" placeholder="?" />
+            </div>
+          </div>
+        </div>
+
+        <div class="equation-row">
+          <div class="row-title equation-title">Ⓔ</div>
+          <div class="equation-content">
+            <label for="equationInput">Equation:</label>
+            <input class="equation-box" id="equationInput" type="text" placeholder="50 ÷ 5 = 10" />
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title working-title">Ⓦ</div>
+        <div class="panel-content">
+          <textarea class="working-box" id="workingInput" placeholder="Show your working here..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="answer-row">
+      <div class="row-title answer-title">Ⓐ</div>
+      <div class="answer-content">
+        <label for="answerInput">Answer:</label>
+        <input class="answer-input" id="answerInput" type="text" placeholder="____________" />
+      </div>
+    </section>
+
+    <div class="button-row">
+      <button class="check-btn" onclick="checkAnswer()">Check</button>
+      <button class="show-btn" onclick="showAnswer()">Show Answer</button>
+      <button class="reset-btn" onclick="resetTool()">Reset</button>
+    </div>
+
+    <div class="feedback" id="feedback">Choose the correct units, complete the model, then write your equation and answer.</div>
+  </main>
+
+  <script>
+    function normalise(text) {
+      return String(text).toLowerCase().replace(/\s+/g, '').replace(/stamps?/g, '').replace(/\./g, '');
+    }
+
+    function checkAnswer() {
+      const heUnit = document.getElementById('heUnit').value;
+      const kemingUnit = document.getElementById('kemingUnit').value;
+      const stanleyValue = normalise(document.getElementById('stanleyValue').value);
+      const kemingValue = normalise(document.getElementById('kemingValue').value);
+      const equation = normalise(document.getElementById('equationInput').value);
+      const answer = normalise(document.getElementById('answerInput').value);
+      const feedback = document.getElementById('feedback');
+
+      const correctUnits = heUnit === '5u' && kemingUnit === '1u';
+      const correctModel = stanleyValue === '50' && kemingValue === '10';
+      const correctEquation = equation.includes('50÷5=10') || equation.includes('50/5=10') || equation.includes('50dividedby5=10');
+      const correctAnswer = answer === '10';
+
+      if (correctUnits && correctModel && correctEquation && correctAnswer) {
+        feedback.innerHTML = '<span class="correct">Excellent! Stanley is 5u, Keming is 1u, so 50 ÷ 5 = 10. Keming has 10 stamps.</span>';
+      } else {
+        const tips = [];
+        if (!correctUnits) tips.push('Check the units: Stanley/He should be 5u and Keming should be 1u.');
+        if (!correctModel) tips.push('Complete the model: Stanley = 50, Keming = 10.');
+        if (!correctEquation) tips.push('Use the equation 50 ÷ 5 = 10.');
+        if (!correctAnswer) tips.push('The final answer should be 10 stamps.');
+        feedback.innerHTML = '<span class="try">Try again:</span> ' + tips.join(' ');
+      }
+    }
+
+    function showAnswer() {
+      document.getElementById('heUnit').value = '5u';
+      document.getElementById('kemingUnit').value = '1u';
+      document.getElementById('stanleyValue').value = '50';
+      document.getElementById('kemingValue').value = '10';
+      document.getElementById('workingInput').value = 'Stanley has 5 units.\n5 units = 50 stamps\n1 unit = 50 ÷ 5 = 10 stamps';
+      document.getElementById('equationInput').value = '50 ÷ 5 = 10';
+      document.getElementById('answerInput').value = '10 stamps';
+      document.getElementById('feedback').innerHTML = '<span class="correct">Answer shown: Keming has 10 stamps.</span>';
+    }
+
+    function resetTool() {
+      document.getElementById('heUnit').value = '';
+      document.getElementById('kemingUnit').value = '';
+      document.getElementById('stanleyValue').value = '';
+      document.getElementById('kemingValue').value = '';
+      document.getElementById('workingInput').value = '';
+      document.getElementById('equationInput').value = '';
+      document.getElementById('answerInput').value = '';
+      document.getElementById('feedback').textContent = 'Choose the correct units, complete the model, then write your equation and answer.';
+    }
+  </script>
+</body>
+</html>
